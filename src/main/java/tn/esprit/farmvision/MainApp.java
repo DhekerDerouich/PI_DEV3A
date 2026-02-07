@@ -1,4 +1,4 @@
-package tn.esprit.farmvision.gestionuser;
+package tn.esprit.farmvision;
 
 import tn.esprit.farmvision.gestionuser.model.Agriculteur;
 import tn.esprit.farmvision.gestionuser.model.ResponsableExploitation;
