@@ -1,0 +1,30 @@
+# Maven / Java
+/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Données sensibles
+*.env
+*.properties  # sauf si tu veux partager une config vide
+*.sql         # dumps avec données réelles
+*.bak
+*.dump
+
+# Autres
+.classpath
+.project
+.settings/
+bin/
+out/

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.gestionstock.controller.MainStockController">
+    <children>
+        <Label layoutX="200.0" layoutY="50.0" text="         Main" textFill="#096b9b">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+        <Button fx:id="btnGestionStock" layoutX="200.0" layoutY="150.0"
+                mnemonicParsing="false" onAction="#handleGestionStock"
+                prefHeight="50.0" prefWidth="200.0" text="Gestion des Stocks" />
+        <Button fx:id="btnMarketplace" layoutX="200.0" layoutY="220.0"
+                mnemonicParsing="false" onAction="#handleMarketplace"
+                prefHeight="50.0" prefWidth="200.0" text="Marketplace" />
+        <Button layoutX="200.0" layoutY="290.0" mnemonicParsing="false"
+                onAction="#handleRetour" prefHeight="50.0" prefWidth="200.0"
+                text="Fermer" />
+    </children>
+</AnchorPane>
