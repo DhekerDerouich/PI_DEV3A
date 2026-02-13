@@ -5,7 +5,6 @@ import tn.esprit.farmvision.gestionuser.model.Agriculteur;
 import tn.esprit.farmvision.gestionuser.model.ResponsableExploitation;
 import tn.esprit.farmvision.gestionuser.model.Utilisateur;
 import tn.esprit.farmvision.gestionuser.util.Myconnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +20,17 @@ public class UtilisateurDAO {
             System.out.println("Erreur de connexion dans DAO : " + e.getMessage());
         }
     }
-
+    private String getTypeRole(Utilisateur u) {
+        if (u instanceof Administrateur) return "ADMINISTRATEUR";
+        if (u instanceof Agriculteur) return "AGRICULTEUR";
+        if (u instanceof ResponsableExploitation) return "RESPONSABLE_EXPLOITATION";
+        throw new IllegalArgumentException("Type inconnu");
+    }
     public void save(Utilisateur user) throws SQLException {
         String sql = "INSERT INTO utilisateur (type_role, nom, prenom, email, password, matricule, telephone, adresse, activated, date_creation) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
         PreparedStatement pstmt = null;
         ResultSet generatedKeys = null;
-
         try {
             pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
@@ -75,10 +77,8 @@ public class UtilisateurDAO {
 
     public Utilisateur findByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM utilisateur WHERE email = ?";
-
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
         try {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, email);
@@ -118,12 +118,9 @@ public class UtilisateurDAO {
         }
         return list;
     }
-
-    // Supprimer un utilisateur par ID
     public void delete(int id) {
         String sql = "DELETE FROM utilisateur WHERE id = " + id;
         Statement stmt = null;
-
         try {
             stmt = conn.createStatement();
             stmt.executeUpdate(sql);
@@ -148,8 +145,6 @@ public class UtilisateurDAO {
             if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
         }
     }
-
-    // Update complet (pour modifier)
     public void update(Utilisateur user) {
         String sql = "UPDATE utilisateur SET nom='" + user.getNom() + "', prenom='" + user.getPrenom() +
                 "', email='" + user.getEmail() + "', password='" + user.getPassword() + "'";
@@ -171,8 +166,6 @@ public class UtilisateurDAO {
             if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
         }
     }
-
-    // Méthode privée : mapper ResultSet → Utilisateur
     private Utilisateur mapRowToUtilisateur(ResultSet rs) throws SQLException {
         String role = rs.getString("type_role");
         Utilisateur u;
@@ -206,10 +199,5 @@ public class UtilisateurDAO {
         return u;
     }
 
-    private String getTypeRole(Utilisateur u) {
-        if (u instanceof Administrateur) return "ADMINISTRATEUR";
-        if (u instanceof Agriculteur) return "AGRICULTEUR";
-        if (u instanceof ResponsableExploitation) return "RESPONSABLE_EXPLOITATION";
-        throw new IllegalArgumentException("Type inconnu");
-    }
+
 }

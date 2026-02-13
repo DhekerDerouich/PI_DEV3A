@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.farmvision.gestionuser.controller.AdminDashboardController"
+      spacing="30" style="-fx-background-color: #f8f9fa;">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <!-- Header avec bouton déconnexion -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label fx:id="lblWelcome" text="Bienvenue Administrateur"
+               style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;" HBox.hgrow="ALWAYS"/>
+
+        <!-- Bouton déconnexion à droite -->
+        <Button text="🔓 Déconnexion" fx:id="btnLogoutTop" onAction="#logout"
+                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <!-- Statistiques rapides (optionnel) -->
+    <HBox spacing="20" alignment="CENTER">
+        <VBox spacing="5" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+            <Label text="👥" style="-fx-font-size: 30px;"/>
+            <Label text="Utilisateurs" style="-fx-font-size: 14px; -fx-text-fill: #666666;"/>
+            <Label text="Gérer" style="-fx-font-size: 12px; -fx-text-fill: #0d6efd; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox spacing="5" alignment="CENTER" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+            <Label text="⏳" style="-fx-font-size: 30px;"/>
+            <Label text="En attente" style="-fx-font-size: 14px; -fx-text-fill: #666666;"/>
+            <Label text="Valider" style="-fx-font-size: 12px; -fx-text-fill: #198754; -fx-font-weight: bold;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Boutons d'action -->
+    <VBox spacing="20" alignment="CENTER">
+        <Button text="👥 Gérer les utilisateurs" fx:id="btnGestionUsers" onAction="#ouvrirGestionUsers"
+                maxWidth="400" prefWidth="400"
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-font-size: 18px; -fx-padding: 16 40; -fx-background-radius: 10; -fx-font-weight: bold;"/>
+
+        <Button text="✅ Valider comptes en attente" fx:id="btnValider" onAction="#validerComptes"
+                maxWidth="400" prefWidth="400"
+                style="-fx-background-color: #198754; -fx-text-fill: white; -fx-font-size: 18px; -fx-padding: 16 40; -fx-background-radius: 10; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <!-- Footer info -->
+    <Label text="💡 Astuce : Validez régulièrement les nouveaux comptes pour permettre aux utilisateurs d'accéder à la plateforme"
+           style="-fx-text-fill: #666666; -fx-font-size: 12px; -fx-padding: 20 0 0 0;" wrapText="true" textAlignment="CENTER"/>
+</VBox>

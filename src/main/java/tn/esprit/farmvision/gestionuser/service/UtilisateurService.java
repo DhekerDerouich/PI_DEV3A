@@ -58,16 +58,25 @@ public class UtilisateurService {
         return utilisateurDAO.getAll();
     }
 
-    public void delete(int id) {
-        utilisateurDAO.delete(id);
+    public boolean delete(int id) {
+        try {
+            utilisateurDAO.delete(id);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la suppression de l'utilisateur ID " + id + " : " + e.getMessage());
+            e.printStackTrace(); // pour debug (tu peux enlever en prod)
+            return false;
+        }
     }
 
-    // Méthode unique pour valider un utilisateur (activé = 1)
-    public void validerUtilisateur(int id) {
+    public boolean validerUtilisateur(int id) {
         try {
             utilisateurDAO.valider(id);
+            return true;
         } catch (Exception e) {
-            System.out.println("Erreur lors de la validation de l'utilisateur ID " + id + " : " + e.getMessage());
+            System.err.println("Erreur lors de la validation de l'utilisateur ID " + id + " : " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
     public void update(Utilisateur user) {

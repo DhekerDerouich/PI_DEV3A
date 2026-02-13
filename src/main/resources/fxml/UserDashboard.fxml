@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.farmvision.gestionuser.controller.UserDashboardController"
+      alignment="CENTER" spacing="30" style="-fx-background-color: #f8f9fa;">
+
+    <padding>
+        <Insets top="60" right="60" bottom="60" left="60"/>
+    </padding>
+
+    <Label fx:id="lblTitre" text="Bienvenue" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;"/>
+
+    <Label fx:id="lblRole" text="Votre rôle" style="-fx-font-size: 18px;"/>
+
+    <Button text="Accéder à mon espace" fx:id="btnEspace" onAction="#ouvrirEspace"
+            style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-padding: 12 40;"/>
+
+    <Button text="Déconnexion" fx:id="btnLogout" onAction="#logout"
+            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 10 30;"/>
+</VBox>

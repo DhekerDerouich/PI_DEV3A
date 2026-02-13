@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.farmvision.gestionuser.controller.FormUserController"
+      spacing="15" style="-fx-background-color: #f8f9fa;" prefWidth="520">
+
+    <padding><Insets top="20" right="30" bottom="20" left="30"/></padding>
+
+    <Label text="Ajouter / Modifier utilisateur" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;"/>
+
+    <HBox spacing="15">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Nom *"/>
+            <TextField fx:id="txtNom" promptText="Nom de famille"/>
+        </VBox>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Prénom *"/>
+            <TextField fx:id="txtPrenom" promptText="Prénom"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="5">
+        <Label text="Email *"/>
+        <TextField fx:id="txtEmail" promptText="email@example.com"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Mot de passe *"/>
+        <PasswordField fx:id="txtPassword" promptText="Min. 6 caractères"/>
+        <Label text="💡 En mode modification, laissez vide pour conserver le mot de passe actuel"
+               style="-fx-font-size: 11px; -fx-text-fill: #666666;"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Rôle *"/>
+        <ComboBox fx:id="cmbRole" promptText="Choisir un rôle" prefWidth="470"/>
+    </VBox>
+
+    <!-- Champs Agriculteur -->
+    <VBox fx:id="paneAgriculteur" spacing="10" visible="false" managed="false">
+        <Label text="Informations Agriculteur" style="-fx-font-weight: bold; -fx-text-fill: #198754;"/>
+        <VBox spacing="5">
+            <Label text="Téléphone *"/>
+            <TextField fx:id="txtTelephone" promptText="Ex: 98 123 456"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="Adresse *"/>
+            <TextField fx:id="txtAdresse" promptText="Adresse complète"/>
+        </VBox>
+    </VBox>
+
+    <!-- Champs Responsable -->
+    <VBox fx:id="paneResponsable" spacing="10" visible="false" managed="false">
+        <Label text="Informations Responsable" style="-fx-font-weight: bold; -fx-text-fill: #0d6efd;"/>
+        <VBox spacing="5">
+            <Label text="Matricule *"/>
+            <TextField fx:id="txtMatricule" promptText="Matricule professionnel"/>
+        </VBox>
+    </VBox>
+
+    <Separator/>
+
+    <Label fx:id="lblError" wrapText="true" visible="false"
+           style="-fx-padding: 10; -fx-background-radius: 5;"/>
+
+    <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Button text="❌ Annuler" fx:id="btnCancel" onAction="#handleCancel"
+                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 25; -fx-font-weight: bold;"/>
+        <Button text="💾 Enregistrer" fx:id="btnSave" onAction="#handleSave"
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-padding: 10 25; -fx-font-weight: bold;"/>
+    </HBox>
+</VBox>
