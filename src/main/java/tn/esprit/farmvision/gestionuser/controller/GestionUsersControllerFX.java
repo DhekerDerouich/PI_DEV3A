@@ -5,18 +5,17 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import tn.esprit.farmvision.SessionManager;
-import tn.esprit.farmvision.gestionuser.model.Administrateur;
-import tn.esprit.farmvision.gestionuser.model.Agriculteur;
-import tn.esprit.farmvision.gestionuser.model.ResponsableExploitation;
-import tn.esprit.farmvision.gestionuser.model.Utilisateur;
+import tn.esprit.farmvision.gestionuser.model.*;
 import tn.esprit.farmvision.gestionuser.service.UtilisateurService;
 import tn.esprit.farmvision.gestionuser.util.AnimationManager;
 
@@ -25,105 +24,74 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 🌾 Gestion des utilisateurs FarmVision
- * ✅ Maintien du plein écran lors de la navigation
- * 🎮 Easter egg activé!
- */
 public class GestionUsersControllerFX {
 
     @FXML private TableView<Utilisateur> tableUsers;
-    @FXML private TableColumn<Utilisateur, Integer> colId;
-    @FXML private TableColumn<Utilisateur, String> colNom;
-    @FXML private TableColumn<Utilisateur, String> colPrenom;
-    @FXML private TableColumn<Utilisateur, String> colEmail;
-    @FXML private TableColumn<Utilisateur, String> colRole;
+    @FXML private TableColumn<Utilisateur, String> colNom, colPrenom, colEmail, colRole, colDetails, colDateCreation, colPassword;
     @FXML private TableColumn<Utilisateur, Boolean> colActivated;
-    @FXML private TableColumn<Utilisateur, String> colDateCreation;
-    @FXML private TableColumn<Utilisateur, String> colDetails;
-
     @FXML private TextField txtSearch;
     @FXML private ComboBox<String> cbFilterRole;
-    @FXML private Button btnAdd;
-    @FXML private Button btnEdit;
-    @FXML private Button btnDelete;
-    @FXML private Button btnValidate;
-    @FXML private Button btnSearch;
-    @FXML private Button btnRetour;
+    @FXML private Button btnAdd, btnEdit, btnDelete, btnValidate;
     @FXML private Label lblMessage;
     @FXML private BorderPane rootPane;
 
     private final UtilisateurService service = new UtilisateurService();
     private ObservableList<Utilisateur> allData = FXCollections.observableArrayList();
     private ObservableList<Utilisateur> filteredData = FXCollections.observableArrayList();
+    private boolean showPendingOnly = false;
 
     @FXML
     private void initialize() {
-        System.out.println("🚀 Initialisation de GestionUsersControllerFX...");
-
-        // Vérification admin
         Utilisateur currentUser = SessionManager.getInstance().getCurrentUser();
         if (!(currentUser instanceof Administrateur)) {
             showMessage("⛔ Accès réservé aux administrateurs", "red");
             return;
         }
 
-        // Animation d'entrée
         if (rootPane != null) {
             AnimationManager.fadeInPage(rootPane);
-
-            // 🎮 ACTIVER L'EASTER EGG
-            rootPane.setOnKeyTyped(event -> {
-                AnimationManager.handleSecretCode(event.getCharacter(), rootPane);
-            });
+            rootPane.setOnKeyTyped(event ->
+                    AnimationManager.handleSecretCode(event.getCharacter(), rootPane));
             rootPane.setFocusTraversable(true);
         }
 
-        // Configuration des colonnes
         setupTableColumns();
-
-        // Initialiser le filtre rôle
         cbFilterRole.setItems(FXCollections.observableArrayList(
-                "Tous", "Administrateur", "Agriculteur", "ResponsableExploitation"
-        ));
+                "Tous", "Administrateur", "Agriculteur", "ResponsableExploitation"));
         cbFilterRole.setValue("Tous");
 
-        // Charger les utilisateurs
         loadUsers();
 
-        // Recherche dynamique
         txtSearch.textProperty().addListener((obs, old, newVal) -> applyFilters());
         cbFilterRole.valueProperty().addListener((obs, old, newVal) -> applyFilters());
 
-        // Gérer la sélection dans la table
         tableUsers.getSelectionModel().selectedItemProperty().addListener((obs, old, newSel) -> {
             boolean selected = newSel != null;
             btnEdit.setDisable(!selected);
             btnDelete.setDisable(!selected);
             btnValidate.setDisable(!selected || (selected && newSel.isActivated()));
         });
+    }
 
-        System.out.println("✅ Initialisation terminée");
-        System.out.println("🎮 Easter Egg activé! Tapez 'FARM' rapidement!");
+    public void showPendingAccountsOnly() {
+        this.showPendingOnly = true;
+        lblMessage.setText("⏳ Affichage des comptes en attente de validation uniquement");
+        lblMessage.setStyle("-fx-text-fill: #ffc107; -fx-font-weight: bold;");
+        lblMessage.setVisible(true);
+        applyFilters();
     }
 
     private void setupTableColumns() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenom"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
 
-        // Colonne Rôle
-        colRole.setCellValueFactory(cellData -> {
-            String role = cellData.getValue().getClass().getSimpleName();
-            return new SimpleStringProperty(role);
-        });
+        colRole.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getClass().getSimpleName()));
 
-        // Colonne Détails
         colDetails.setCellValueFactory(cellData -> {
             Utilisateur u = cellData.getValue();
             String details = "";
-
             if (u instanceof Agriculteur a) {
                 details = "📞 " + (a.getTelephone() != null ? a.getTelephone() : "N/A") +
                         " | 📍 " + (a.getAdresse() != null ? a.getAdresse() : "N/A");
@@ -132,13 +100,37 @@ public class GestionUsersControllerFX {
             } else if (u instanceof Administrateur admin) {
                 details = "🎫 Matricule: " + (admin.getMatricule() != null ? admin.getMatricule() : "N/A");
             }
-
             return new SimpleStringProperty(details);
         });
 
-        // Colonne Activé
+        // ✅ NOUVELLE COLONNE : Mot de passe avec bouton Réinitialiser
+        colPassword.setCellFactory(column -> new TableCell<>() {
+            private final Button btnReset = new Button("🔄 Réinitialiser");
+
+            {
+                btnReset.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black; " +
+                        "-fx-font-size: 11px; -fx-padding: 5 10; -fx-cursor: hand;");
+                btnReset.setOnAction(event -> {
+                    Utilisateur user = getTableView().getItems().get(getIndex());
+                    handleResetPassword(user);
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    HBox hbox = new HBox(btnReset);
+                    hbox.setAlignment(Pos.CENTER);
+                    setGraphic(hbox);
+                }
+            }
+        });
+
         colActivated.setCellValueFactory(new PropertyValueFactory<>("activated"));
-        colActivated.setCellFactory(column -> new TableCell<Utilisateur, Boolean>() {
+        colActivated.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
@@ -153,29 +145,57 @@ public class GestionUsersControllerFX {
             }
         });
 
-        // Colonne Date
         colDateCreation.setCellValueFactory(cellData -> {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-            String dateStr = sdf.format(cellData.getValue().getDateCreation());
-            return new SimpleStringProperty(dateStr);
+            return new SimpleStringProperty(sdf.format(cellData.getValue().getDateCreation()));
+        });
+    }
+
+    /**
+     * ✅ NOUVELLE MÉTHODE : Réinitialiser le mot de passe
+     */
+    private void handleResetPassword(Utilisateur user) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Réinitialiser mot de passe");
+        dialog.setHeaderText("Réinitialiser le mot de passe de " + user.getNomComplet());
+        dialog.setContentText("Nouveau mot de passe (min. 6 caractères):");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(newPassword -> {
+            if (newPassword.trim().length() < 6) {
+                showMessage("❌ Le mot de passe doit contenir au moins 6 caractères", "red");
+                return;
+            }
+
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Confirmation");
+            confirm.setHeaderText("Confirmer la réinitialisation ?");
+            confirm.setContentText("Voulez-vous vraiment réinitialiser le mot de passe de " +
+                    user.getNomComplet() + " ?");
+
+            Optional<ButtonType> confirmResult = confirm.showAndWait();
+            if (confirmResult.isPresent() && confirmResult.get() == ButtonType.OK) {
+                if (service.resetPassword(user.getId(), newPassword.trim())) {
+                    showMessage("✅ Mot de passe réinitialisé avec succès", "green");
+                } else {
+                    showMessage("❌ Erreur lors de la réinitialisation", "red");
+                }
+            }
         });
     }
 
     private void loadUsers() {
-        System.out.println("📥 Chargement des utilisateurs...");
-
         allData.clear();
         List<Utilisateur> users = service.getAll();
-
-        System.out.println("📊 Nombre d'utilisateurs récupérés : " + users.size());
 
         if (users.isEmpty()) {
             showMessage("⚠️ Aucun utilisateur dans la base de données", "orange");
         } else {
             allData.addAll(users);
-            showMessage("✅ " + users.size() + " utilisateur(s) chargé(s)", "green");
+            if (!showPendingOnly) {
+                showMessage("✅ " + users.size() + " utilisateur(s) chargé(s)", "green");
+            }
         }
-
         applyFilters();
     }
 
@@ -186,6 +206,8 @@ public class GestionUsersControllerFX {
         filteredData.clear();
 
         for (Utilisateur u : allData) {
+            if (showPendingOnly && u.isActivated()) continue;
+
             boolean matchSearch = search.isEmpty() ||
                     u.getNom().toLowerCase().contains(search) ||
                     u.getPrenom().toLowerCase().contains(search) ||
@@ -201,20 +223,18 @@ public class GestionUsersControllerFX {
 
         tableUsers.setItems(filteredData);
 
-        if (!search.isEmpty() || !"Tous".equals(roleFilter)) {
+        if (showPendingOnly) {
+            showMessage(filteredData.isEmpty() ?
+                            "✅ Aucun compte en attente de validation" :
+                            "⏳ " + filteredData.size() + " compte(s) en attente de validation",
+                    filteredData.isEmpty() ? "green" : "orange");
+        } else if (!search.isEmpty() || !"Tous".equals(roleFilter)) {
             showMessage("🔍 Résultats : " + filteredData.size() + " utilisateur(s)", "blue");
         }
     }
 
-    @FXML
-    private void handleSearch() {
-        applyFilters();
-    }
-
-    @FXML
-    private void handleAddUser() {
-        openForm("AJOUT", null);
-    }
+    @FXML private void handleSearch() { applyFilters(); }
+    @FXML private void handleAddUser() { openForm("AJOUT", null); }
 
     @FXML
     private void handleEdit() {
@@ -279,9 +299,6 @@ public class GestionUsersControllerFX {
         }
     }
 
-    /**
-     * ✅ Retour au dashboard avec maintien du plein écran
-     */
     @FXML
     private void handleRetour() {
         navigateToPage("/fxml/AdminDashboard.fxml", "FarmVision - Dashboard Admin");
@@ -302,38 +319,23 @@ public class GestionUsersControllerFX {
             stage.showAndWait();
 
             loadUsers();
-
         } catch (IOException e) {
             showMessage("❌ Erreur ouverture formulaire : " + e.getMessage(), "red");
             e.printStackTrace();
         }
     }
 
-    /**
-     * ✅ Navigation avec maintien du plein écran
-     */
     private void navigateToPage(String fxmlPath, String title) {
         try {
-            System.out.println("🔄 Navigation vers: " + fxmlPath);
-
             Stage stage = (Stage) tableUsers.getScene().getWindow();
-
-            // ✅ SAUVEGARDER L'ÉTAT ACTUEL
             double currentWidth = stage.getWidth();
             double currentHeight = stage.getHeight();
             boolean isMaximized = stage.isMaximized();
             boolean isFullScreen = stage.isFullScreen();
 
-            System.out.println("📐 État actuel: Width=" + currentWidth +
-                    ", Height=" + currentHeight +
-                    ", Maximized=" + isMaximized +
-                    ", FullScreen=" + isFullScreen);
-
-            // Charger la nouvelle page
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Créer la scène avec les bonnes dimensions
             Scene newScene = new Scene(root,
                     currentWidth > 0 ? currentWidth : 1200,
                     currentHeight > 0 ? currentHeight : 700);
@@ -341,22 +343,15 @@ public class GestionUsersControllerFX {
             stage.setScene(newScene);
             stage.setTitle(title);
 
-            // ✅ RESTAURER L'ÉTAT
             if (isFullScreen) {
                 stage.setFullScreen(true);
-                System.out.println("✅ Plein écran restauré");
             } else if (isMaximized) {
                 stage.setMaximized(true);
-                System.out.println("✅ Maximisation restaurée");
             }
 
-            // Animation d'entrée
             root.setOpacity(0);
             AnimationManager.fadeInPage(root);
-
             stage.show();
-
-            System.out.println("✅ Navigation réussie");
 
         } catch (IOException e) {
             showMessage("❌ Erreur navigation: " + e.getMessage(), "red");
@@ -368,7 +363,5 @@ public class GestionUsersControllerFX {
         lblMessage.setText(message);
         lblMessage.setStyle("-fx-text-fill: " + color + ";");
         lblMessage.setVisible(true);
-
-        System.out.println("📢 Message : " + message);
     }
 }

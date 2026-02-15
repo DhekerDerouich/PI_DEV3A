@@ -14,11 +14,21 @@
 
     <Label fx:id="lblTitre" text="Bienvenue" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;"/>
 
-    <Label fx:id="lblRole" text="Votre rôle" style="-fx-font-size: 18px;"/>
+    <Label fx:id="lblRole" text="Votre rôle" style="-fx-font-size: 18px; -fx-text-fill: #666666;"/>
 
-    <Button text="Accéder à mon espace" fx:id="btnEspace" onAction="#ouvrirEspace"
-            style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-padding: 12 40;"/>
+    <!-- Boutons principaux -->
+    <VBox spacing="15" alignment="CENTER">
+        <Button text="👤 Mon Profil" fx:id="btnProfile" onAction="#ouvrirProfil"
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-padding: 12 40; -fx-font-size: 16px; -fx-font-weight: bold;"/>
 
-    <Button text="Déconnexion" fx:id="btnLogout" onAction="#logout"
-            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 10 30;"/>
+        <Button text="📂 Accéder à mon espace" fx:id="btnEspace" onAction="#ouvrirEspace"
+                style="-fx-background-color: #198754; -fx-text-fill: white; -fx-padding: 12 40; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+        <Button text="🔓 Déconnexion" fx:id="btnLogout" onAction="#logout"
+                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 10 30; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <!-- Info supplémentaire -->
+    <Label text="💡 Vous pouvez modifier vos informations dans votre profil"
+           style="-fx-text-fill: #666666; -fx-font-size: 12px; -fx-padding: 20 0 0 0;" wrapText="true" textAlignment="CENTER"/>
 </VBox>

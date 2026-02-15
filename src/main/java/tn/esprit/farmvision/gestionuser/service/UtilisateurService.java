@@ -10,29 +10,18 @@ public class UtilisateurService {
 
     private final UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
 
-    // ========================
-    //  INSCRIPTION (REGISTER)
-    // ========================
     public void register(Utilisateur user) throws Exception {
-        // 1. Vérifier si l'email existe déjà
         if (utilisateurDAO.findByEmail(user.getEmail()) != null) {
             throw new Exception("Cet email est déjà utilisé.");
         }
 
-        // 2. Hasher le mot de passe
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
         user.setPassword(hashedPassword);
-
-        // 3. Par défaut : en attente
         user.setActivated(false);
 
-        // 4. Sauvegarder
         utilisateurDAO.save(user);
     }
 
-    // ========================
-    //     CONNEXION (LOGIN)
-    // ========================
     public Utilisateur login(String email, String password) throws Exception {
         Utilisateur user = utilisateurDAO.findByEmail(email);
 
@@ -51,20 +40,17 @@ public class UtilisateurService {
         return user;
     }
 
-    // ========================
-    //        CRUD
-    // ========================
     public List<Utilisateur> getAll() {
         return utilisateurDAO.getAll();
     }
+
 
     public boolean delete(int id) {
         try {
             utilisateurDAO.delete(id);
             return true;
         } catch (Exception e) {
-            System.err.println("Erreur lors de la suppression de l'utilisateur ID " + id + " : " + e.getMessage());
-            e.printStackTrace(); // pour debug (tu peux enlever en prod)
+            e.printStackTrace();
             return false;
         }
     }
@@ -74,12 +60,26 @@ public class UtilisateurService {
             utilisateurDAO.valider(id);
             return true;
         } catch (Exception e) {
-            System.err.println("Erreur lors de la validation de l'utilisateur ID " + id + " : " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
+
     public void update(Utilisateur user) {
         utilisateurDAO.update(user);
+    }
+
+    /**
+     * ✅ NOUVELLE MÉTHODE : Réinitialiser le mot de passe d'un utilisateur
+     */
+    public boolean resetPassword(int userId, String newPassword) {
+        try {
+            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+            utilisateurDAO.resetPassword(userId, hashedPassword);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

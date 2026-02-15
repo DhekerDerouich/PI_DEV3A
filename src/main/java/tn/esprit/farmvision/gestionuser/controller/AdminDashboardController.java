@@ -14,11 +14,6 @@ import tn.esprit.farmvision.gestionuser.util.AnimationManager;
 
 import java.io.IOException;
 
-/**
- * 🌾 Dashboard Administrateur FarmVision
- * ✅ Maintien du plein écran lors de la navigation
- * 🎮 Easter egg activé!
- */
 public class AdminDashboardController {
 
     @FXML private Label lblWelcome;
@@ -27,6 +22,7 @@ public class AdminDashboardController {
     @FXML
     private void initialize() {
         Utilisateur currentUser = SessionManager.getInstance().getCurrentUser();
+
         if (!(currentUser instanceof Administrateur)) {
             lblWelcome.setText("⛔ Accès refusé - Réservé aux administrateurs");
             lblWelcome.setStyle("-fx-text-fill: #dc3545; -fx-font-weight: bold;");
@@ -35,64 +31,88 @@ public class AdminDashboardController {
 
         lblWelcome.setText("👋 Bienvenue Administrateur " + currentUser.getNomComplet() + " !");
 
-        // Animation d'entrée
         if (rootPane != null) {
             AnimationManager.fadeInPage(rootPane);
-
-            // 🎮 ACTIVER L'EASTER EGG
-            rootPane.setOnKeyTyped(event -> {
-                AnimationManager.handleSecretCode(event.getCharacter(), rootPane);
-            });
+            rootPane.setOnKeyTyped(event ->
+                    AnimationManager.handleSecretCode(event.getCharacter(), rootPane));
             rootPane.setFocusTraversable(true);
             rootPane.requestFocus();
         }
-
-        System.out.println("✅ AdminDashboard initialisé");
-        System.out.println("🎮 Easter Egg activé! Tapez 'FARM' rapidement!");
     }
 
     @FXML
     private void ouvrirGestionUsers() {
-        navigateToPage("/fxml/GestionUsers.fxml", "FarmVision - Gestion des Utilisateurs");
+        navigateToGestionUsers(false);
     }
 
     @FXML
     private void validerComptes() {
-        ouvrirGestionUsers(); // Même écran pour valider
+        navigateToGestionUsers(true);
+    }
+
+    /**
+     * ✅ NOUVELLE MÉTHODE : Ouvrir la page profil
+     */
+    @FXML
+    private void ouvrirProfil() {
+        navigateToPage("/fxml/Profile.fxml", "FarmVision - Mon Profil");
     }
 
     @FXML
     private void logout() {
-        System.out.println("🚪 Déconnexion de l'administrateur...");
         SessionManager.getInstance().logout();
         navigateToPage("/fxml/Login.fxml", "FarmVision - Connexion");
     }
 
-    /**
-     * ✅ Navigation avec maintien du plein écran
-     */
-    private void navigateToPage(String fxmlPath, String title) {
+    private void navigateToGestionUsers(boolean filterPendingOnly) {
         try {
-            System.out.println("🔄 Navigation vers: " + fxmlPath);
-
             Stage stage = (Stage) lblWelcome.getScene().getWindow();
-
-            // ✅ SAUVEGARDER L'ÉTAT ACTUEL
             double currentWidth = stage.getWidth();
             double currentHeight = stage.getHeight();
             boolean isMaximized = stage.isMaximized();
             boolean isFullScreen = stage.isFullScreen();
 
-            System.out.println("📐 État actuel: Width=" + currentWidth +
-                    ", Height=" + currentHeight +
-                    ", Maximized=" + isMaximized +
-                    ", FullScreen=" + isFullScreen);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/GestionUsers.fxml"));
+            Parent root = loader.load();
 
-            // Charger la nouvelle page
+            GestionUsersControllerFX controller = loader.getController();
+            if (filterPendingOnly) {
+                controller.showPendingAccountsOnly();
+            }
+
+            Scene newScene = new Scene(root,
+                    currentWidth > 0 ? currentWidth : 1200,
+                    currentHeight > 0 ? currentHeight : 700);
+
+            stage.setScene(newScene);
+            stage.setTitle("FarmVision - " + (filterPendingOnly ? "Comptes en Attente" : "Gestion des Utilisateurs"));
+
+            if (isFullScreen) {
+                stage.setFullScreen(true);
+            } else if (isMaximized) {
+                stage.setMaximized(true);
+            }
+
+            root.setOpacity(0);
+            AnimationManager.fadeInPage(root);
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToPage(String fxmlPath, String title) {
+        try {
+            Stage stage = (Stage) lblWelcome.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+            boolean isMaximized = stage.isMaximized();
+            boolean isFullScreen = stage.isFullScreen();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Créer la scène avec les bonnes dimensions
             Scene newScene = new Scene(root,
                     currentWidth > 0 ? currentWidth : 1200,
                     currentHeight > 0 ? currentHeight : 700);
@@ -100,25 +120,17 @@ public class AdminDashboardController {
             stage.setScene(newScene);
             stage.setTitle(title);
 
-            // ✅ RESTAURER L'ÉTAT
             if (isFullScreen) {
                 stage.setFullScreen(true);
-                System.out.println("✅ Plein écran restauré");
             } else if (isMaximized) {
                 stage.setMaximized(true);
-                System.out.println("✅ Maximisation restaurée");
             }
 
-            // Animation d'entrée
             root.setOpacity(0);
             AnimationManager.fadeInPage(root);
-
             stage.show();
 
-            System.out.println("✅ Navigation réussie");
-
         } catch (IOException e) {
-            System.err.println("❌ Erreur navigation vers " + fxmlPath + ": " + e.getMessage());
             e.printStackTrace();
         }
     }

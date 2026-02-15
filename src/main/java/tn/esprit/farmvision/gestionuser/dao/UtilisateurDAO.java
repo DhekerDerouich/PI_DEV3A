@@ -20,12 +20,14 @@ public class UtilisateurDAO {
             System.out.println("Erreur de connexion dans DAO : " + e.getMessage());
         }
     }
+
     private String getTypeRole(Utilisateur u) {
         if (u instanceof Administrateur) return "ADMINISTRATEUR";
         if (u instanceof Agriculteur) return "AGRICULTEUR";
         if (u instanceof ResponsableExploitation) return "RESPONSABLE_EXPLOITATION";
         throw new IllegalArgumentException("Type inconnu");
     }
+
     public void save(Utilisateur user) throws SQLException {
         String sql = "INSERT INTO utilisateur (type_role, nom, prenom, email, password, matricule, telephone, adresse, activated, date_creation) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -39,6 +41,7 @@ public class UtilisateurDAO {
             String telephone = null;
             String adresse = null;
 
+            // ✅ CORRECTION ICI
             if (user instanceof Administrateur a) {
                 matricule = a.getMatricule();
             } else if (user instanceof Agriculteur a) {
@@ -66,9 +69,6 @@ public class UtilisateurDAO {
                     user.setId(generatedKeys.getInt(1));
                 }
             }
-        } catch (SQLException e) {
-            System.out.println("Erreur save : " + e.getMessage());
-            throw e;
         } finally {
             if (generatedKeys != null) try { generatedKeys.close(); } catch (SQLException ignored) {}
             if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
@@ -86,9 +86,6 @@ public class UtilisateurDAO {
             if (rs.next()) {
                 return mapRowToUtilisateur(rs);
             }
-        } catch (SQLException e) {
-            System.out.println("Erreur findByEmail : " + e.getMessage());
-            throw e;
         } finally {
             if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
             if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
@@ -96,7 +93,6 @@ public class UtilisateurDAO {
         return null;
     }
 
-    // Liste tous les utilisateurs
     public List<Utilisateur> getAll() {
         List<Utilisateur> list = new ArrayList<>();
         String req = "SELECT * FROM utilisateur";
@@ -118,54 +114,83 @@ public class UtilisateurDAO {
         }
         return list;
     }
+
     public void delete(int id) {
-        String sql = "DELETE FROM utilisateur WHERE id = " + id;
-        Statement stmt = null;
+        String sql = "DELETE FROM utilisateur WHERE id = ?";
+        PreparedStatement pstmt = null;
         try {
-            stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Erreur delete : " + e.getMessage());
         } finally {
-            if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
         }
     }
 
-    // Valider (mettre activated = 1)
     public void valider(int id) {
-        String sql = "UPDATE utilisateur SET activated = 1 WHERE id = " + id;
-        Statement stmt = null;
+        String sql = "UPDATE utilisateur SET activated = 1 WHERE id = ?";
+        PreparedStatement pstmt = null;
 
         try {
-            stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Erreur valider : " + e.getMessage());
         } finally {
-            if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
         }
     }
+
     public void update(Utilisateur user) {
-        String sql = "UPDATE utilisateur SET nom='" + user.getNom() + "', prenom='" + user.getPrenom() +
-                "', email='" + user.getEmail() + "', password='" + user.getPassword() + "'";
+        String sql = "UPDATE utilisateur SET nom=?, prenom=?, email=?, password=?";
+        List<Object> params = new ArrayList<>();
+        params.add(user.getNom());
+        params.add(user.getPrenom());
+        params.add(user.getEmail());
+        params.add(user.getPassword());
 
         if (user instanceof Agriculteur a) {
-            sql += ", telephone='" + a.getTelephone() + "', adresse='" + a.getAdresse() + "'";
+            sql += ", telephone=?, adresse=?";
+            params.add(a.getTelephone());
+            params.add(a.getAdresse());
         } else if (user instanceof ResponsableExploitation r) {
-            sql += ", matricule='" + r.getMatricule() + "'";
+            sql += ", matricule=?";
+            params.add(r.getMatricule());
         }
-        sql += " WHERE id=" + user.getId();
 
-        Statement stmt = null;
+        sql += " WHERE id=?";
+        params.add(user.getId());
+
+        PreparedStatement pstmt = null;
         try {
-            stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
+            pstmt = conn.prepareStatement(sql);
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Erreur update : " + e.getMessage());
         } finally {
-            if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
         }
     }
+
+    public void resetPassword(int userId, String hashedPassword) throws SQLException {
+        String sql = "UPDATE utilisateur SET password = ? WHERE id = ?";
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, hashedPassword);
+            pstmt.setInt(2, userId);
+            pstmt.executeUpdate();
+        } finally {
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
+        }
+    }
+
     private Utilisateur mapRowToUtilisateur(ResultSet rs) throws SQLException {
         String role = rs.getString("type_role");
         Utilisateur u;
@@ -198,6 +223,4 @@ public class UtilisateurDAO {
 
         return u;
     }
-
-
 }

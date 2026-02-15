@@ -12,12 +12,15 @@
         <Insets top="40" right="40" bottom="40" left="40"/>
     </padding>
 
-    <!-- Header avec bouton déconnexion -->
+    <!-- Header avec bouton déconnexion et profil -->
     <HBox alignment="CENTER_LEFT" spacing="20">
         <Label fx:id="lblWelcome" text="Bienvenue Administrateur"
                style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;" HBox.hgrow="ALWAYS"/>
 
-        <!-- Bouton déconnexion à droite -->
+        <!-- Boutons à droite -->
+        <Button text="👤 Mon Profil" fx:id="btnProfile" onAction="#ouvrirProfil"
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8; -fx-font-weight: bold;"/>
+
         <Button text="🔓 Déconnexion" fx:id="btnLogoutTop" onAction="#logout"
                 style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 25; -fx-background-radius: 8; -fx-font-weight: bold;"/>
     </HBox>
