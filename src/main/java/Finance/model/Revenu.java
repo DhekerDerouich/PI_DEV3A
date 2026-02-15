@@ -6,14 +6,24 @@ public class Revenu {
     private Long idRevenu;
     private Double montant;
     private String source;
+    private String description;
     private Date dateRevenu;
 
     public Revenu() {}
 
-    public Revenu(Double montant, String source, Date dateRevenu) {
+    public Revenu(Double montant, String source,String description, Date dateRevenu) {
         this.montant = montant;
         this.source = source;
+        this.description=description;
         this.dateRevenu = dateRevenu;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Long getIdRevenu() {
@@ -54,6 +64,7 @@ public class Revenu {
                 "idRevenu=" + idRevenu +
                 ", montant=" + montant +
                 ", source='" + source + '\'' +
+                ", description='" + description + '\'' +
                 ", dateRevenu=" + dateRevenu +
                 '}';
     }

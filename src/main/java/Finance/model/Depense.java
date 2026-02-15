@@ -6,14 +6,24 @@ public class Depense {
     private Long idDepense;
     private Double montant;
     private String typeDepense;
+    private String description;
     private Date dateDepense;
 
     public Depense() {}
 
-    public Depense(Double montant, String typeDepense, Date dateDepense) {
+    public Depense(Double montant, String typeDepense, String description,Date dateDepense) {
         this.montant = montant;
         this.typeDepense = typeDepense;
+        this.description = description;
         this.dateDepense = dateDepense;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Long getIdDepense() {
@@ -54,6 +64,7 @@ public class Depense {
                 "idDepense=" + idDepense +
                 ", montant=" + montant +
                 ", typeDepense='" + typeDepense + '\'' +
+                ", description='" + description + '\'' +
                 ", dateDepense=" + dateDepense +
                 '}';
     }

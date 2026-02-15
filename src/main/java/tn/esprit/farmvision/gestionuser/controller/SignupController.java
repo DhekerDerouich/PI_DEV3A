@@ -8,7 +8,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 // --------------------------------------------------------------------------
 // MODE CONSOLE PUR - PLUS AUCUN LIEN AVEC FXML / JAVAFX
-// On simule inscription et modification depuis console (appelée par MainApp)
+// On simule inscription et modification depuis console (appelée par tn.esprit.farmvision.gestionuser.MainApp)
 // --------------------------------------------------------------------------
 
 public class SignupController {
@@ -18,7 +18,7 @@ public class SignupController {
 
     // ----------------------------------------------------------------------
     // Méthode principale : simule l'inscription depuis la console
-    // Appelée depuis MainApp.consoleSignUp()
+    // Appelée depuis tn.esprit.farmvision.gestionuser.MainApp.consoleSignUp()
     // ----------------------------------------------------------------------
     public void consoleSignUp() {
         System.out.println("\n--- Inscription ---");
@@ -77,7 +77,7 @@ public class SignupController {
 
     // ----------------------------------------------------------------------
     // Méthode pour simuler la modification depuis la console
-    // Appelée depuis MainApp.consoleUpdateUser(int id)
+    // Appelée depuis tn.esprit.farmvision.gestionuser.MainApp.consoleUpdateUser(int id)
     // ----------------------------------------------------------------------
     public void consoleUpdateUser(int userId) {
         // Recherche simple de l'utilisateur par ID

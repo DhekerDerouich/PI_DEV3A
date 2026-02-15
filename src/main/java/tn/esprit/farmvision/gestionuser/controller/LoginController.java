@@ -14,7 +14,7 @@ public class LoginController {
 
     // ----------------------------------------------------------------------
     // Méthode principale : simule le login depuis la console
-    // (appelée depuis MainApp.consoleLogin() par exemple)
+    // (appelée depuis tn.esprit.farmvision.gestionuser.MainApp.consoleLogin() par exemple)
     // ----------------------------------------------------------------------
     public Utilisateur consoleLogin(String email, String password) {
         if (email == null || email.trim().isEmpty() || password == null || password.isEmpty()) {
@@ -38,6 +38,6 @@ public class LoginController {
     // ----------------------------------------------------------------------
     public void consoleSignUpRequest() {
         System.out.println("Inscription demandée → retour au menu principal (option 1)");
-        // Ici tu peux appeler directement la méthode inscription() de MainApp si tu veux
+        // Ici tu peux appeler directement la méthode inscription() de tn.esprit.farmvision.gestionuser.MainApp si tu veux
     }
 }

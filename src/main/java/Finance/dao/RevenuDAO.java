@@ -10,14 +10,15 @@ import java.util.List;
 public class RevenuDAO {
 
     public void ajouterRevenu(Revenu revenu) throws SQLException {
-        String sql = "INSERT INTO revenu (montant, source, dateRevenu) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO revenu (montant, source, description,dateRevenu) VALUES (?, ?, ?,?)";
 
         Connection conn = Myconnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
 
         ps.setDouble(1, revenu.getMontant());
         ps.setString(2, revenu.getSource());
-        ps.setDate(3, new java.sql.Date(revenu.getDateRevenu().getTime()));
+        ps.setString(3, revenu.getDescription());
+        ps.setDate(4, new java.sql.Date(revenu.getDateRevenu().getTime()));
 
         ps.executeUpdate();
     }
@@ -30,6 +31,19 @@ public class RevenuDAO {
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(sql);
 
+        // ADD THIS WHILE LOOP - You were missing this!
+        while (rs.next()) {
+            Revenu revenu = new Revenu();
+            revenu.setIdRevenu(rs.getLong("idRevenu")); // Adjust column name to match your DB
+            revenu.setMontant(rs.getDouble("montant"));
+            revenu.setSource(rs.getString("source"));
+            revenu.setDescription(rs.getString("description"));
+            revenu.setDateRevenu(rs.getDate("dateRevenu")); // Adjust column name
+
+            revenus.add(revenu);
+        }
+
+
 
         return revenus;
     }
@@ -37,15 +51,16 @@ public class RevenuDAO {
 
 
     public void updateRevenu(Revenu revenu) throws SQLException {
-        String sql = "UPDATE revenu SET montant = ?, source = ?, dateRevenu = ? WHERE idRevenu = ?";
+        String sql = "UPDATE revenu SET montant = ?, source = ?, description = ?,dateRevenu = ? WHERE idRevenu = ?";
 
         Connection conn = Myconnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
 
         ps.setDouble(1, revenu.getMontant());
         ps.setString(2, revenu.getSource());
-        ps.setDate(3, new java.sql.Date(revenu.getDateRevenu().getTime()));
-        ps.setLong(4, revenu.getIdRevenu());
+        ps.setString(3, revenu.getDescription());
+        ps.setDate(4, new java.sql.Date(revenu.getDateRevenu().getTime()));
+        ps.setLong(5, revenu.getIdRevenu());
 
         ps.executeUpdate();
     }
@@ -61,6 +76,7 @@ public class RevenuDAO {
             r.setIdRevenu(rs.getLong("idRevenu"));
             r.setMontant(rs.getDouble("montant"));
             r.setSource(rs.getString("source"));
+            r.setDescription(rs.getString("description"));
             r.setDateRevenu(rs.getDate("dateRevenu"));
             return r;
         }

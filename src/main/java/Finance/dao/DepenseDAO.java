@@ -10,14 +10,15 @@ import java.util.List;
 public class DepenseDAO {
 
     public void ajouterDepense(Depense depense) throws SQLException {
-        String sql = "INSERT INTO depense (montant, typeDepense, dateDepense) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO depense (montant, typeDepense, description,dateDepense) VALUES (?, ?, ?,?)";
 
         Connection conn = Myconnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
 
         ps.setDouble(1, depense.getMontant());
         ps.setString(2, depense.getTypeDepense());
-        ps.setDate(3, new java.sql.Date(depense.getDateDepense().getTime()));
+        ps.setString(3, depense.getDescription());
+        ps.setDate(4, new java.sql.Date(depense.getDateDepense().getTime()));
 
         ps.executeUpdate();
     }
@@ -36,6 +37,7 @@ public class DepenseDAO {
             d.setIdDepense(rs.getLong("idDepense"));
             d.setMontant(rs.getDouble("montant"));
             d.setTypeDepense(rs.getString("typeDepense"));
+            d.setDescription(rs.getString("description"));
             d.setDateDepense(rs.getDate("dateDepense"));
             depenses.add(d);
         }
@@ -54,6 +56,7 @@ public class DepenseDAO {
             d.setIdDepense(rs.getLong("idDepense"));
             d.setMontant(rs.getDouble("montant"));
             d.setTypeDepense(rs.getString("typeDepense"));
+            d.setDescription(rs.getString("description"));
             d.setDateDepense(rs.getDate("dateDepense"));
             return d;
         }
@@ -61,15 +64,16 @@ public class DepenseDAO {
 
     }
     public void updateDepense(Depense depense) throws SQLException {
-        String sql = "UPDATE depense SET montant = ?, typeDepense = ?, dateDepense = ? WHERE idDepense = ?";
+        String sql = "UPDATE depense SET montant = ?, typeDepense = ?, description = ?,dateDepense = ? WHERE idDepense = ?";
 
         Connection conn = Myconnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
 
         ps.setDouble(1, depense.getMontant());
         ps.setString(2, depense.getTypeDepense());
-        ps.setDate(3, new java.sql.Date(depense.getDateDepense().getTime()));
-        ps.setLong(4, depense.getIdDepense());
+        ps.setString(3, depense.getDescription());
+        ps.setDate(4, new java.sql.Date(depense.getDateDepense().getTime()));
+        ps.setLong(5, depense.getIdDepense());
 
         ps.executeUpdate();
     }

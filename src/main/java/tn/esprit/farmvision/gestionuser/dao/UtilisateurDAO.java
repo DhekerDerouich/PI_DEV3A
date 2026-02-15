@@ -4,7 +4,7 @@ import tn.esprit.farmvision.gestionuser.model.Administrateur;
 import tn.esprit.farmvision.gestionuser.model.Agriculteur;
 import tn.esprit.farmvision.gestionuser.model.ResponsableExploitation;
 import tn.esprit.farmvision.gestionuser.model.Utilisateur;
-import tn.esprit.farmvision.gestionuser.util.Myconnection;
+import util.Myconnection;
 
 import java.sql.*;
 import java.util.ArrayList;
