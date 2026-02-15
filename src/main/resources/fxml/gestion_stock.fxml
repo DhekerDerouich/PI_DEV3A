@@ -6,37 +6,61 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="tn.esprit.farmvision.gestionstock.controller.StockController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #f0f4f0;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.farmvision.gestionstock.controller.StockController">
     <children>
-        <VBox layoutX="10.0" layoutY="10.0" prefHeight="580.0" prefWidth="980.0" spacing="10.0">
+        <!-- Barre latérale gauche -->
+        <AnchorPane layoutX="0.0" layoutY="0.0" prefHeight="800.0" prefWidth="80.0" style="-fx-background-color: #2e7d32;">
             <children>
-                <Label text="GESTION DES STOCKS" textFill="#096b9b">
-                    <font>
-                        <Font name="System Bold" size="20.0" />
-                    </font>
-                </Label>
+                <Label layoutX="20.0" layoutY="50.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🌾" />
+                <Label layoutX="20.0" layoutY="150.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🌽" />
+                <Label layoutX="20.0" layoutY="250.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🥕" />
+                <Label layoutX="20.0" layoutY="350.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🍎" />
+                <Label layoutX="20.0" layoutY="450.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🌿" />
+                <Label layoutX="20.0" layoutY="550.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🌻" />
+                <Label layoutX="20.0" layoutY="650.0" style="-fx-font-size: 40px; -fx-text-fill: white;" text="🚜" />
+            </children>
+        </AnchorPane>
 
-                <HBox spacing="10.0" alignment="CENTER_LEFT">
+        <!-- Contenu principal -->
+        <VBox layoutX="100.0" layoutY="30.0" prefHeight="740.0" prefWidth="1080.0" spacing="15.0">
+            <children>
+                <!-- En-tête moderne -->
+                <HBox alignment="CENTER_LEFT" prefHeight="80.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 15px; -fx-padding: 0 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
                     <children>
-                        <Label text="Rechercher:" />
-                        <TextField fx:id="txtRecherche" prefWidth="200.0" promptText="Nom ou type..." />
-                        <Label text="Catégorie:" />
-                        <ComboBox fx:id="comboFiltreCategorie" prefWidth="150.0" />
-                        <Label text="Statut:" />
-                        <ComboBox fx:id="comboFiltreStatut" prefWidth="120.0" />
-                        <Button mnemonicParsing="false" onAction="#handleRafraichir"
-                                text="Rafraîchir" style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+                        <Label style="-fx-font-size: 48px;" text="🌽" />
+                        <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2e7d32;" text="GESTION DES STOCKS" />
+                        <Label style="-fx-font-size: 48px;" text="🌾" />
                     </children>
                 </HBox>
 
-                <TableView fx:id="stockTable" prefHeight="400.0" prefWidth="960.0">
+                <!-- Carte de filtres -->
+                <AnchorPane prefHeight="100.0" style="-fx-background-color: white; -fx-background-radius: 15px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="20.0" spacing="20.0">
+                            <children>
+                                <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="🔍 Rechercher" />
+                                <TextField fx:id="txtRecherche" prefWidth="250.0" promptText="Nom du produit..." style="-fx-background-radius: 20px; -fx-border-radius: 20px; -fx-padding: 10px;" />
+
+                                <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="📋 Catégorie" />
+                                <ComboBox fx:id="comboFiltreCategorie" prefWidth="150.0" style="-fx-background-radius: 20px; -fx-border-radius: 20px;" />
+
+                                <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="📊 Statut" />
+                                <ComboBox fx:id="comboFiltreStatut" prefWidth="120.0" style="-fx-background-radius: 20px; -fx-border-radius: 20px;" />
+
+                                <Button mnemonicParsing="false" onAction="#handleRafraichir" style="-fx-background-color: #4caf50; -fx-background-radius: 20px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 25px;" text="⟳ Rafraîchir" />
+                            </children>
+                        </HBox>
+                    </children>
+                </AnchorPane>
+
+                <!-- Tableau avec design moderne -->
+                <TableView fx:id="stockTable" prefHeight="400.0" style="-fx-background-radius: 15px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
                     <columns>
                         <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
                         <TableColumn fx:id="colProduit" prefWidth="150.0" text="Produit" />
@@ -49,23 +73,25 @@
                     </columns>
                 </TableView>
 
-                <Label fx:id="lblMessage" text="" wrapText="true" />
+                <!-- Message -->
+                <Label fx:id="lblMessage" style="-fx-font-weight: bold; -fx-padding: 5px;" text="" wrapText="true" />
 
-                <HBox spacing="10.0">
+                <!-- Barre d'actions moderne -->
+                <AnchorPane prefHeight="70.0" style="-fx-background-color: white; -fx-background-radius: 15px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#handleAjouterStock"
-                                text="Ajouter" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
-                        <Button mnemonicParsing="false" onAction="#handleModifierStock"
-                                text="Modifier" style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
-                        <Button mnemonicParsing="false" onAction="#handleSupprimerStock"
-                                text="Supprimer" style="-fx-background-color: #f44336; -fx-text-fill: white;" />
-                        <Button mnemonicParsing="false" onAction="#handleVoirDetails"
-                                text="Détails" style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
-                        <Button mnemonicParsing="false" onAction="#handleExporterPDF" text="Export PDF" />
-                        <Button mnemonicParsing="false" onAction="#handleImprimer" text="Imprimer" />
-                        <Button mnemonicParsing="false" onAction="#handleRetour" text="Retour" />
+                        <HBox alignment="CENTER" layoutX="20.0" layoutY="15.0" spacing="15.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#handleAjouterStock" style="-fx-background-color: #4caf50; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 25px;" text="➕ Ajouter" />
+                                <Button mnemonicParsing="false" onAction="#handleModifierStock" style="-fx-background-color: #1976d2; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 25px;" text="✏️ Modifier" />
+                                <Button mnemonicParsing="false" onAction="#handleSupprimerStock" style="-fx-background-color: #c62828; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 25px;" text="🗑️ Supprimer" />
+                                <Button mnemonicParsing="false" onAction="#handleVoirDetails" style="-fx-background-color: #ff9800; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 25px;" text="📋 Détails" />
+                                <Button mnemonicParsing="false" onAction="#handleExporterPDF" style="-fx-background-color: #8d6e63; -fx-background-radius: 25px; -fx-text-fill: white; -fx-padding: 10px 25px;" text="📄 PDF" />
+                                <Button mnemonicParsing="false" onAction="#handleImprimer" style="-fx-background-color: #757575; -fx-background-radius: 25px; -fx-text-fill: white; -fx-padding: 10px 25px;" text="🖨️ Imprimer" />
+                                <Button mnemonicParsing="false" onAction="#handleRetour" style="-fx-background-color: #9e9e9e; -fx-background-radius: 25px; -fx-text-fill: white; -fx-padding: 10px 25px;" text="↩️ Retour" />
+                            </children>
+                        </HBox>
                     </children>
-                </HBox>
+                </AnchorPane>
             </children>
         </VBox>
     </children>
