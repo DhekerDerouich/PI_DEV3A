@@ -1,215 +1,465 @@
 package com.pi.controller;
 
+import com.pi.model.Maintenance;
+import com.pi.model.Equipement;
 import com.pi.service.MaintenanceService;
 import com.pi.service.EquipementService;
-import com.pi.model.Maintenance;
-import com.pi.view.MaintenanceView;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MaintenanceController {
 
-    private final MaintenanceService maintenanceService;
-    private final EquipementService equipementService;
-    private final MaintenanceView maintenanceView;
-    private final Scanner scanner;
+    @FXML private TableView<Maintenance> maintenanceTable;
+    @FXML private TableColumn<Maintenance, Integer> colId;
+    @FXML private TableColumn<Maintenance, String> colEquipementNom;
+    @FXML private TableColumn<Maintenance, String> colType;
+    @FXML private TableColumn<Maintenance, String> colDescription;
+    @FXML private TableColumn<Maintenance, String> colDate;
+    @FXML private TableColumn<Maintenance, Double> colCout;
+    @FXML private TableColumn<Maintenance, String> colStatut;
+    @FXML private TableColumn<Maintenance, String> colActions;
 
-    public MaintenanceController() {
-        this.maintenanceService = new MaintenanceService();
-        this.equipementService = new EquipementService();
-        this.maintenanceView = new MaintenanceView();
-        this.scanner = new Scanner(System.in);
+    @FXML private ComboBox<String> filterStatut;
+    @FXML private ComboBox<Integer> filterEquipement;
+    @FXML private Label totalLabel;
+    @FXML private Label planifieesLabel;
+    @FXML private Label realiseesLabel;
+    @FXML private Label coutTotalLabel;
+
+    private final MaintenanceService maintenanceService = new MaintenanceService();
+    private final EquipementService equipementService = new EquipementService();
+    private final ObservableList<Maintenance> data = FXCollections.observableArrayList();
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    @FXML
+    public void initialize() {
+        setupTableColumns();
+        setupFilters();
+        loadData();
     }
 
-    public void showMenu() {
-        boolean back = false;
+    private void setupTableColumns() {
+        colId.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
 
-        while (!back) {
-            maintenanceView.showMenu();
-            int choice = getIntInput("Choix: ");
-
+        colEquipementNom.setCellValueFactory(cellData -> {
             try {
-                switch (choice) {
-                    case 1:
-                        handleAddMaintenance();
-                        break;
-                    case 2:
-                        handleShowAllMaintenances();
-                        break;
-                    case 3:
-                        handleShowByEquipement();
-                        break;
-                    case 4:
-                        handleUpdateMaintenance();
-                        break;
-                    case 5:
-                        handleChangeStatus();
-                        break;
-                    case 6:
-                        handleDeleteMaintenance();
-                        break;
-                    case 7:
-                        handleShowUpcoming();
-                        break;
-                    case 8:
-                        handleShowStats();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
-                    default:
-                        maintenanceView.showError("Choix invalide");
-                }
+                int equipId = cellData.getValue().getEquipementId();
+                Equipement equip = equipementService.getEquipementById(equipId);
+                return new SimpleStringProperty(equip != null ? equip.getNom() : "ID: " + equipId);
             } catch (Exception e) {
-                maintenanceView.showError(e.getMessage());
+                return new SimpleStringProperty("Inconnu");
+            }
+        });
+
+        colType.setCellValueFactory(cellData -> cellData.getValue().typeMaintenanceProperty());
+        colDescription.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
+        colDate.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().getDateMaintenance() != null ?
+                        cellData.getValue().getDateMaintenance().format(dateFormatter) : ""));
+        colCout.setCellValueFactory(cellData -> cellData.getValue().coutProperty().asObject());
+        colStatut.setCellValueFactory(cellData -> cellData.getValue().statutProperty());
+
+        // Style pour le statut
+        colStatut.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    if ("Planifiée".equals(item)) {
+                        setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+                    } else {
+                        setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+                    }
+                }
+            }
+        });
+
+        // Colonne Actions avec boutons Modifier/Supprimer
+        colActions.setCellFactory(column -> new TableCell<>() {
+            private final Button editBtn = new Button("✏️");
+            private final Button deleteBtn = new Button("🗑️");
+            private final Button completeBtn = new Button("✅");
+
+            {
+                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
+                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
+                completeBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;");
+                completeBtn.setTooltip(new Tooltip("Marquer comme réalisée"));
+
+                editBtn.setOnAction(e -> {
+                    Maintenance m = getTableView().getItems().get(getIndex());
+                    showEditDialog(m);
+                });
+
+                deleteBtn.setOnAction(e -> {
+                    Maintenance m = getTableView().getItems().get(getIndex());
+                    handleDelete(m);
+                });
+
+                completeBtn.setOnAction(e -> {
+                    Maintenance m = getTableView().getItems().get(getIndex());
+                    markAsCompleted(m);
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Maintenance m = getTableView().getItems().get(getIndex());
+                    HBox buttons = new HBox(5);
+                    buttons.getChildren().add(editBtn);
+                    buttons.getChildren().add(deleteBtn);
+                    if ("Planifiée".equals(m.getStatut())) {
+                        buttons.getChildren().add(completeBtn);
+                    }
+                    setGraphic(buttons);
+                }
+            }
+        });
+
+        maintenanceTable.setItems(data);
+    }
+
+    private void setupFilters() {
+        filterStatut.getItems().addAll("Tous", "Planifiée", "Réalisée");
+        filterStatut.setValue("Tous");
+
+        refreshEquipementFilter();
+
+        filterStatut.valueProperty().addListener((obs, old, val) -> filterData());
+        filterEquipement.valueProperty().addListener((obs, old, val) -> filterData());
+    }
+
+    private void refreshEquipementFilter() {
+        filterEquipement.getItems().clear();
+        filterEquipement.getItems().add(0); // 0 = Tous
+        filterEquipement.getItems().addAll(
+                equipementService.getAllEquipements().stream()
+                        .map(Equipement::getId)
+                        .sorted()
+                        .collect(Collectors.toList())
+        );
+        filterEquipement.setValue(0);
+    }
+
+    @FXML
+    private void loadData() {
+        data.setAll(maintenanceService.getAllMaintenances());
+        updateStats();
+    }
+
+    @FXML
+    public void refreshTable() {
+        loadData();
+        refreshEquipementFilter();
+    }
+
+    @FXML
+    public void clearFilters() {
+        filterStatut.setValue("Tous");
+        filterEquipement.setValue(0);
+        loadData();
+    }
+
+    private void filterData() {
+        String statut = filterStatut.getValue();
+        Integer equipId = filterEquipement.getValue();
+
+        ObservableList<Maintenance> filtered = maintenanceService.getAllMaintenances().stream()
+                .filter(m -> statut == null || "Tous".equals(statut) || m.getStatut().equals(statut))
+                .filter(m -> equipId == null || equipId == 0 || m.getEquipementId() == equipId)
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+
+        data.setAll(filtered);
+        updateStats();
+    }
+
+    private void updateStats() {
+        int total = data.size();
+        long planifiees = data.stream().filter(m -> "Planifiée".equals(m.getStatut())).count();
+        long realisees = data.stream().filter(m -> "Réalisée".equals(m.getStatut())).count();
+        double coutTotal = data.stream().mapToDouble(Maintenance::getCout).sum();
+
+        totalLabel.setText(String.valueOf(total));
+        planifieesLabel.setText(String.valueOf(planifiees));
+        realiseesLabel.setText(String.valueOf(realisees));
+        coutTotalLabel.setText(String.format("%.2f DT", coutTotal));
+    }
+
+    @FXML
+    public void showAddDialog() {
+        showMaintenanceDialog(null);
+    }
+
+    private void showEditDialog(Maintenance maintenance) {
+        showMaintenanceDialog(maintenance);
+    }
+
+    private void showMaintenanceDialog(Maintenance maintenance) {
+        boolean isEdit = (maintenance != null);
+        Dialog<Maintenance> dialog = new Dialog<>();
+        dialog.setTitle(isEdit ? "Modifier la maintenance" : "Planifier une maintenance");
+        dialog.setHeaderText(isEdit ? "Modification de la maintenance #" + maintenance.getId()
+                : "Nouvelle maintenance");
+
+        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        // ComboBox pour l'équipement
+        ComboBox<Equipement> equipementBox = new ComboBox<>();
+        equipementBox.getItems().addAll(equipementService.getAllEquipements());
+        equipementBox.setConverter(new javafx.util.StringConverter<Equipement>() {
+            @Override
+            public String toString(Equipement e) {
+                return e == null ? "" : e.getId() + " - " + e.getNom();
+            }
+            @Override
+            public Equipement fromString(String string) {
+                return null;
+            }
+        });
+        equipementBox.setPromptText("Sélectionner un équipement");
+
+        // Type de maintenance
+        ComboBox<String> typeBox = new ComboBox<>();
+        typeBox.getItems().addAll("Préventive", "Corrective");
+        typeBox.setPromptText("Type de maintenance");
+
+        // Description
+        TextField descriptionField = new TextField();
+        descriptionField.setPromptText("Description de la maintenance");
+
+        // Date
+        DatePicker datePicker = new DatePicker();
+        datePicker.setPromptText("Date de maintenance");
+
+        // Coût
+        TextField coutField = new TextField();
+        coutField.setPromptText("Coût (DT)");
+
+        // Statut
+        ComboBox<String> statutBox = new ComboBox<>();
+        statutBox.getItems().addAll("Planifiée", "Réalisée");
+        statutBox.setPromptText("Statut");
+
+        // Pré-remplir si édition
+        if (isEdit) {
+            try {
+                Equipement equip = equipementService.getEquipementById(maintenance.getEquipementId());
+                equipementBox.setValue(equip);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            typeBox.setValue(maintenance.getTypeMaintenance());
+            descriptionField.setText(maintenance.getDescription());
+            datePicker.setValue(maintenance.getDateMaintenance());
+            coutField.setText(String.valueOf(maintenance.getCout()));
+            statutBox.setValue(maintenance.getStatut());
+        } else {
+            typeBox.setValue("Préventive");
+            datePicker.setValue(LocalDate.now().plusDays(1));
+            statutBox.setValue("Planifiée");
+        }
+
+        // Ajout au grid
+        grid.add(new Label("Équipement:"), 0, 0);
+        grid.add(equipementBox, 1, 0);
+        grid.add(new Label("Type:"), 0, 1);
+        grid.add(typeBox, 1, 1);
+        grid.add(new Label("Description:"), 0, 2);
+        grid.add(descriptionField, 1, 2);
+        grid.add(new Label("Date:"), 0, 3);
+        grid.add(datePicker, 1, 3);
+        grid.add(new Label("Coût:"), 0, 4);
+        grid.add(coutField, 1, 4);
+        grid.add(new Label("Statut:"), 0, 5);
+        grid.add(statutBox, 1, 5);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                try {
+                    // Validation
+                    if (equipementBox.getValue() == null) {
+                        showError("Erreur", "Veuillez sélectionner un équipement");
+                        return null;
+                    }
+                    if (descriptionField.getText() == null || descriptionField.getText().trim().isEmpty()) {
+                        showError("Erreur", "La description est obligatoire");
+                        return null;
+                    }
+                    if (datePicker.getValue() == null) {
+                        showError("Erreur", "La date est obligatoire");
+                        return null;
+                    }
+
+                    double cout;
+                    try {
+                        cout = Double.parseDouble(coutField.getText().trim());
+                        if (cout < 0) {
+                            showError("Erreur", "Le coût ne peut pas être négatif");
+                            return null;
+                        }
+                    } catch (NumberFormatException e) {
+                        showError("Erreur", "Le coût doit être un nombre valide");
+                        return null;
+                    }
+
+                    Maintenance m = isEdit ? maintenance : new Maintenance();
+                    m.setEquipementId(equipementBox.getValue().getId());
+                    m.setTypeMaintenance(typeBox.getValue());
+                    m.setDescription(descriptionField.getText().trim());
+                    m.setDateMaintenance(datePicker.getValue());
+                    m.setCout(cout);
+                    m.setStatut(statutBox.getValue());
+                    return m;
+                } catch (Exception e) {
+                    showError("Erreur", e.getMessage());
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        Optional<Maintenance> result = dialog.showAndWait();
+        result.ifPresent(m -> {
+            try {
+                if (isEdit) {
+                    maintenanceService.updateMaintenance(
+                            m.getId(),
+                            m.getEquipementId(),
+                            m.getTypeMaintenance(),
+                            m.getDescription(),
+                            m.getDateMaintenance(),
+                            m.getCout(),
+                            m.getStatut()
+                    );
+                    showInfo("Succès", "Maintenance modifiée avec succès !");
+                } else {
+                    maintenanceService.planifierMaintenance(
+                            m.getEquipementId(),
+                            m.getTypeMaintenance(),
+                            m.getDescription(),
+                            m.getDateMaintenance(),
+                            m.getCout(),
+                            m.getStatut()
+                    );
+                    showInfo("Succès", "Maintenance planifiée avec succès !");
+                }
+                refreshTable();
+            } catch (Exception e) {
+                showError("Erreur", e.getMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void markAsCompleted(Maintenance maintenance) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText("Marquer comme réalisée");
+        confirm.setContentText("Voulez-vous marquer cette maintenance comme réalisée ?");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                maintenanceService.changerStatutMaintenance(maintenance.getId(), "Réalisée");
+                refreshTable();
+                showInfo("Succès", "Maintenance marquée comme réalisée !");
+            } catch (Exception e) {
+                showError("Erreur", e.getMessage());
             }
         }
     }
 
-    private void handleAddMaintenance() throws Exception {
-        System.out.println("\n📅 PLANIFIER UNE MAINTENANCE");
+    private void handleDelete(Maintenance maintenance) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText("Supprimer la maintenance #" + maintenance.getId() + " ?");
+        confirm.setContentText("Cette action est irréversible.");
 
-        System.out.print("ID de l'équipement: ");
-        int equipementId = Integer.parseInt(scanner.nextLine());
-
-        System.out.print("Type (Préventive/Corrective): ");
-        String type = scanner.nextLine();
-
-        System.out.print("Description: ");
-        String description = scanner.nextLine();
-
-        System.out.print("Date maintenance (AAAA-MM-JJ): ");
-        LocalDate dateMaintenance = LocalDate.parse(scanner.nextLine());
-
-        System.out.print("Coût: ");
-        double cout = Double.parseDouble(scanner.nextLine());
-
-        System.out.print("Statut (Planifiée/Réalisée): ");
-        String statut = scanner.nextLine();
-
-        Maintenance maintenance = maintenanceService.planifierMaintenance(
-                equipementId, type, description, dateMaintenance, cout, statut
-        );
-
-        maintenanceView.showMessage("✅ Maintenance planifiée ! ID: " + maintenance.getId());
-    }
-
-    private void handleShowAllMaintenances() {
-        List<Maintenance> maintenances = maintenanceService.getAllMaintenances();
-        maintenanceView.showMaintenancesList(maintenances);
-    }
-
-    private void handleShowByEquipement() throws Exception {
-        int equipementId = getIntInput("ID de l'équipement: ");
-        if (equipementId <= 0) return;
-
-        List<Maintenance> maintenances = maintenanceService.getMaintenancesByEquipement(equipementId);
-        maintenanceView.showMaintenancesList(maintenances);
-    }
-
-    private void handleUpdateMaintenance() throws Exception {
-        int id = getIntInput("ID de la maintenance à modifier: ");
-        if (id <= 0) return;
-
-        System.out.println("\n✏️  MODIFICATION MAINTENANCE #" + id);
-        System.out.println("Laissez vide pour garder la valeur actuelle");
-
-        System.out.print("Nouvel ID équipement: ");
-        String equipStr = scanner.nextLine();
-        Integer equipementId = equipStr.isEmpty() ? null : Integer.parseInt(equipStr);
-
-        System.out.print("Nouveau type: ");
-        String type = scanner.nextLine();
-
-        System.out.print("Nouvelle description: ");
-        String description = scanner.nextLine();
-
-        System.out.print("Nouvelle date (AAAA-MM-JJ): ");
-        String dateStr = scanner.nextLine();
-        LocalDate dateMaintenance = dateStr.isEmpty() ? null : LocalDate.parse(dateStr);
-
-        System.out.print("Nouveau coût: ");
-        String coutStr = scanner.nextLine();
-        Double cout = coutStr.isEmpty() ? null : Double.parseDouble(coutStr);
-
-        System.out.print("Nouveau statut: ");
-        String statut = scanner.nextLine();
-
-        Maintenance updated = maintenanceService.updateMaintenance(
-                id, equipementId,
-                type.isEmpty() ? null : type,
-                description.isEmpty() ? null : description,
-                dateMaintenance,
-                cout,
-                statut.isEmpty() ? null : statut
-        );
-
-        maintenanceView.showMessage("✅ Maintenance modifiée !");
-    }
-
-    private void handleChangeStatus() throws Exception {
-        int id = getIntInput("ID de la maintenance: ");
-        if (id <= 0) return;
-
-        System.out.print("Nouveau statut (Planifiée/Réalisée): ");
-        String newStatut = scanner.nextLine();
-
-        maintenanceService.changerStatutMaintenance(id, newStatut);
-        maintenanceView.showMessage("✅ Statut changé à : " + newStatut);
-    }
-
-    private void handleDeleteMaintenance() throws Exception {
-        int id = getIntInput("ID de la maintenance à supprimer: ");
-        if (id <= 0) return;
-
-        System.out.print("Confirmer suppression? (OUI/non): ");
-        String confirm = scanner.nextLine();
-
-        if (confirm.equalsIgnoreCase("OUI")) {
-            maintenanceService.deleteMaintenance(id);
-            maintenanceView.showMessage("✅ Maintenance supprimée !");
-        } else {
-            maintenanceView.showMessage("❌ Suppression annulée");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                maintenanceService.deleteMaintenance(maintenance.getId());
+                refreshTable();
+                showInfo("Succès", "Maintenance supprimée !");
+            } catch (Exception e) {
+                showError("Erreur", e.getMessage());
+            }
         }
     }
 
-    private void handleShowUpcoming() {
-        List<Maintenance> upcoming = maintenanceService.getUpcomingMaintenances();
-
-        System.out.println("\n📅 MAINTENANCES À VENIR (7 PROCHAINS JOURS)");
-        if (upcoming.isEmpty()) {
-            System.out.println("Aucune maintenance à venir.");
-        } else {
-            maintenanceView.showMaintenancesList(upcoming);
-        }
-    }
-
-    private void handleShowStats() {
-        double totalCout = maintenanceService.getCoutTotalMaintenances();
+    @FXML
+    public void showStats() {
+        double coutTotal = maintenanceService.getCoutTotalMaintenances();
+        long total = maintenanceService.getAllMaintenances().size();
+        long planifiees = maintenanceService.countMaintenancesByStatut("Planifiée");
+        long realisees = maintenanceService.countMaintenancesByStatut("Réalisée");
+        long preventives = maintenanceService.countMaintenancesByType("Préventive");
+        long correctives = maintenanceService.countMaintenancesByType("Corrective");
         double coutMoyen = maintenanceService.getCoutMoyenMaintenance();
-        int planifiees = maintenanceService.countMaintenancesByStatut("Planifiée");
-        int realisees = maintenanceService.countMaintenancesByStatut("Réalisée");
-        int preventives = maintenanceService.countMaintenancesByType("Préventive");
-        int correctives = maintenanceService.countMaintenancesByType("Corrective");
         long aujourdhui = maintenanceService.getNombreMaintenancesAujourdhui();
 
-        System.out.println("\n📊 STATISTIQUES DES MAINTENANCES");
-        System.out.printf("💰 Coût total: %.2f DT\n", totalCout);
-        System.out.printf("💰 Coût moyen: %.2f DT\n", coutMoyen);
-        System.out.println("📅 Planifiées: " + planifiees);
-        System.out.println("✅ Réalisées: " + realisees);
-        System.out.println("🛡️  Préventives: " + preventives);
-        System.out.println("🔧 Correctives: " + correctives);
-        System.out.println("⚠️  Aujourd'hui: " + aujourdhui + " maintenance(s)");
+        String stats = String.format(
+                "📊 STATISTIQUES DES MAINTENANCES\n\n" +
+                        "Total des maintenances : %d\n" +
+                        "✅ Planifiées : %d\n" +
+                        "✓ Réalisées : %d\n" +
+                        "🛡️ Préventives : %d\n" +
+                        "🔧 Correctives : %d\n\n" +
+                        "💰 Coût total : %.2f DT\n" +
+                        "💵 Coût moyen : %.2f DT\n\n" +
+                        "📅 Maintenances aujourd'hui : %d\n" +
+                        "📆 Maintenances à venir : %d",
+                total, planifiees, realisees, preventives, correctives,
+                coutTotal, coutMoyen, aujourdhui,
+                maintenanceService.getUpcomingMaintenances().size()
+        );
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Statistiques");
+        alert.setHeaderText("📈 Rapport des maintenances");
+        alert.setContentText(stats);
+        alert.showAndWait();
     }
 
-    private int getIntInput(String message) {
-        System.out.print(message);
-        try {
-            return Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

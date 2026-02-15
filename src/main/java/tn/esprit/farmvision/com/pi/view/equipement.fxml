@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="15" style="-fx-padding: 20; -fx-background-color: #f8f9fa;"
+      xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pi.controller.EquipementController">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header with actions -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="🚜 Gestion des Équipements"
+               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="🔄 Actualiser" onAction="#refreshTable"
+                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+        <Button text="➕ Nouvel équipement" onAction="#showAddDialog"
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+        <Button text="📊 Exporter" onAction="#exportToExcel"
+                style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Filters -->
+    <GridPane hgap="10" vgap="10">
+        <padding>
+            <Insets bottom="10"/>
+        </padding>
+
+        <Label text="Recherche:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="searchField" promptText="Nom, type ou ID..."
+                   GridPane.columnIndex="1" GridPane.rowIndex="0"
+                   prefWidth="300"/>
+
+        <Label text="État:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="filterEtat" prefWidth="150"
+                  GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+        <Label text="Type:" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="filterType" prefWidth="150"
+                  GridPane.columnIndex="5" GridPane.rowIndex="0"/>
+
+        <Button text="❌ Effacer" onAction="#clearFilters"
+                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"
+                GridPane.columnIndex="6" GridPane.rowIndex="0"/>
+    </GridPane>
+
+    <!-- Equipment Table -->
+    <TableView fx:id="equipementTable" VBox.vgrow="ALWAYS"
+               style="-fx-background-color: white; -fx-border-color: #ecf0f1;">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colNom" text="Nom" prefWidth="150"/>
+            <TableColumn fx:id="colType" text="Type" prefWidth="120"/>
+            <TableColumn fx:id="colEtat" text="État" prefWidth="100"/>
+            <TableColumn fx:id="colDateAchat" text="Date d'achat" prefWidth="100"/>
+            <TableColumn fx:id="colDureeVie" text="Durée (ans)" prefWidth="80"/>
+            <TableColumn fx:id="colFinGarantie" text="Fin garantie" prefWidth="100"/>
+            <TableColumn fx:id="colAge" text="Âge" prefWidth="80"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+    <!-- Statistics -->
+    <HBox spacing="20" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-background-radius: 5;">
+        <VBox spacing="5" alignment="CENTER">
+            <Label text="📊 Total" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+            <Label fx:id="totalLabel" text="0"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox spacing="5" alignment="CENTER">
+            <Label text="✅ Fonctionnels" style="-fx-font-size: 12px; -fx-text-fill: #2ecc71;"/>
+            <Label fx:id="fonctionnelLabel" text="0"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox spacing="5" alignment="CENTER">
+            <Label text="🔴 En panne" style="-fx-font-size: 12px; -fx-text-fill: #e74c3c;"/>
+            <Label fx:id="panneLabel" text="0"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox spacing="5" alignment="CENTER">
+            <Label text="🛠️ Maintenance" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+            <Label fx:id="maintenanceLabel" text="0"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox spacing="5" alignment="CENTER">
+            <Label text="🛡️ Sous garantie" style="-fx-font-size: 12px; -fx-text-fill: #3498db;"/>
+            <Label fx:id="garantieLabel" text="0"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+        </VBox>
+    </HBox>
+</VBox>

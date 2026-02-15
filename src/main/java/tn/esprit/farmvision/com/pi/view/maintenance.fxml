@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="15" style="-fx-padding: 20; -fx-background-color: #f8f9fa;"
+      xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pi.controller.MaintenanceController">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="🔧 Gestion des Maintenances" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="🔄 Actualiser" onAction="#refreshTable"
+                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+        <Button text="📅 Planifier" onAction="#showAddDialog"
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+        <Button text="📊 Stats" onAction="#showStats"
+                style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Filters -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Filtrer par:" style="-fx-font-weight: bold;"/>
+        <Label text="Statut:"/>
+        <ComboBox fx:id="filterStatut" prefWidth="120"/>
+        <Label text="Équipement:"/>
+        <ComboBox fx:id="filterEquipement" prefWidth="150"/>
+        <Button text="❌ Effacer" onAction="#clearFilters"
+                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
+    </HBox>
+
+    <!-- Table -->
+    <TableView fx:id="maintenanceTable" VBox.vgrow="ALWAYS"
+               style="-fx-background-color: white; -fx-border-color: #ecf0f1;">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colEquipementNom" text="Équipement" prefWidth="150"/>
+            <TableColumn fx:id="colType" text="Type" prefWidth="100"/>
+            <TableColumn fx:id="colDescription" text="Description" prefWidth="200"/>
+            <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+            <TableColumn fx:id="colCout" text="Coût (DT)" prefWidth="100"/>
+            <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+    <!-- Stats -->
+    <HBox spacing="20" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-background-radius: 5;">
+        <VBox spacing="5">
+            <Label text="📋 Total" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+            <Label fx:id="totalLabel" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="📅 Planifiées" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
+            <Label fx:id="planifieesLabel" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="✅ Réalisées" style="-fx-font-size: 12px; -fx-text-fill: #2ecc71;"/>
+            <Label fx:id="realiseesLabel" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="💰 Coût total" style="-fx-font-size: 12px; -fx-text-fill: #3498db;"/>
+            <Label fx:id="coutTotalLabel" text="0.00 DT" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+        </VBox>
+    </HBox>
+</VBox>

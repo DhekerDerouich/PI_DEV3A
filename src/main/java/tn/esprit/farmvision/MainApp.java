@@ -1,4 +1,4 @@
-package tn.esprit.farmvision;
+package tn.esprit.farmvision.com.pi;  // ✅ Package correct selon votre structure
 
 import tn.esprit.farmvision.gestionuser.model.Agriculteur;
 import tn.esprit.farmvision.gestionuser.model.ResponsableExploitation;

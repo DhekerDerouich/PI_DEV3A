@@ -1,27 +1,57 @@
 package com.pi;
 
-import com.pi.controller.MainController;
-import com.pi.dao.DatabaseConnection;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("=======================================");
-        System.out.println("  SYSTÈME DE GESTION AGRICOLE - PI    ");
-        System.out.println("=======================================");
+import java.io.IOException;
+import java.net.URL;
 
-        // Tester la connexion à la base
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
         try {
-            if (DatabaseConnection.getConnection() != null) {
-                System.out.println("✅ Connexion BD établie");
+            // CORRECTION IMPORTANTE :
+            // D'après votre capture d'écran, vos fichiers sont dans le dossier "tn/esprit/farmvision/..."
+            // Même si votre package s'appelle "com.pi", le fichier physique est plus profond.
 
-                // Lancer le contrôleur principal
-                MainController controller = new MainController();
-                controller.start();
-            } else {
-                System.out.println("❌ Impossible de se connecter à la base");
+            // On essaie le chemin complet basé sur votre structure de dossiers
+            String fxmlPath = "/tn/esprit/farmvision/com/pi/view/main.fxml";
+
+            URL fxmlUrl = getClass().getResource(fxmlPath);
+
+            // Si ça ne marche pas, on essaie une variante courante (au cas où "tn.esprit..." soit le root)
+            if (fxmlUrl == null) {
+                System.out.println("⚠️ Chemin complet non trouvé, essai du chemin court...");
+                fxmlPath = "/com/pi/view/main.fxml";
+                fxmlUrl = getClass().getResource(fxmlPath);
             }
-        } finally {
-            DatabaseConnection.closeConnection();
+
+            if (fxmlUrl == null) {
+                System.err.println("❌ ERREUR CRITIQUE : Impossible de trouver le fichier FXML !");
+                System.err.println("Vérifiez le dossier 'target/classes' pour voir où Maven a copié le fichier.");
+                return;
+            }
+
+            System.out.println("✅ Fichier FXML trouvé : " + fxmlUrl);
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root, 1200, 700);
+            primaryStage.setTitle("FarmVision");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

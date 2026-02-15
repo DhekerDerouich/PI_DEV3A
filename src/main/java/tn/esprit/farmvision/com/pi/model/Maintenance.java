@@ -2,6 +2,8 @@ package com.pi.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import javafx.beans.property.*;
+
 
 public class Maintenance {
     private int id;
@@ -12,6 +14,12 @@ public class Maintenance {
     private double cout;
     private String statut; // Planifiée, Réalisée
     private LocalDateTime createdAt;
+    private IntegerProperty idProperty = new SimpleIntegerProperty();
+    private IntegerProperty equipementIdProperty = new SimpleIntegerProperty();
+    private StringProperty typeMaintenanceProperty = new SimpleStringProperty();
+    private StringProperty descriptionProperty = new SimpleStringProperty();
+    private DoubleProperty coutProperty = new SimpleDoubleProperty();
+    private StringProperty statutProperty = new SimpleStringProperty();
 
     // Constructeurs
     public Maintenance() {}
@@ -50,6 +58,30 @@ public class Maintenance {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public IntegerProperty idProperty() {
+        return new SimpleIntegerProperty(id);
+    }
+
+    public IntegerProperty equipementIdProperty() {
+        return new SimpleIntegerProperty(equipementId);
+    }
+
+    public StringProperty typeMaintenanceProperty() {
+        return new SimpleStringProperty(typeMaintenance);
+    }
+
+    public StringProperty descriptionProperty() {
+        return new SimpleStringProperty(description);
+    }
+
+    public DoubleProperty coutProperty() {
+        return new SimpleDoubleProperty(cout);
+    }
+
+    public StringProperty statutProperty() {
+        return new SimpleStringProperty(statut);
+    }
 
     @Override
     public String toString() {

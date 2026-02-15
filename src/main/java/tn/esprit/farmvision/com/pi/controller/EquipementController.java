@@ -1,193 +1,531 @@
 package com.pi.controller;
 
-import com.pi.service.EquipementService;
 import com.pi.model.Equipement;
-import com.pi.view.EquipementView;
+import com.pi.service.EquipementService;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class EquipementController {
 
-    private final EquipementService equipementService;
-    private final EquipementView equipementView;
-    private final Scanner scanner;
+    @FXML private TableView<Equipement> equipementTable;
+    @FXML private TableColumn<Equipement, Integer> colId;
+    @FXML private TableColumn<Equipement, String> colNom;
+    @FXML private TableColumn<Equipement, String> colType;
+    @FXML private TableColumn<Equipement, String> colEtat;
+    @FXML private TableColumn<Equipement, String> colDateAchat;
+    @FXML private TableColumn<Equipement, Integer> colDureeVie;
+    @FXML private TableColumn<Equipement, String> colFinGarantie;
+    @FXML private TableColumn<Equipement, String> colAge;
+    @FXML private TableColumn<Equipement, String> colActions;
 
-    public EquipementController() {
-        this.equipementService = new EquipementService();
-        this.equipementView = new EquipementView();
-        this.scanner = new Scanner(System.in);
+    @FXML private TextField searchField;
+    @FXML private ComboBox<String> filterEtat;
+    @FXML private ComboBox<String> filterType;
+    @FXML private Label totalLabel;
+    @FXML private Label fonctionnelLabel;
+    @FXML private Label panneLabel;
+    @FXML private Label maintenanceLabel;
+    @FXML private Label garantieLabel;
+
+    private final EquipementService service = new EquipementService();
+    private final ObservableList<Equipement> data = FXCollections.observableArrayList();
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    @FXML
+    public void initialize() {
+        setupTableColumns();
+        setupFilters();
+        loadData();
     }
 
-    public void showMenu() {
-        boolean back = false;
+    private void setupTableColumns() {
+        colId.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
+        colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
+        colType.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
+        colEtat.setCellValueFactory(cellData -> cellData.getValue().etatProperty());
 
-        while (!back) {
-            equipementView.showMenu();
-            int choice = getIntInput("Choix: ");
+        colDateAchat.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getDateAchat() != null ?
+                        cellData.getValue().getDateAchat().format(dateFormatter) : ""));
 
-            try {
-                switch (choice) {
-                    case 1:
-                        handleAddEquipement();
-                        break;
-                    case 2:
-                        handleShowAllEquipements();
-                        break;
-                    case 3:
-                        handleShowEquipementById();
-                        break;
-                    case 4:
-                        handleUpdateEquipement();
-                        break;
-                    case 5:
-                        handleDeleteEquipement();
-                        break;
-                    case 6:
-                        handleSearchEquipements();
-                        break;
-                    case 7:
-                        handleShowStats();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
-                    default:
-                        equipementView.showError("Choix invalide");
+        colDureeVie.setCellValueFactory(cellData -> cellData.getValue().dureeVieEstimeeProperty().asObject());
+
+        // Colonne Fin de garantie (date d'achat + durée de vie)
+        colFinGarantie.setCellValueFactory(cellData -> {
+            LocalDate dateAchat = cellData.getValue().getDateAchat();
+            int dureeVie = cellData.getValue().getDureeVieEstimee();
+            if (dateAchat != null) {
+                LocalDate finGarantie = dateAchat.plusYears(dureeVie);
+                return new SimpleStringProperty(finGarantie.format(dateFormatter));
+            }
+            return new SimpleStringProperty("-");
+        });
+
+        // Colonne Âge de l'équipement
+        colAge.setCellValueFactory(cellData -> {
+            LocalDate dateAchat = cellData.getValue().getDateAchat();
+            if (dateAchat != null) {
+                long age = java.time.temporal.ChronoUnit.YEARS.between(dateAchat, LocalDate.now());
+                return new SimpleStringProperty(age + " an(s)");
+            }
+            return new SimpleStringProperty("-");
+        });
+
+        // Style pour l'état avec couleurs
+        colEtat.setCellFactory(column -> new TableCell<Equipement, String>() {
+            @Override
+            protected void updateItem(String etat, boolean empty) {
+                super.updateItem(etat, empty);
+                if (empty || etat == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(etat);
+                    switch (etat) {
+                        case "Fonctionnel":
+                            setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+                            break;
+                        case "En panne":
+                            setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                            break;
+                        case "Maintenance":
+                            setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+                            break;
+                    }
                 }
-            } catch (Exception e) {
-                equipementView.showError(e.getMessage());
+            }
+        });
+
+        // Style pour la fin de garantie (rouge si dépassée)
+        colFinGarantie.setCellFactory(column -> new TableCell<Equipement, String>() {
+            @Override
+            protected void updateItem(String date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null || date.equals("-")) {
+                    setText(date);
+                    setStyle("");
+                } else {
+                    setText(date);
+                    try {
+                        LocalDate finGarantie = LocalDate.parse(date, dateFormatter);
+                        if (finGarantie.isBefore(LocalDate.now())) {
+                            setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                        } else {
+                            setStyle("-fx-text-fill: #27ae60;");
+                        }
+                    } catch (Exception e) {
+                        setStyle("");
+                    }
+                }
+            }
+        });
+
+        // Colonne Actions avec boutons
+        colActions.setCellFactory(column -> new TableCell<Equipement, String>() {
+            private final Button editBtn = new Button("✏️");
+            private final Button deleteBtn = new Button("🗑️");
+            private final Button maintenanceBtn = new Button("🔧");
+            {
+                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
+                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
+                maintenanceBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;");
+                maintenanceBtn.setTooltip(new Tooltip("Planifier une maintenance"));
+
+                editBtn.setOnAction(event -> {
+                    Equipement equip = getTableView().getItems().get(getIndex());
+                    showEditDialog(equip);
+                });
+
+                deleteBtn.setOnAction(event -> {
+                    Equipement equip = getTableView().getItems().get(getIndex());
+                    handleDelete(equip);
+                });
+
+                maintenanceBtn.setOnAction(event -> {
+                    Equipement equip = getTableView().getItems().get(getIndex());
+                    planifierMaintenance(equip);
+                });
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(new HBox(5, editBtn, maintenanceBtn, deleteBtn));
+                }
+            }
+        });
+
+        equipementTable.setItems(data);
+    }
+
+    private void setupFilters() {
+        // Filtre par état
+        filterEtat.getItems().addAll("Tous", "Fonctionnel", "En panne", "Maintenance");
+        filterEtat.setValue("Tous");
+
+        // Filtre par type (extraire les types uniques)
+        filterType.getItems().add("Tous");
+        service.getAllEquipements().stream()
+                .map(Equipement::getType)
+                .distinct()
+                .sorted()
+                .forEach(filterType.getItems()::add);
+        filterType.setValue("Tous");
+
+        // Listeners
+        searchField.textProperty().addListener((obs, old, val) -> filterData());
+        filterEtat.valueProperty().addListener((obs, old, val) -> filterData());
+        filterType.valueProperty().addListener((obs, old, val) -> filterData());
+    }
+
+    private void filterData() {
+        String search = searchField.getText().toLowerCase();
+        String etat = filterEtat.getValue();
+        String type = filterType.getValue();
+
+        ObservableList<Equipement> filtered = FXCollections.observableArrayList();
+
+        for (Equipement e : service.getAllEquipements()) {
+            boolean matchSearch = search.isEmpty() ||
+                    e.getNom().toLowerCase().contains(search) ||
+                    e.getType().toLowerCase().contains(search) ||
+                    String.valueOf(e.getId()).contains(search);
+
+            boolean matchEtat = etat.equals("Tous") || e.getEtat().equals(etat);
+            boolean matchType = type.equals("Tous") || e.getType().equals(type);
+
+            if (matchSearch && matchEtat && matchType) {
+                filtered.add(e);
             }
         }
+        data.setAll(filtered);
+        updateStats();
     }
 
-    private void handleAddEquipement() throws Exception {
-        System.out.println("\n➕ NOUVEL ÉQUIPEMENT");
-
-        System.out.print("Nom: ");
-        String nom = scanner.nextLine();
-
-        System.out.print("Type: ");
-        String type = scanner.nextLine();
-
-        System.out.print("État (Fonctionnel/En panne/Maintenance): ");
-        String etat = scanner.nextLine();
-
-        System.out.print("Date achat (AAAA-MM-JJ): ");
-        LocalDate dateAchat = LocalDate.parse(scanner.nextLine());
-
-        System.out.print("Durée vie estimée (années): ");
-        int dureeVie = Integer.parseInt(scanner.nextLine());
-
-        System.out.print("ID parcelle (0 si aucun): ");
-        int parcelleId = Integer.parseInt(scanner.nextLine());
-
-        Equipement equipement = equipementService.addEquipement(
-                nom, type, etat, dateAchat, dureeVie,
-                parcelleId == 0 ? null : parcelleId
-        );
-
-        equipementView.showMessage("✅ Équipement ajouté ! ID: " + equipement.getId());
+    private void loadData() {
+        data.setAll(service.getAllEquipements());
+        updateStats();
     }
 
-    private void handleShowAllEquipements() {
-        List<Equipement> equipements = equipementService.getAllEquipements();
-        equipementView.showEquipementsList(equipements);
+    @FXML
+    private void refreshTable() {
+        loadData();
+        filterData();
     }
 
-    private void handleShowEquipementById() throws Exception {
-        int id = getIntInput("ID de l'équipement: ");
-        if (id <= 0) return;
-
-        Equipement equipement = equipementService.getEquipementById(id);
-        equipementView.showEquipementDetails(equipement);
+    @FXML
+    private void clearFilters() {
+        searchField.clear();
+        filterEtat.setValue("Tous");
+        filterType.setValue("Tous");
     }
 
-    private void handleUpdateEquipement() throws Exception {
-        int id = getIntInput("ID de l'équipement à modifier: ");
-        if (id <= 0) return;
+    private void updateStats() {
+        int total = data.size();
+        int fonctionnels = (int) data.stream().filter(e -> "Fonctionnel".equals(e.getEtat())).count();
+        int enPanne = (int) data.stream().filter(e -> "En panne".equals(e.getEtat())).count();
+        int enMaintenance = (int) data.stream().filter(e -> "Maintenance".equals(e.getEtat())).count();
+        int sousGarantie = (int) data.stream().filter(e -> {
+            if (e.getDateAchat() == null) return false;
+            LocalDate finGarantie = e.getDateAchat().plusYears(e.getDureeVieEstimee());
+            return finGarantie.isAfter(LocalDate.now());
+        }).count();
 
-        System.out.println("\n✏️  MODIFICATION ÉQUIPEMENT #" + id);
-        System.out.println("Laissez vide pour garder la valeur actuelle");
-
-        System.out.print("Nouveau nom: ");
-        String nom = scanner.nextLine();
-
-        System.out.print("Nouveau type: ");
-        String type = scanner.nextLine();
-
-        System.out.print("Nouvel état: ");
-        String etat = scanner.nextLine();
-
-        System.out.print("Nouvelle date achat (AAAA-MM-JJ): ");
-        String dateStr = scanner.nextLine();
-        LocalDate dateAchat = dateStr.isEmpty() ? null : LocalDate.parse(dateStr);
-
-        System.out.print("Nouvelle durée vie: ");
-        String dureeStr = scanner.nextLine();
-        Integer dureeVie = dureeStr.isEmpty() ? null : Integer.parseInt(dureeStr);
-
-        System.out.print("Nouvel ID parcelle (0 pour aucun): ");
-        String parcelleStr = scanner.nextLine();
-        Integer parcelleId = parcelleStr.isEmpty() ? null :
-                (Integer.parseInt(parcelleStr) == 0 ? null : Integer.parseInt(parcelleStr));
-
-        Equipement updated = equipementService.updateEquipement(
-                id,
-                nom.isEmpty() ? null : nom,
-                type.isEmpty() ? null : type,
-                etat.isEmpty() ? null : etat,
-                dateAchat,
-                dureeVie,
-                parcelleId
-        );
-
-        equipementView.showMessage("✅ Équipement modifié !");
+        totalLabel.setText(String.valueOf(total));
+        fonctionnelLabel.setText(String.valueOf(fonctionnels));
+        panneLabel.setText(String.valueOf(enPanne));
+        maintenanceLabel.setText(String.valueOf(enMaintenance));
+        garantieLabel.setText(String.valueOf(sousGarantie));
     }
 
-    private void handleDeleteEquipement() throws Exception {
-        int id = getIntInput("ID de l'équipement à supprimer: ");
-        if (id <= 0) return;
+    @FXML
+    public void showAddDialog() {
+        Dialog<Equipement> dialog = new Dialog<>();
+        dialog.setTitle("Ajouter un équipement");
+        dialog.setHeaderText("Nouvel équipement agricole");
 
-        System.out.print("Confirmer suppression? (OUI/non): ");
-        String confirm = scanner.nextLine();
+        ButtonType saveButtonType = new ButtonType("Ajouter", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
-        if (confirm.equalsIgnoreCase("OUI")) {
-            equipementService.deleteEquipement(id);
-            equipementView.showMessage("✅ Équipement supprimé !");
-        } else {
-            equipementView.showMessage("❌ Suppression annulée");
-        }
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nomField = new TextField();
+        nomField.setPromptText("Nom de l'équipement");
+
+        TextField typeField = new TextField();
+        typeField.setPromptText("Type (Tracteur, Moissonneuse, etc.)");
+
+        ComboBox<String> etatBox = new ComboBox<>();
+        etatBox.getItems().addAll("Fonctionnel", "En panne", "Maintenance");
+        etatBox.setValue("Fonctionnel");
+
+        DatePicker datePicker = new DatePicker(LocalDate.now());
+        datePicker.setPromptText("Date d'achat");
+
+        TextField dureeField = new TextField();
+        dureeField.setPromptText("Durée de vie (années)");
+
+        grid.add(new Label("Nom:"), 0, 0);
+        grid.add(nomField, 1, 0);
+        grid.add(new Label("Type:"), 0, 1);
+        grid.add(typeField, 1, 1);
+        grid.add(new Label("État:"), 0, 2);
+        grid.add(etatBox, 1, 2);
+        grid.add(new Label("Date d'achat:"), 0, 3);
+        grid.add(datePicker, 1, 3);
+        grid.add(new Label("Durée de vie:"), 0, 4);
+        grid.add(dureeField, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                try {
+                    if (nomField.getText().trim().isEmpty()) {
+                        showError("Erreur", "Le nom est obligatoire");
+                        return null;
+                    }
+                    if (typeField.getText().trim().isEmpty()) {
+                        showError("Erreur", "Le type est obligatoire");
+                        return null;
+                    }
+
+                    int dureeVie;
+                    try {
+                        dureeVie = Integer.parseInt(dureeField.getText().trim());
+                        if (dureeVie <= 0) {
+                            showError("Erreur", "La durée de vie doit être positive");
+                            return null;
+                        }
+                    } catch (NumberFormatException e) {
+                        showError("Erreur", "La durée de vie doit être un nombre valide");
+                        return null;
+                    }
+
+                    return service.addEquipement(
+                            nomField.getText().trim(),
+                            typeField.getText().trim(),
+                            etatBox.getValue(),
+                            datePicker.getValue(),
+                            dureeVie,
+                            null // Pas de parcelle
+                    );
+                } catch (Exception e) {
+                    showError("Erreur", e.getMessage());
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        Optional<Equipement> result = dialog.showAndWait();
+        result.ifPresent(equip -> {
+            showInfo("Succès", "Équipement ajouté avec ID: " + equip.getId());
+            refreshTable();
+        });
     }
 
-    private void handleSearchEquipements() {
-        System.out.print("Terme de recherche: ");
-        String searchTerm = scanner.nextLine();
+    private void showEditDialog(Equipement equipement) {
+        Dialog<Equipement> dialog = new Dialog<>();
+        dialog.setTitle("Modifier équipement");
+        dialog.setHeaderText("Modification: " + equipement.getNom());
 
-        List<Equipement> results = equipementService.searchEquipements(searchTerm);
-        equipementView.showEquipementsList(results);
+        ButtonType saveButtonType = new ButtonType("Modifier", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nomField = new TextField(equipement.getNom());
+        TextField typeField = new TextField(equipement.getType());
+
+        ComboBox<String> etatBox = new ComboBox<>();
+        etatBox.getItems().addAll("Fonctionnel", "En panne", "Maintenance");
+        etatBox.setValue(equipement.getEtat());
+
+        DatePicker datePicker = new DatePicker(equipement.getDateAchat());
+        TextField dureeField = new TextField(String.valueOf(equipement.getDureeVieEstimee()));
+
+        grid.add(new Label("Nom:"), 0, 0);
+        grid.add(nomField, 1, 0);
+        grid.add(new Label("Type:"), 0, 1);
+        grid.add(typeField, 1, 1);
+        grid.add(new Label("État:"), 0, 2);
+        grid.add(etatBox, 1, 2);
+        grid.add(new Label("Date d'achat:"), 0, 3);
+        grid.add(datePicker, 1, 3);
+        grid.add(new Label("Durée de vie:"), 0, 4);
+        grid.add(dureeField, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                try {
+                    int dureeVie;
+                    try {
+                        dureeVie = Integer.parseInt(dureeField.getText().trim());
+                    } catch (NumberFormatException e) {
+                        showError("Erreur", "La durée de vie doit être un nombre valide");
+                        return null;
+                    }
+
+                    return service.updateEquipement(
+                            equipement.getId(),
+                            nomField.getText(),
+                            typeField.getText(),
+                            etatBox.getValue(),
+                            datePicker.getValue(),
+                            dureeVie,
+                            null // Pas de parcelle
+                    );
+                } catch (Exception e) {
+                    showError("Erreur", e.getMessage());
+                    return null;
+                }
+            }
+            return null;
+        });
+
+        Optional<Equipement> result = dialog.showAndWait();
+        result.ifPresent(equip -> {
+            showInfo("Succès", "Équipement modifié !");
+            refreshTable();
+        });
     }
 
-    private void handleShowStats() {
-        long total = equipementService.getTotalEquipements();
-        int fonctionnels = equipementService.countEquipementsByEtat("Fonctionnel");
-        int enPanne = equipementService.countEquipementsByEtat("En panne");
-        int enMaintenance = equipementService.countEquipementsByEtat("Maintenance");
-        double pourcentage = equipementService.getPourcentageEquipementsFonctionnels();
-
-        System.out.println("\n📊 STATISTIQUES DES ÉQUIPEMENTS");
-        System.out.println("Total d'équipements: " + total);
-        System.out.println("✅ Fonctionnels: " + fonctionnels + " (" + String.format("%.1f", pourcentage) + "%)");
-        System.out.println("🔴 En panne: " + enPanne);
-        System.out.println("🛠️  En maintenance: " + enMaintenance);
-    }
-
-    private int getIntInput(String message) {
-        System.out.print(message);
+    private void planifierMaintenance(Equipement equipement) {
         try {
-            return Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            return -1;
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Planifier une maintenance");
+            dialog.setHeaderText("Maintenance pour: " + equipement.getNom());
+
+            ButtonType planifierButton = new ButtonType("Planifier", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(planifierButton, ButtonType.CANCEL);
+
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20));
+
+            ComboBox<String> typeBox = new ComboBox<>();
+            typeBox.getItems().addAll("Préventive", "Corrective");
+            typeBox.setValue("Préventive");
+
+            TextField descriptionField = new TextField();
+            descriptionField.setPromptText("Description de la maintenance");
+
+            DatePicker datePicker = new DatePicker(LocalDate.now().plusDays(1));
+
+            TextField coutField = new TextField();
+            coutField.setPromptText("Coût estimé (DT)");
+
+            grid.add(new Label("Type:"), 0, 0);
+            grid.add(typeBox, 1, 0);
+            grid.add(new Label("Description:"), 0, 1);
+            grid.add(descriptionField, 1, 1);
+            grid.add(new Label("Date:"), 0, 2);
+            grid.add(datePicker, 1, 2);
+            grid.add(new Label("Coût:"), 0, 3);
+            grid.add(coutField, 1, 3);
+
+            dialog.getDialogPane().setContent(grid);
+
+            Optional<ButtonType> result = dialog.showAndWait();
+            if (result.isPresent() && result.get() == planifierButton) {
+                if (descriptionField.getText().trim().isEmpty()) {
+                    showError("Erreur", "La description est obligatoire");
+                    return;
+                }
+
+                double cout;
+                try {
+                    cout = Double.parseDouble(coutField.getText().trim());
+                    if (cout < 0) {
+                        showError("Erreur", "Le coût ne peut pas être négatif");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    showError("Erreur", "Le coût doit être un nombre valide");
+                    return;
+                }
+
+                com.pi.service.MaintenanceService maintenanceService = new com.pi.service.MaintenanceService();
+                maintenanceService.planifierMaintenance(
+                        equipement.getId(),
+                        typeBox.getValue(),
+                        descriptionField.getText().trim(),
+                        datePicker.getValue(),
+                        cout,
+                        "Planifiée"
+                );
+                showInfo("Succès", "Maintenance planifiée !");
+            }
+
+        } catch (Exception e) {
+            showError("Erreur", "Impossible de planifier: " + e.getMessage());
         }
+    }
+
+    private void handleDelete(Equipement equipement) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText("Supprimer " + equipement.getNom() + " ?");
+        confirm.setContentText("Cette action est irréversible. " +
+                "Toutes les maintenances associées seront également supprimées.");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    service.deleteEquipement(equipement.getId());
+                    refreshTable();
+                    showInfo("Succès", "Équipement supprimé !");
+                } catch (Exception e) {
+                    showError("Erreur", e.getMessage());
+                }
+            }
+        });
+    }
+
+    @FXML
+    private void exportToExcel() {
+        showInfo("Info", "Export Excel à venir...");
+    }
+
+    @FXML
+    private void printList() {
+        showInfo("Info", "Impression à venir...");
+    }
+
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

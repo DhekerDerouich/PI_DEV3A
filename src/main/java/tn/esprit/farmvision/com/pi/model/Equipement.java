@@ -2,6 +2,7 @@ package com.pi.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import javafx.beans.property.*;
 
 public class Equipement {
     private int id;
@@ -13,6 +14,11 @@ public class Equipement {
     private Integer parcelleId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private IntegerProperty idProperty = new SimpleIntegerProperty();
+    private StringProperty nomProperty = new SimpleStringProperty();
+    private StringProperty typeProperty = new SimpleStringProperty();
+    private StringProperty etatProperty = new SimpleStringProperty();
+    private IntegerProperty dureeVieEstimeeProperty = new SimpleIntegerProperty();
 
     // Constructeurs
     public Equipement() {}
@@ -54,6 +60,25 @@ public class Equipement {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public IntegerProperty idProperty() {
+        return new SimpleIntegerProperty(id);
+    }
+
+    public StringProperty nomProperty() {
+        return new SimpleStringProperty(nom);
+    }
+
+    public StringProperty typeProperty() {
+        return new SimpleStringProperty(type);
+    }
+
+    public StringProperty etatProperty() {
+        return new SimpleStringProperty(etat);
+    }
+
+    public IntegerProperty dureeVieEstimeeProperty() {
+        return new SimpleIntegerProperty(dureeVieEstimee);
+    }
 
     @Override
     public String toString() {
