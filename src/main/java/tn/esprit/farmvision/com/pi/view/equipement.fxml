@@ -4,98 +4,158 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="15" style="-fx-padding: 20; -fx-background-color: #f8f9fa;"
-      xmlns="http://javafx.com/javafx/17.0.2-ea"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.pi.controller.EquipementController">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pi.controller.EquipementController">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+    <top>
+        <!-- Header fixe (ne scroll pas) -->
+        <HBox style="-fx-background-color: white; -fx-padding: 28 35; -fx-border-color: #e1e8ed; -fx-border-width: 0 0 1 0; -fx-alignment: CENTER_LEFT; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 5, 0, 0, 2);" spacing="20">
+            <VBox spacing="6">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="🚜" style="-fx-font-size: 32px;"/>
+                    <Label text="Gestion des Équipements"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                </HBox>
+                <Label text="Gérez l'ensemble de votre parc d'équipements agricoles en temps réel"
+                       style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
 
-    <!-- Header with actions -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="🚜 Gestion des Équipements"
-               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="🔄 Actualiser" onAction="#refreshTable"
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-        <Button text="➕ Nouvel équipement" onAction="#showAddDialog"
-                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-        <Button text="📊 Exporter" onAction="#exportToExcel"
-                style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-    </HBox>
+            <!-- Action Buttons -->
+            <HBox spacing="12">
+                <Button text="🔄 Actualiser" onAction="#refreshTable"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 8, 0, 0, 2);"/>
+                <Button text="➕ Nouvel équipement" onAction="#showAddDialog"
+                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(46,204,113,0.3), 8, 0, 0, 2);"/>
+                <Button text="📊 Exporter Excel" onAction="#exportToExcel"
+                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(155,89,182,0.3), 8, 0, 0, 2);"/>
+            </HBox>
+        </HBox>
+    </top>
 
-    <!-- Filters -->
-    <GridPane hgap="10" vgap="10">
-        <padding>
-            <Insets bottom="10"/>
-        </padding>
+    <center>
+        <!-- ScrollPane pour permettre le défilement -->
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #f5f6fa; -fx-background: #f5f6fa;">
+            <VBox spacing="25" style="-fx-padding: 28 35 35 35; -fx-background-color: #f5f6fa;">
 
-        <Label text="Recherche:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <TextField fx:id="searchField" promptText="Nom, type ou ID..."
-                   GridPane.columnIndex="1" GridPane.rowIndex="0"
-                   prefWidth="300"/>
+                <!-- Search and Filters Card -->
+                <VBox spacing="18" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🔍" style="-fx-font-size: 18px;"/>
+                        <Label text="Recherche et Filtres"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    </HBox>
 
-        <Label text="État:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-        <ComboBox fx:id="filterEtat" prefWidth="150"
-                  GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                    <GridPane hgap="18" vgap="15">
+                        <!-- Search Field -->
+                        <HBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="Recherche globale" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: 600;"/>
+                                <HBox spacing="0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-border-width: 1.5;">
+                                    <Label text="🔎" style="-fx-font-size: 16px; -fx-padding: 10 12;"/>
+                                    <TextField fx:id="searchField" promptText="Rechercher par nom, type ou ID..."
+                                               prefWidth="450"
+                                               style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 10 15; -fx-font-size: 14px;"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
 
-        <Label text="Type:" GridPane.columnIndex="4" GridPane.rowIndex="0"/>
-        <ComboBox fx:id="filterType" prefWidth="150"
-                  GridPane.columnIndex="5" GridPane.rowIndex="0"/>
+                        <!-- État Filter -->
+                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="État de l'équipement" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: 600;"/>
+                            <ComboBox fx:id="filterEtat" prefWidth="190" promptText="Tous les états"
+                                      style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-        <Button text="❌ Effacer" onAction="#clearFilters"
-                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"
-                GridPane.columnIndex="6" GridPane.rowIndex="0"/>
-    </GridPane>
+                        <!-- Type Filter -->
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label text="Type d'équipement" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: 600;"/>
+                            <ComboBox fx:id="filterType" prefWidth="190" promptText="Tous les types"
+                                      style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1.5;"/>
+                        </VBox>
 
-    <!-- Equipment Table -->
-    <TableView fx:id="equipementTable" VBox.vgrow="ALWAYS"
-               style="-fx-background-color: white; -fx-border-color: #ecf0f1;">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colNom" text="Nom" prefWidth="150"/>
-            <TableColumn fx:id="colType" text="Type" prefWidth="120"/>
-            <TableColumn fx:id="colEtat" text="État" prefWidth="100"/>
-            <TableColumn fx:id="colDateAchat" text="Date d'achat" prefWidth="100"/>
-            <TableColumn fx:id="colDureeVie" text="Durée (ans)" prefWidth="80"/>
-            <TableColumn fx:id="colFinGarantie" text="Fin garantie" prefWidth="100"/>
-            <TableColumn fx:id="colAge" text="Âge" prefWidth="80"/>
-            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
-        </columns>
-    </TableView>
+                        <!-- Clear Button -->
+                        <VBox spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="1" alignment="BOTTOM_LEFT">
+                            <Label text=" " style="-fx-font-size: 12px;"/>
+                            <Button text="❌ Effacer les filtres" onAction="#clearFilters"
+                                    style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-padding: 9 18; -fx-cursor: hand; -fx-background-radius: 6; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
 
-    <!-- Statistics -->
-    <HBox spacing="20" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-background-radius: 5;">
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="📊 Total" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
-            <Label fx:id="totalLabel" text="0"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-        </VBox>
-        <Separator orientation="VERTICAL"/>
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="✅ Fonctionnels" style="-fx-font-size: 12px; -fx-text-fill: #2ecc71;"/>
-            <Label fx:id="fonctionnelLabel" text="0"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
-        </VBox>
-        <Separator orientation="VERTICAL"/>
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="🔴 En panne" style="-fx-font-size: 12px; -fx-text-fill: #e74c3c;"/>
-            <Label fx:id="panneLabel" text="0"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
-        </VBox>
-        <Separator orientation="VERTICAL"/>
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="🛠️ Maintenance" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
-            <Label fx:id="maintenanceLabel" text="0"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
-        </VBox>
-        <Separator orientation="VERTICAL"/>
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="🛡️ Sous garantie" style="-fx-font-size: 12px; -fx-text-fill: #3498db;"/>
-            <Label fx:id="garantieLabel" text="0"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
-        </VBox>
-    </HBox>
-</VBox>
+                <!-- Statistics Dashboard -->
+                <GridPane hgap="20" vgap="20">
+                    <!-- Total Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                          style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -fx-background-radius: 14; -fx-padding: 25 20; -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 12, 0, 0, 4); -fx-min-width: 200;">
+                        <Label text="📊" style="-fx-font-size: 36px;"/>
+                        <Label fx:id="totalLabel" text="0"
+                               style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: black;"/>
+                        <Label text="Total Équipements" style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Fonctionnels Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 25 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3); -fx-border-color: #2ecc71; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-min-width: 200;">
+                        <Label text="✅" style="-fx-font-size: 34px;"/>
+                        <Label fx:id="fonctionnelLabel" text="0"
+                               style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
+                        <Label text="Fonctionnels" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- En Panne Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 25 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3); -fx-border-color: #e74c3c; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-min-width: 200;">
+                        <Label text="🔴" style="-fx-font-size: 34px;"/>
+                        <Label fx:id="panneLabel" text="0"
+                               style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                        <Label text="En Panne" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Maintenance Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 25 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3); -fx-border-color: #f39c12; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-min-width: 200;">
+                        <Label text="🛠️" style="-fx-font-size: 34px;"/>
+                        <Label fx:id="maintenanceLabel" text="0"
+                               style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
+                        <Label text="En Maintenance" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Garantie Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 25 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3); -fx-border-color: #3498db; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-min-width: 200;">
+                        <Label text="🛡️" style="-fx-font-size: 34px;"/>
+                        <Label fx:id="garantieLabel" text="0"
+                               style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+                        <Label text="Sous Garantie" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50; -fx-font-weight: 600;"/>
+                    </VBox>
+                </GridPane>
+
+                <!-- Equipment Table Card -->
+                <VBox spacing="15" prefHeight="500"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);">
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Label text="📋 Liste des Équipements"
+                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    </HBox>
+
+                    <TableView fx:id="equipementTable" VBox.vgrow="ALWAYS"
+                               style="-fx-background-color: transparent; -fx-border-color: #e8ecef; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1;">
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
+                            <TableColumn fx:id="colNom" text="Nom" prefWidth="200"/>
+                            <TableColumn fx:id="colType" text="Type" prefWidth="140"/>
+                            <TableColumn fx:id="colEtat" text="État" prefWidth="130"/>
+                            <TableColumn fx:id="colDateAchat" text="Date d'achat" prefWidth="120"/>
+                            <TableColumn fx:id="colDureeVie" text="Durée de vie" prefWidth="110"/>
+                            <TableColumn fx:id="colFinGarantie" text="Fin garantie" prefWidth="130"/>
+                            <TableColumn fx:id="colAge" text="Âge" prefWidth="90"/>
+                            <TableColumn fx:id="colActions" text="Actions" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

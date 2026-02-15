@@ -4,70 +4,137 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="15" style="-fx-padding: 20; -fx-background-color: #f8f9fa;"
-      xmlns="http://javafx.com/javafx/17.0.2-ea"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.pi.controller.MaintenanceController">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pi.controller.MaintenanceController">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+    <top>
+        <!-- Header fixe (ne scroll pas) -->
+        <HBox style="-fx-background-color: white; -fx-padding: 28 35; -fx-border-color: #e1e8ed; -fx-border-width: 0 0 1 0; -fx-alignment: CENTER_LEFT; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 5, 0, 0, 2);" spacing="20">
+            <VBox spacing="6">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="🔧" style="-fx-font-size: 32px;"/>
+                    <Label text="Gestion des Maintenances"
+                           style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                </HBox>
+                <Label text="Planifiez, suivez et optimisez toutes vos opérations de maintenance"
+                       style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
 
-    <!-- Header -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="🔧 Gestion des Maintenances" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="🔄 Actualiser" onAction="#refreshTable"
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-        <Button text="📅 Planifier" onAction="#showAddDialog"
-                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-        <Button text="📊 Stats" onAction="#showStats"
-                style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-    </HBox>
+            <!-- Action Buttons -->
+            <HBox spacing="12">
+                <Button text="🔄 Actualiser" onAction="#refreshTable"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 8, 0, 0, 2);"/>
+                <Button text="📅 Planifier" onAction="#showAddDialog"
+                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(46,204,113,0.3), 8, 0, 0, 2);"/>
+                <Button text="📊 Statistiques" onAction="#showStats"
+                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(155,89,182,0.3), 8, 0, 0, 2);"/>
+            </HBox>
+        </HBox>
+    </top>
 
-    <!-- Filters -->
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Filtrer par:" style="-fx-font-weight: bold;"/>
-        <Label text="Statut:"/>
-        <ComboBox fx:id="filterStatut" prefWidth="120"/>
-        <Label text="Équipement:"/>
-        <ComboBox fx:id="filterEquipement" prefWidth="150"/>
-        <Button text="❌ Effacer" onAction="#clearFilters"
-                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;"/>
-    </HBox>
+    <center>
+        <!-- ScrollPane pour permettre le défilement -->
+        <ScrollPane fitToWidth="true" style="-fx-background-color: #f5f6fa; -fx-background: #f5f6fa;">
+            <VBox spacing="25" style="-fx-padding: 28 35 35 35; -fx-background-color: #f5f6fa;">
 
-    <!-- Table -->
-    <TableView fx:id="maintenanceTable" VBox.vgrow="ALWAYS"
-               style="-fx-background-color: white; -fx-border-color: #ecf0f1;">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colEquipementNom" text="Équipement" prefWidth="150"/>
-            <TableColumn fx:id="colType" text="Type" prefWidth="100"/>
-            <TableColumn fx:id="colDescription" text="Description" prefWidth="200"/>
-            <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
-            <TableColumn fx:id="colCout" text="Coût (DT)" prefWidth="100"/>
-            <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
-        </columns>
-    </TableView>
+                <!-- Filters Card -->
+                <VBox spacing="18" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="🔍" style="-fx-font-size: 18px;"/>
+                        <Label text="Filtres"
+                               style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    </HBox>
 
-    <!-- Stats -->
-    <HBox spacing="20" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-background-radius: 5;">
-        <VBox spacing="5">
-            <Label text="📋 Total" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
-            <Label fx:id="totalLabel" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-        </VBox>
-        <VBox spacing="5">
-            <Label text="📅 Planifiées" style="-fx-font-size: 12px; -fx-text-fill: #f39c12;"/>
-            <Label fx:id="planifieesLabel" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
-        </VBox>
-        <VBox spacing="5">
-            <Label text="✅ Réalisées" style="-fx-font-size: 12px; -fx-text-fill: #2ecc71;"/>
-            <Label fx:id="realiseesLabel" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
-        </VBox>
-        <VBox spacing="5">
-            <Label text="💰 Coût total" style="-fx-font-size: 12px; -fx-text-fill: #3498db;"/>
-            <Label fx:id="coutTotalLabel" text="0.00 DT" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
-        </VBox>
-    </HBox>
-</VBox>
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <!-- Statut Filter -->
+                        <VBox spacing="6">
+                            <Label text="Statut" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: 600;"/>
+                            <ComboBox fx:id="filterStatut" prefWidth="180" promptText="Tous"
+                                      style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1.5;"/>
+                        </VBox>
+
+                        <!-- Équipement Filter -->
+                        <VBox spacing="6">
+                            <Label text="Équipement" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-weight: 600;"/>
+                            <ComboBox fx:id="filterEquipement" prefWidth="220" promptText="Tous"
+                                      style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1.5;"/>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <!-- Clear Button -->
+                        <VBox spacing="6" alignment="BOTTOM_LEFT">
+                            <Label text=" " style="-fx-font-size: 12px;"/>
+                            <Button text="❌ Effacer les filtres" onAction="#clearFilters"
+                                    style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-padding: 9 18; -fx-cursor: hand; -fx-background-radius: 6; -fx-font-size: 13px; -fx-font-weight: 600;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Statistics Dashboard -->
+                <GridPane hgap="20" vgap="20">
+                    <!-- Total Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                          style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -fx-background-radius: 14; -fx-padding: 22 18; -fx-effect: dropshadow(gaussian, rgba(102,126,234,0.4), 12, 0, 0, 4); -fx-min-width: 220;">
+                        <Label text="📋" style="-fx-font-size: 32px;"/>
+                        <Label fx:id="totalLabel" text="0"
+                               style="-fx-font-size: 38px; -fx-font-weight: bold; -fx-text-fill: black;"/>
+                        <Label text="Total" style="-fx-font-size: 12px; -fx-text-fill: rgba(0, 0, 0, 1); -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Planifiées Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 22 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3); -fx-border-color: #f39c12; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-min-width: 220;">
+                        <Label text="📅" style="-fx-font-size: 30px;"/>
+                        <Label fx:id="planifieesLabel" text="0"
+                               style="-fx-font-size: 38px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
+                        <Label text="Planifiées" style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Réalisées Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="0"
+                          style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 22 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3); -fx-border-color: #2ecc71; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-min-width: 220;">
+                        <Label text="✅" style="-fx-font-size: 30px;"/>
+                        <Label fx:id="realiseesLabel" text="0"
+                               style="-fx-font-size: 38px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
+                        <Label text="Réalisées" style="-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-font-weight: 600;"/>
+                    </VBox>
+
+                    <!-- Coût Total Card -->
+                    <VBox spacing="10" alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="0"
+                          style="-fx-background-color: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -fx-background-radius: 14; -fx-padding: 22 18; -fx-effect: dropshadow(gaussian, rgba(240,147,251,0.4), 12, 0, 0, 4); -fx-min-width: 220;">
+                        <Label text="💰" style="-fx-font-size: 30px;"/>
+                        <Label fx:id="coutTotalLabel" text="0.00 DT"
+                               style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: black;"/>
+                        <Label text="Coût Total" style="-fx-font-size: 12px; -fx-text-fill: rgba(0, 0, 0, 1); -fx-font-weight: 600;"/>
+                    </VBox>
+                </GridPane>
+
+                <!-- Maintenance Table Card -->
+                <VBox spacing="15" prefHeight="500"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 3);">
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Label text="📋 Liste des Maintenances"
+                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    </HBox>
+
+                    <TableView fx:id="maintenanceTable" VBox.vgrow="ALWAYS"
+                               style="-fx-background-color: transparent; -fx-border-color: #e8ecef; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1;">
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
+                            <TableColumn fx:id="colEquipementNom" text="Équipement" prefWidth="180"/>
+                            <TableColumn fx:id="colType" text="Type" prefWidth="140"/>
+                            <TableColumn fx:id="colDescription" text="Description" prefWidth="240"/>
+                            <TableColumn fx:id="colDate" text="Date" prefWidth="120"/>
+                            <TableColumn fx:id="colCout" text="Coût (DT)" prefWidth="110"/>
+                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="130"/>
+                            <TableColumn fx:id="colActions" text="Actions" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
