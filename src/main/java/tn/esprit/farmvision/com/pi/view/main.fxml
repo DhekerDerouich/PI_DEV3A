@@ -14,7 +14,7 @@
         <VBox spacing="0">
             <!-- Header Bar -->
             <HBox style="-fx-background-color: linear-gradient(to right, #667eea 0%, #764ba2 100%); -fx-padding: 20 30; -fx-alignment: CENTER_LEFT;">
-                <Label text="🌾 AgriTech Manager"
+                <Label text="🌾 Farmvision "
                        style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label text="Gestion d'équipements agricoles"
