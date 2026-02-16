@@ -6,9 +6,8 @@ import java.sql.SQLException;
 
 public class Myconnection {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/farmvision_db"
+    private static final String URL = "jdbc:mysql://localhost:3306/farmvision"
             + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8";
-
     private static final String USER = "root";
     private static final String PASSWORD = "";  // change si besoin
 

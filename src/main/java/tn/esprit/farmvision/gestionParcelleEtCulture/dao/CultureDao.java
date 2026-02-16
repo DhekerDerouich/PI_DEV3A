@@ -46,6 +46,27 @@ public class CultureDao {
 
         return list;
     }
+    // ========== GET BY ID ==========
+    public Culture getById(int id) throws SQLException {
+        String sql = "SELECT * FROM culture WHERE idCulture = ?";
+        try (Connection conn = Myconnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Culture(
+                            rs.getInt("idCulture"),
+                            rs.getString("nomCulture"),
+                            rs.getString("typeCulture"),
+                            rs.getDate("dateSemis"),
+                            rs.getDate("dateRecolte")
+                    );
+                }
+            }
+        }
+        return null; // no culture found
+    }
 
     public void update(Culture c) throws SQLException {
         String sql = """

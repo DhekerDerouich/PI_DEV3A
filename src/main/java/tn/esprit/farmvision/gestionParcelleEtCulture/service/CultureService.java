@@ -21,7 +21,9 @@ public class CultureService {
     public void modifier(Culture c) throws Exception {
         dao.update(c);
     }
-
+    public Culture getById(int id) throws Exception {
+        return dao.getById(id);
+    }
     public void supprimer(int id) throws Exception {
         dao.delete(id);
     }

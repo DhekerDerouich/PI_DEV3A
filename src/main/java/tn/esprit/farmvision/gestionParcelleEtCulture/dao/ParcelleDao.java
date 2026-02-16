@@ -23,6 +23,24 @@ public class ParcelleDao {
         ps.executeUpdate();
     }
 
+    public Parcelle getById(int id) throws SQLException {
+        String sql = "SELECT * FROM parcelle WHERE idParcelle = ?";
+        try (Connection conn = Myconnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Parcelle(
+                            rs.getInt("idParcelle"),
+                            rs.getFloat("surface"),
+                            rs.getString("localisation")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Parcelle> getAll() throws SQLException {
         List<Parcelle> list = new ArrayList<>();
 
@@ -45,7 +63,6 @@ public class ParcelleDao {
     public void update(Parcelle p) throws SQLException {
         String sql = "UPDATE parcelle SET surface=?, localisation=? WHERE idParcelle=?";
         Connection conn = Myconnection.getConnection();
-        Statement st = conn.createStatement();
         PreparedStatement ps = conn.prepareStatement(sql);
 
         ps.setFloat(1, p.getSurface());

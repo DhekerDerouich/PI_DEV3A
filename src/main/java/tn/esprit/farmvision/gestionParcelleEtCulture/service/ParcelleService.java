@@ -3,7 +3,6 @@ package tn.esprit.farmvision.gestionParcelleEtCulture.service;
 import tn.esprit.farmvision.gestionParcelleEtCulture.dao.ParcelleDao;
 import tn.esprit.farmvision.gestionParcelleEtCulture.model.Parcelle;
 
-import java.sql.Connection;
 import java.util.List;
 
 public class ParcelleService {
@@ -22,6 +21,9 @@ public class ParcelleService {
 
     public void modifier(Parcelle p) throws Exception {
         dao.update(p);
+    }
+    public Parcelle getById(int id) throws Exception {
+        return dao.getById(id);
     }
 
     public void supprimer(int id) throws Exception {
