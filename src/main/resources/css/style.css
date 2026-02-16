@@ -1,4 +1,4 @@
-/* style.css - Thème Farm & Agriculture - Version complète */
+/* style.css - Thème Farm & Agriculture - Version complète avec centrage */
 
 /* ========== VARIABLES GLOBALES ========== */
 .root {
@@ -9,53 +9,42 @@
 /* ========== TAILLES DES FENÊTRES ========== */
 
 /* Fenêtre principale */
-.root.main-window {
+.main-window {
     -fx-min-width: 700px;
     -fx-min-height: 500px;
     -fx-pref-width: 700px;
     -fx-pref-height: 500px;
-    -fx-max-width: 800px;
-    -fx-max-height: 600px;
 }
 
 /* Fenêtre de gestion des stocks */
-.root.stock-window {
-    -fx-min-width: 1000px;
-    -fx-min-height: 600px;
+.stock-window {
+    -fx-min-width: 1100px;
+    -fx-min-height: 700px;
     -fx-pref-width: 1100px;
     -fx-pref-height: 700px;
-    -fx-max-width: 1200px;
-    -fx-max-height: 800px;
 }
 
 /* Fenêtre marketplace */
-.root.marketplace-window {
-    -fx-min-width: 1000px;
-    -fx-min-height: 600px;
+.marketplace-window {
+    -fx-min-width: 1100px;
+    -fx-min-height: 700px;
     -fx-pref-width: 1100px;
     -fx-pref-height: 700px;
-    -fx-max-width: 1200px;
-    -fx-max-height: 800px;
 }
 
-/* Fenêtres de dialogue (ajout/modification) */
-.root.dialog-window {
-    -fx-min-width: 500px;
-    -fx-min-height: 450px;
+/* Fenêtres de dialogue */
+.dialog-window {
+    -fx-min-width: 550px;
+    -fx-min-height: 500px;
     -fx-pref-width: 550px;
     -fx-pref-height: 500px;
-    -fx-max-width: 600px;
-    -fx-max-height: 550px;
 }
 
-/* Fenêtre de dialogue pour modifier (plus grande) */
-.root.dialog-window-large {
-    -fx-min-width: 550px;
-    -fx-min-height: 550px;
+.dialog-window-large {
+    -fx-min-width: 600px;
+    -fx-min-height: 600px;
     -fx-pref-width: 600px;
     -fx-pref-height: 600px;
-    -fx-max-width: 650px;
-    -fx-max-height: 650px;
 }
 
 /* ========== COULEURS PRINCIPALES ========== */
@@ -94,12 +83,25 @@
     -fx-text-fill: white;
 }
 
+/* ========== CENTRAGE GLOBAL ========== */
+
+/* Centrer tous les VBox et HBox */
+.vbox, .hbox {
+    -fx-alignment: center;
+}
+
+/* Centrer le contenu des AnchorPane */
+.anchor-pane {
+    -fx-alignment: center;
+}
+
 /* ========== EN-TÊTES ========== */
 .header {
     -fx-background-color: linear-gradient(to right, #2e7d32, #4caf50);
     -fx-padding: 20px;
     -fx-min-height: 80px;
     -fx-pref-height: 80px;
+    -fx-alignment: center;
 }
 
 .header-marketplace {
@@ -107,6 +109,7 @@
     -fx-padding: 20px;
     -fx-min-height: 80px;
     -fx-pref-height: 80px;
+    -fx-alignment: center;
 }
 
 .header-title {
@@ -114,12 +117,14 @@
     -fx-font-weight: bold;
     -fx-text-fill: white;
     -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 .header-subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: #e8f5e9;
     -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 /* ========== LABELS ========== */
@@ -134,6 +139,8 @@
     -fx-text-fill: #2e7d32;
     -fx-padding: 10 0 20 0;
     -fx-effect: dropshadow(gaussian, rgba(0,100,0,0.3), 5, 0, 2, 2);
+    -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 .label-header {
@@ -141,12 +148,15 @@
     -fx-font-weight: bold;
     -fx-text-fill: #1b5e20;
     -fx-padding: 5 0 10 0;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
 }
 
 .label-field {
     -fx-font-weight: bold;
     -fx-min-width: 120px;
     -fx-pref-width: 120px;
+    -fx-alignment: center-right;
 }
 
 /* ========== BOUTONS ========== */
@@ -231,6 +241,13 @@
     -fx-border-radius: 20px;
 }
 
+/* ========== BARRES DE BOUTONS ========== */
+.button-bar {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+    -fx-padding: 15px;
+}
+
 /* ========== CHAMPS DE TEXTE ========== */
 .text-field, .combo-box, .date-picker, .text-area {
     -fx-border-color: #c5c5c5;
@@ -267,6 +284,28 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 0);
     -fx-min-height: 300px;
     -fx-pref-height: 400px;
+}
+
+/* Centrer le contenu du tableau */
+.table-view .column-header .label {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.table-column {
+    -fx-alignment: center;
+}
+
+.table-cell {
+    -fx-alignment: center;
+    -fx-padding: 5px;
+}
+
+/* Colonnes spécifiques */
+#colId, #colProduit, #colCategorie, #colQuantite,
+#colUnite, #colDate, #colDateExpiration, #colStatut,
+#colPrix, #colVendeur {
+    -fx-alignment: center;
 }
 
 .table-view .column-header {
@@ -319,9 +358,14 @@
     -fx-min-height: 70px;
 }
 
+.toolbar HBox {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+}
+
 .toolbar-filters {
     -fx-spacing: 15px;
-    -fx-alignment: center-left;
+    -fx-alignment: center;
 }
 
 /* ========== PANNEAUX ========== */
@@ -336,6 +380,7 @@
 .panel-center {
     -fx-padding: 20px;
     -fx-spacing: 15px;
+    -fx-alignment: center;
 }
 
 .panel-footer {
@@ -343,6 +388,7 @@
     -fx-padding: 15px;
     -fx-border-radius: 0 0 10px 10px;
     -fx-background-radius: 0 0 10px 10px;
+    -fx-alignment: center;
 }
 
 /* ========== CARTES ========== */
@@ -353,12 +399,14 @@
     -fx-padding: 20px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);
     -fx-min-width: 300px;
+    -fx-alignment: center;
 }
 
 .card-title {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #2e7d32;
+    -fx-alignment: center;
 }
 
 /* ========== SÉPARATEURS ========== */
@@ -379,6 +427,12 @@
     -fx-padding: 10px;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.message HBox {
+    -fx-alignment: center;
 }
 
 .message-success {
@@ -405,30 +459,38 @@
     -fx-border-color: #1976d2;
 }
 
-/* ========== SCROLLPANE ========== */
-.scroll-pane {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
+/* ========== GRILLES ========== */
+.grid-form {
+    -fx-hgap: 10px;
+    -fx-vgap: 15px;
+    -fx-padding: 20px;
+    -fx-alignment: center;
 }
 
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
+.grid-form HBox {
+    -fx-alignment: center;
 }
 
-/* ========== PIED DE PAGE ========== */
-.footer {
-    -fx-background-color: #2e7d32;
-    -fx-min-height: 30px;
-    -fx-pref-height: 30px;
+/* ========== FORMULAIRES ========== */
+.form-row {
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+    -fx-padding: 5px;
 }
 
-.footer-marketplace {
-    -fx-background-color: #ff9800;
+.form-container {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+    -fx-padding: 20px;
 }
 
-.footer-text {
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
+/* ========== CONTENEURS CENTRÉS ========== */
+.center-container {
+    -fx-alignment: center;
+    -fx-padding: 20px;
+}
+
+.center-content {
     -fx-alignment: center;
 }
 
@@ -436,17 +498,11 @@
 .content-area {
     -fx-padding: 20px;
     -fx-spacing: 15px;
+    -fx-alignment: center;
 }
 
 .content-area-center {
     -fx-alignment: center;
-}
-
-/* ========== GRILLES ========== */
-.grid-form {
-    -fx-hgap: 10px;
-    -fx-vgap: 15px;
-    -fx-padding: 20px;
 }
 
 /* ========== IMAGES ========== */
@@ -490,6 +546,35 @@
     -fx-font-style: italic;
 }
 
+/* ========== SCROLLPANE ========== */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ========== PIED DE PAGE ========== */
+.footer {
+    -fx-background-color: #2e7d32;
+    -fx-min-height: 30px;
+    -fx-pref-height: 30px;
+    -fx-alignment: center;
+}
+
+.footer-marketplace {
+    -fx-background-color: #ff9800;
+    -fx-alignment: center;
+}
+
+.footer-text {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-alignment: center;
+}
+
 /* ========== TOOLTIPS ========== */
 .tooltip {
     -fx-background-color: #2e7d32;
@@ -497,4 +582,67 @@
     -fx-font-size: 12px;
     -fx-padding: 5px;
     -fx-background-radius: 3px;
+}
+
+/* ========== STYLES SPÉCIFIQUES POUR LES FENÊTRES ========== */
+
+/* Menu principal */
+.main-menu {
+    -fx-alignment: center;
+}
+
+.main-menu VBox {
+    -fx-alignment: center;
+    -fx-spacing: 20px;
+}
+
+.main-menu HBox {
+    -fx-alignment: center;
+}
+
+/* Gestion des stocks */
+.stock-management {
+    -fx-alignment: center;
+}
+
+.stock-management VBox {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+}
+
+/* Marketplace */
+.marketplace {
+    -fx-alignment: center;
+}
+
+.marketplace VBox {
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 800px) {
+    .root {
+        -fx-font-size: 12px;
+    }
+
+    .button {
+        -fx-padding: 8 15 8 15;
+        -fx-min-width: 80px;
+    }
+
+    .table-view {
+        -fx-pref-height: 300px;
+    }
+}
+
+/* ========== IMPRESSION ========== */
+@media print {
+    .button, .toolbar, .footer {
+        -fx-opacity: 0;
+    }
+
+    .table-view {
+        -fx-border-color: black;
+    }
 }

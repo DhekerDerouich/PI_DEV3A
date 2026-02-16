@@ -4,57 +4,61 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.layout.HBox?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: linear-gradient(to bottom right, #2e7d32, #1b5e20);" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.farmvision.gestionstock.controller.MainStockController">
+<AnchorPane prefHeight="500.0" prefWidth="700.0" style="-fx-background-color: linear-gradient(to bottom, #e8f5e9, #c8e6c9);" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.farmvision.gestionstock.controller.MainStockController">
     <children>
-        <!-- Rectangle décoratif en haut -->
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff20" height="200.0" layoutX="-50.0" layoutY="-50.0" stroke="TRANSPARENT" strokeType="INSIDE" width="300.0" />
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff15" height="250.0" layoutX="600.0" layoutY="400.0" rotate="45.0" stroke="TRANSPARENT" strokeType="INSIDE" width="250.0" />
-
-        <!-- Carte centrale -->
-        <AnchorPane layoutX="150.0" layoutY="100.0" prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: white; -fx-background-radius: 30px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 10);">
+        <!-- Bannière supérieure centrée -->
+        <VBox alignment="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="120.0" prefWidth="700.0" style="-fx-background-color: #2e7d32;">
             <children>
-                <!-- En-tête avec vague -->
-                <AnchorPane layoutX="0.0" layoutY="0.0" prefHeight="120.0" prefWidth="500.0" style="-fx-background-color: linear-gradient(to right, #4caf50, #2e7d32); -fx-background-radius: 30px 30px 0 0;">
-                    <children>
-                        <Label alignment="CENTER" layoutY="30.0" prefWidth="500.0" text="🌾 FARMVISION 🌾" textFill="white">
-                            <font>
-                                <Font name="System Bold" size="32.0" />
-                            </font>
-                        </Label>
-                        <Label alignment="CENTER" layoutY="75.0" prefWidth="500.0" text="Gestion Agricole Intelligente" textFill="#e8f5e9">
-                            <font>
-                                <Font size="16.0" />
-                            </font>
-                        </Label>
-                    </children>
-                </AnchorPane>
-
-                <!-- Boutons -->
-                <VBox alignment="CENTER" layoutX="125.0" layoutY="150.0" prefHeight="200.0" prefWidth="250.0" spacing="20.0">
-                    <children>
-                        <Button fx:id="btnGestionStock" mnemonicParsing="false" onAction="#handleGestionStock" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: #4caf50; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="🌽 Gestion des Stocks">
-                            <font>
-                                <Font size="16.0" />
-                            </font>
-                        </Button>
-
-                        <Button fx:id="btnMarketplace" mnemonicParsing="false" onAction="#handleMarketplace" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: #ff9800; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="🛒 Marketplace">
-                            <font>
-                                <Font size="16.0" />
-                            </font>
-                        </Button>
-
-                        <Button mnemonicParsing="false" onAction="#handleRetour" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: #8d6e63; -fx-background-radius: 25px; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" text="❌ Fermer" />
-                    </children>
-                </VBox>
-
-                <!-- Icônes décoratives -->
-                <Label layoutX="50.0" layoutY="200.0" style="-fx-font-size: 48px;" text="🌿" />
-                <Label layoutX="400.0" layoutY="300.0" style="-fx-font-size: 48px;" text="🌾" />
+                <Label alignment="CENTER" text="🌾 FARMVISION 🌾" textFill="white">
+                    <font>
+                        <Font name="System Bold" size="36.0" />
+                    </font>
+                </Label>
+                <Label alignment="CENTER" text="Gestion Agricole Intelligente" textFill="#e8f5e9">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
             </children>
-        </AnchorPane>
+        </VBox>
+
+        <!-- Panneau central centré avec VBox -->
+        <VBox alignment="CENTER" layoutX="0.0" layoutY="120.0" prefHeight="340.0" prefWidth="700.0" spacing="20.0">
+            <children>
+                <!-- Conteneur pour centrer les boutons -->
+                <HBox alignment="CENTER" prefWidth="700.0">
+                    <children>
+                        <VBox alignment="CENTER" spacing="20.0" prefWidth="300.0">
+                            <children>
+                                <Button fx:id="btnGestionStock" mnemonicParsing="false" onAction="#handleGestionStock" prefHeight="60.0" prefWidth="250.0" style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 10px;" text="🌽 Gestion des Stocks">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Button>
+
+                                <Button fx:id="btnMarketplace" mnemonicParsing="false" onAction="#handleMarketplace" prefHeight="60.0" prefWidth="250.0" style="-fx-background-color: #ff9800; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 10px;" text="🛒 Marketplace">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Button>
+
+                                <Button mnemonicParsing="false" onAction="#handleRetour" prefHeight="50.0" prefWidth="250.0" style="-fx-background-color: #8d6e63; -fx-text-fill: white; -fx-font-size: 16px; -fx-background-radius: 10px;" text="❌ Fermer" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Pied de page centré -->
+        <HBox alignment="CENTER" layoutY="440.0" prefHeight="60.0" prefWidth="700.0" style="-fx-background-color: #8d6e63;">
+            <children>
+                <Label alignment="CENTER" text="© 2026 - FarmVision - L'agriculture de demain" textFill="#e8f5e9" />
+            </children>
+        </HBox>
     </children>
 </AnchorPane>
