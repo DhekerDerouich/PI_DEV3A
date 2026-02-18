@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pi.controller.CalendrierMaintenanceController"
+            prefHeight="800" prefWidth="1200"
+            style="-fx-background-color: #f8f9fa;">
+
+    <top>
+        <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+            <!-- Header avec navigation -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="📅" style="-fx-font-size: 32px;"/>
+                    <VBox spacing="5">
+                        <Label text="Calendrier des Maintenances"
+                               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label text="Visualisez et gérez toutes vos maintenances planifiées"
+                               style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+                    </VBox>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox spacing="10">
+                    <Button fx:id="moisPrecedentBtn" text="◀ Mois précédent" onAction="#moisPrecedent"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+                    <Button fx:id="aujourdhuiBtn" text="Aujourd'hui" onAction="#aujourdhui"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+                    <Button fx:id="moisSuivantBtn" text="Mois suivant ▶" onAction="#moisSuivant"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
+                    <Button fx:id="ajouterMaintenanceBtn" text="➕ Nouvelle maintenance" onAction="#ajouterMaintenance"
+                            style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5; -fx-font-weight: bold;"/>
+                </HBox>
+            </HBox>
+
+            <!-- Titre du mois et statistiques rapides -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <Label fx:id="moisAnneeLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+
+                <HBox spacing="15" style="-fx-background-color: #f0f7ff; -fx-padding: 8 15; -fx-background-radius: 20;">
+                    <Label text="📊 Total:" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="totalMaintenancesLabel" text="0"/>
+                    <Separator orientation="VERTICAL"/>
+                    <Label text="Ce mois:" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="maintenancesMoisLabel" text="0"/>
+                    <Separator orientation="VERTICAL"/>
+                    <Label text="Coût mois:" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="coutMoisLabel" text="0 DT"/>
+                </HBox>
+            </HBox>
+
+            <!-- Filtres avancés -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label text="Type de maintenance" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                    <ComboBox fx:id="filtreTypeCombo" prefWidth="150"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Statut" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                    <ComboBox fx:id="filtreStatutCombo" prefWidth="150"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Équipement" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                    <ComboBox fx:id="filtreEquipementCombo" prefWidth="200"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="❌ Réinitialiser filtres" onAction="#aujourdhui"
+                        style="-fx-background-color: #e9ecef; -fx-text-fill: #495057;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="15" style="-fx-padding: 20;">
+            <!-- Calendrier -->
+            <VBox spacing="15" HBox.hgrow="ALWAYS">
+                <GridPane fx:id="calendrierGrid"
+                          style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5;"
+                          VBox.vgrow="ALWAYS"/>
+
+                <!-- Légende -->
+                <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 10 0;">
+                    <Label text="Légende:" style="-fx-font-weight: bold;"/>
+                    <VBox fx:id="legendeBox" spacing="5"/>
+                </HBox>
+            </VBox>
+
+            <!-- Détails du jour sélectionné -->
+            <VBox spacing="15" prefWidth="400" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="📌" style="-fx-font-size: 24px;"/>
+                    <VBox spacing="5">
+                        <Label fx:id="dateSelectionneeLabel" text="📅 Sélectionnez un jour"
+                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label fx:id="maintenancesJourLabel" text="0 maintenance(s)"
+                               style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+                    </VBox>
+                </HBox>
+
+                <Separator/>
+
+                <Label text="Liste des maintenances:" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <ListView fx:id="maintenancesJourListView" VBox.vgrow="ALWAYS"
+                          style="-fx-background-color: transparent;"/>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="➕ Planifier pour ce jour" onAction="#ajouterMaintenance"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 10 15; -fx-background-radius: 5; -fx-font-weight: bold;"
+                            maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="📤 Exporter" onAction="#exporterCalendrier"
+                            style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-padding: 8; -fx-background-radius: 5;"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button text="🖨️ Imprimer" onAction="#imprimerCalendrier"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8; -fx-background-radius: 5;"
+                            HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+
+</BorderPane>

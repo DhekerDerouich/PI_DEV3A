@@ -24,6 +24,8 @@
 
             <!-- Action Buttons -->
             <HBox spacing="12">
+                <Button text="📅 Calendrier interactif" onAction="#ouvrirCalendrierMaintenance"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold;"/>
                 <Button text="🔄 Actualiser" onAction="#refreshTable"
                         style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 11 22; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 8, 0, 0, 2);"/>
                 <Button text="📅 Planifier" onAction="#showAddDialog"
@@ -123,7 +125,6 @@
                     <TableView fx:id="maintenanceTable" VBox.vgrow="ALWAYS"
                                style="-fx-background-color: transparent; -fx-border-color: #e8ecef; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-width: 1;">
                         <columns>
-                            <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
                             <TableColumn fx:id="colEquipementNom" text="Équipement" prefWidth="180"/>
                             <TableColumn fx:id="colType" text="Type" prefWidth="140"/>
                             <TableColumn fx:id="colDescription" text="Description" prefWidth="240"/>

@@ -2,14 +2,24 @@ package com.pi.controller;
 
 import com.pi.model.Equipement;
 import com.pi.service.EquipementService;
+import com.pi.service.QRCodeService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -17,7 +27,6 @@ import java.util.Optional;
 public class EquipementController {
 
     @FXML private TableView<Equipement> equipementTable;
-    @FXML private TableColumn<Equipement, Integer> colId;
     @FXML private TableColumn<Equipement, String> colNom;
     @FXML private TableColumn<Equipement, String> colType;
     @FXML private TableColumn<Equipement, String> colEtat;
@@ -48,7 +57,6 @@ public class EquipementController {
     }
 
     private void setupTableColumns() {
-        colId.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         colNom.setCellValueFactory(cellData -> cellData.getValue().nomProperty());
         colType.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         colEtat.setCellValueFactory(cellData -> cellData.getValue().etatProperty());
@@ -134,11 +142,16 @@ public class EquipementController {
             private final Button editBtn = new Button("✏️");
             private final Button deleteBtn = new Button("🗑️");
             private final Button maintenanceBtn = new Button("🔧");
+            private final Button qrBtn = new Button("📷");
+
             {
                 editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
                 deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
                 maintenanceBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;");
+                qrBtn.setStyle("-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-cursor: hand;");
+
                 maintenanceBtn.setTooltip(new Tooltip("Planifier une maintenance"));
+                qrBtn.setTooltip(new Tooltip("Générer QR Code"));
 
                 editBtn.setOnAction(event -> {
                     Equipement equip = getTableView().getItems().get(getIndex());
@@ -154,14 +167,20 @@ public class EquipementController {
                     Equipement equip = getTableView().getItems().get(getIndex());
                     planifierMaintenance(equip);
                 });
+
+                qrBtn.setOnAction(event -> {
+                    Equipement equip = getTableView().getItems().get(getIndex());
+                    showQRCodeDialog(equip);
+                });
             }
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(new HBox(5, editBtn, maintenanceBtn, deleteBtn));
+                    setGraphic(new HBox(5, editBtn, maintenanceBtn, qrBtn, deleteBtn));
                 }
             }
         });
@@ -504,6 +523,81 @@ public class EquipementController {
     }
 
     @FXML
+    private void ouvrirCentreAlertes() {
+        try {
+            // Essayer différents chemins possibles
+            FXMLLoader loader = null;
+            String[] chemins = {
+                    "/com/pi/view/AlertesView.fxml",
+                    "/tn/esprit/farmvision/com/pi/view/AlertesView.fxml",
+                    "/AlertesView.fxml"
+            };
+
+            for (String chemin : chemins) {
+                URL url = getClass().getResource(chemin);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                showError("Erreur", "Fichier AlertesView.fxml introuvable");
+                return;
+            }
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("🔔 Centre de notifications");
+            stage.setScene(new Scene(root, 500, 600));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir les alertes: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void ouvrirCalendrierMaintenance() {
+        try {
+            // Essayer différents chemins possibles
+            FXMLLoader loader = null;
+            String[] chemins = {
+                    "/com/pi/view/CalendrierMaintenance.fxml",
+                    "/tn/esprit/farmvision/com/pi/view/CalendrierMaintenance.fxml",
+                    "/CalendrierMaintenance.fxml"
+            };
+
+            for (String chemin : chemins) {
+                URL url = getClass().getResource(chemin);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                showError("Erreur", "Fichier CalendrierMaintenance.fxml introuvable");
+                return;
+            }
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("📅 Calendrier interactif des maintenances");
+            stage.setScene(new Scene(root, 1200, 800));
+            stage.show();
+
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir le calendrier: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void exportToExcel() {
         showInfo("Info", "Export Excel à venir...");
     }
@@ -527,5 +621,102 @@ public class EquipementController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void afficherQRCode() {
+        Equipement selected = equipementTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Sélection requise", "Veuillez sélectionner un équipement");
+            return;
+        }
+
+        showQRCodeDialog(selected);
+    }
+
+    private void showQRCodeDialog(Equipement equipement) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("QR Code - " + equipement.getNom());
+        dialog.setHeaderText("Code QR pour " + equipement.getNom());
+
+        ButtonType fermerButton = new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType imprimerButton = new ButtonType("🖨️ Imprimer");
+        ButtonType sauvegarderButton = new ButtonType("💾 Sauvegarder");
+        ButtonType copierButton = new ButtonType("📋 Copier");
+
+        dialog.getDialogPane().getButtonTypes().addAll(
+                sauvegarderButton, imprimerButton, copierButton, fermerButton
+        );
+
+        QRCodeService qrService = new QRCodeService();
+        ImageView qrView = qrService.creerImageViewQR(equipement, 300);
+
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setAlignment(javafx.geometry.Pos.CENTER);
+
+        if (qrView != null) {
+            content.getChildren().add(qrView);
+        }
+
+        // Informations de l'équipement
+        GridPane infoGrid = new GridPane();
+        infoGrid.setHgap(10);
+        infoGrid.setVgap(5);
+        infoGrid.setAlignment(javafx.geometry.Pos.CENTER);
+
+        infoGrid.add(new Label("ID:"), 0, 0);
+        infoGrid.add(new Label(String.valueOf(equipement.getId())), 1, 0);
+        infoGrid.add(new Label("Nom:"), 0, 1);
+        infoGrid.add(new Label(equipement.getNom()), 1, 1);
+        infoGrid.add(new Label("Type:"), 0, 2);
+        infoGrid.add(new Label(equipement.getType()), 1, 2);
+        infoGrid.add(new Label("État:"), 0, 3);
+
+        Label etatLabel = new Label(equipement.getEtat());
+        switch (equipement.getEtat()) {
+            case "Fonctionnel": etatLabel.setStyle("-fx-text-fill: #2ecc71;"); break;
+            case "En panne": etatLabel.setStyle("-fx-text-fill: #e74c3c;"); break;
+            case "Maintenance": etatLabel.setStyle("-fx-text-fill: #f39c12;"); break;
+        }
+        infoGrid.add(etatLabel, 1, 3);
+
+        content.getChildren().add(infoGrid);
+
+        // Instructions
+        Label instruction = new Label("Scannez ce code pour accéder rapidement aux informations de l'équipement");
+        instruction.setWrapText(true);
+        instruction.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
+        content.getChildren().add(instruction);
+
+        dialog.getDialogPane().setContent(content);
+
+        // Gestion des boutons
+        dialog.setResultConverter(button -> {
+            if (button == sauvegarderButton) {
+                sauvegarderQRCode(equipement);
+            } else if (button == imprimerButton) {
+                imprimerQRCode(qrView.getImage());
+            } else if (button == copierButton) {
+                copierQRCode(qrView.getImage());
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
+    }
+
+    private void sauvegarderQRCode(Equipement equipement) {
+        QRCodeService qrService = new QRCodeService();
+        qrService.sauvegarderQRCode(equipement);
+        showInfo("Succès", "QR Code sauvegardé dans le dossier 'qr_codes'");
+    }
+
+    private void imprimerQRCode(Image image) {
+        showInfo("Info", "Fonctionnalité d'impression à venir");
+    }
+
+    private void copierQRCode(Image image) {
+        showInfo("Info", "Fonctionnalité de copie à venir");
     }
 }

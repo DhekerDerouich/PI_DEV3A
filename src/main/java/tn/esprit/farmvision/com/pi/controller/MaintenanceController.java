@@ -8,10 +8,16 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -20,7 +26,6 @@ import java.util.stream.Collectors;
 public class MaintenanceController {
 
     @FXML private TableView<Maintenance> maintenanceTable;
-    @FXML private TableColumn<Maintenance, Integer> colId;
     @FXML private TableColumn<Maintenance, String> colEquipementNom;
     @FXML private TableColumn<Maintenance, String> colType;
     @FXML private TableColumn<Maintenance, String> colDescription;
@@ -41,6 +46,9 @@ public class MaintenanceController {
     private final ObservableList<Maintenance> data = FXCollections.observableArrayList();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // Pour le calendrier - date présélectionnée
+    private LocalDate datePreselectionnee = null;
+
     @FXML
     public void initialize() {
         setupTableColumns();
@@ -49,8 +57,6 @@ public class MaintenanceController {
     }
 
     private void setupTableColumns() {
-        colId.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
-
         colEquipementNom.setCellValueFactory(cellData -> {
             try {
                 int equipId = cellData.getValue().getEquipementId();
@@ -93,12 +99,16 @@ public class MaintenanceController {
             private final Button editBtn = new Button("✏️");
             private final Button deleteBtn = new Button("🗑️");
             private final Button completeBtn = new Button("✅");
+            private final Button calendarBtn = new Button("📅");
 
             {
                 editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
                 deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
                 completeBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;");
+                calendarBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;");
+
                 completeBtn.setTooltip(new Tooltip("Marquer comme réalisée"));
+                calendarBtn.setTooltip(new Tooltip("Voir dans le calendrier"));
 
                 editBtn.setOnAction(e -> {
                     Maintenance m = getTableView().getItems().get(getIndex());
@@ -114,6 +124,11 @@ public class MaintenanceController {
                     Maintenance m = getTableView().getItems().get(getIndex());
                     markAsCompleted(m);
                 });
+
+                calendarBtn.setOnAction(e -> {
+                    Maintenance m = getTableView().getItems().get(getIndex());
+                    ouvrirCalendrierAvecDate(m.getDateMaintenance());
+                });
             }
 
             @Override
@@ -124,8 +139,7 @@ public class MaintenanceController {
                 } else {
                     Maintenance m = getTableView().getItems().get(getIndex());
                     HBox buttons = new HBox(5);
-                    buttons.getChildren().add(editBtn);
-                    buttons.getChildren().add(deleteBtn);
+                    buttons.getChildren().addAll(editBtn, deleteBtn, calendarBtn);
                     if ("Planifiée".equals(m.getStatut())) {
                         buttons.getChildren().add(completeBtn);
                     }
@@ -203,6 +217,11 @@ public class MaintenanceController {
         coutTotalLabel.setText(String.format("%.2f DT", coutTotal));
     }
 
+    // Méthode pour définir la date présélectionnée (utilisée par le calendrier)
+    public void setDatePreselectionnee(LocalDate date) {
+        this.datePreselectionnee = date;
+    }
+
     @FXML
     public void showAddDialog() {
         showMaintenanceDialog(null);
@@ -230,7 +249,7 @@ public class MaintenanceController {
         // ComboBox pour l'équipement
         ComboBox<Equipement> equipementBox = new ComboBox<>();
         equipementBox.getItems().addAll(equipementService.getAllEquipements());
-        equipementBox.setConverter(new javafx.util.StringConverter<Equipement>() {
+        equipementBox.setConverter(new StringConverter<Equipement>() {
             @Override
             public String toString(Equipement e) {
                 return e == null ? "" : e.getId() + " - " + e.getNom();
@@ -279,7 +298,12 @@ public class MaintenanceController {
             statutBox.setValue(maintenance.getStatut());
         } else {
             typeBox.setValue("Préventive");
-            datePicker.setValue(LocalDate.now().plusDays(1));
+            // Utiliser la date présélectionnée si disponible, sinon demain
+            if (datePreselectionnee != null) {
+                datePicker.setValue(datePreselectionnee);
+            } else {
+                datePicker.setValue(LocalDate.now().plusDays(1));
+            }
             statutBox.setValue("Planifiée");
         }
 
@@ -370,6 +394,8 @@ public class MaintenanceController {
                     showInfo("Succès", "Maintenance planifiée avec succès !");
                 }
                 refreshTable();
+                // Réinitialiser la date présélectionnée après utilisation
+                datePreselectionnee = null;
             } catch (Exception e) {
                 showError("Erreur", e.getMessage());
                 e.printStackTrace();
@@ -445,6 +471,120 @@ public class MaintenanceController {
         alert.setHeaderText("📈 Rapport des maintenances");
         alert.setContentText(stats);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void ouvrirCalendrierMaintenance() {
+        try {
+            // Essayer différents chemins possibles
+            FXMLLoader loader = null;
+            String[] chemins = {
+                    "/com/pi/view/CalendrierMaintenance.fxml",
+                    "/tn/esprit/farmvision/com/pi/view/CalendrierMaintenance.fxml",
+                    "/CalendrierMaintenance.fxml"
+            };
+
+            for (String chemin : chemins) {
+                URL url = getClass().getResource(chemin);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                showError("Erreur", "Fichier CalendrierMaintenance.fxml introuvable");
+                return;
+            }
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("📅 Calendrier interactif des maintenances");
+            stage.setScene(new Scene(root, 1200, 800));
+            stage.show();
+
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir le calendrier: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void ouvrirCalendrierAvecDate(LocalDate date) {
+        try {
+            // Essayer différents chemins possibles
+            FXMLLoader loader = null;
+            String[] chemins = {
+                    "/com/pi/view/CalendrierMaintenance.fxml",
+                    "/tn/esprit/farmvision/com/pi/view/CalendrierMaintenance.fxml",
+                    "/CalendrierMaintenance.fxml"
+            };
+
+            for (String chemin : chemins) {
+                URL url = getClass().getResource(chemin);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                showError("Erreur", "Fichier CalendrierMaintenance.fxml introuvable");
+                return;
+            }
+
+            Parent root = loader.load();
+
+            // Récupérer le controller et passer la date
+            CalendrierMaintenanceController controller = loader.getController();
+            controller.setDateSelectionnee(date);
+
+            Stage stage = new Stage();
+            stage.setTitle("📅 Calendrier interactif des maintenances");
+            stage.setScene(new Scene(root, 1200, 800));
+            stage.show();
+
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir le calendrier: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void ouvrirCentreAlertes() {
+        try {
+            // Essayer différents chemins possibles
+            FXMLLoader loader = null;
+            String[] chemins = {
+                    "/com/pi/view/AlertesView.fxml",
+                    "/tn/esprit/farmvision/com/pi/view/AlertesView.fxml",
+                    "/AlertesView.fxml"
+            };
+
+            for (String chemin : chemins) {
+                URL url = getClass().getResource(chemin);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                showError("Erreur", "Fichier AlertesView.fxml introuvable");
+                return;
+            }
+
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("🔔 Centre de notifications");
+            stage.setScene(new Scene(root, 500, 600));
+            stage.show();
+
+        } catch (Exception e) {
+            showError("Erreur", "Impossible d'ouvrir les alertes: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showError(String title, String message) {

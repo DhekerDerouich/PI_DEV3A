@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 
 public class Main extends Application {
@@ -14,39 +13,42 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // CORRECTION IMPORTANTE :
-            // D'après votre capture d'écran, vos fichiers sont dans le dossier "tn/esprit/farmvision/..."
-            // Même si votre package s'appelle "com.pi", le fichier physique est plus profond.
+            System.out.println("🚀 Démarrage de FarmVision...");
 
-            // On essaie le chemin complet basé sur votre structure de dossiers
-            String fxmlPath = "/tn/esprit/farmvision/com/pi/view/main.fxml";
+            // Essayer différents chemins possibles pour le fichier FXML
+            URL fxmlUrl = null;
+            String[] chemins = {
+                    "/com/pi/view/main.fxml",
+                    "/tn/esprit/farmvision/com/pi/view/main.fxml",
+                    "/main.fxml"
+            };
 
-            URL fxmlUrl = getClass().getResource(fxmlPath);
-
-            // Si ça ne marche pas, on essaie une variante courante (au cas où "tn.esprit..." soit le root)
-            if (fxmlUrl == null) {
-                System.out.println("⚠️ Chemin complet non trouvé, essai du chemin court...");
-                fxmlPath = "/com/pi/view/main.fxml";
-                fxmlUrl = getClass().getResource(fxmlPath);
+            for (String chemin : chemins) {
+                fxmlUrl = getClass().getResource(chemin);
+                if (fxmlUrl != null) {
+                    System.out.println("✅ FXML trouvé: " + chemin);
+                    break;
+                }
             }
 
             if (fxmlUrl == null) {
-                System.err.println("❌ ERREUR CRITIQUE : Impossible de trouver le fichier FXML !");
-                System.err.println("Vérifiez le dossier 'target/classes' pour voir où Maven a copié le fichier.");
+                System.err.println("❌ ERREUR: Impossible de trouver main.fxml");
+                System.err.println("Vérifiez que le fichier est dans src/main/resources/com/pi/view/");
                 return;
             }
-
-            System.out.println("✅ Fichier FXML trouvé : " + fxmlUrl);
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            Scene scene = new Scene(root, 1200, 700);
-            primaryStage.setTitle("FarmVision");
+            Scene scene = new Scene(root, 1300, 800);
+            primaryStage.setTitle("FarmVision - Gestion Agricole Intelligente");
             primaryStage.setScene(scene);
             primaryStage.show();
 
-        } catch (IOException e) {
+            System.out.println("✅ Application démarrée avec succès!");
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur au démarrage: " + e.getMessage());
             e.printStackTrace();
         }
     }
