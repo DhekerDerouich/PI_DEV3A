@@ -27,6 +27,7 @@ public class MainController {
             cultureView = cultureLoader.load();
 
             contentArea.getChildren().addAll(parcelleView, cultureView);
+
             showParcelle(); // default view
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,7 +38,6 @@ public class MainController {
     private void showParcelle() {
         parcelleView.setVisible(true);
         cultureView.setVisible(false);
-        // Optional: style active button
         parcelleBtn.getStyleClass().add("active");
         cultureBtn.getStyleClass().remove("active");
     }

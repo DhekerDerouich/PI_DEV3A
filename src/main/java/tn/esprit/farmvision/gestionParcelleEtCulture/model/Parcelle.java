@@ -5,7 +5,9 @@ public class Parcelle {
     private int idParcelle;
     private float surface;
     private String localisation;
-
+    // LIVE WEATHER fields
+    private double temperature;
+    private String weather;
     public Parcelle() {}
 
     public Parcelle(int idParcelle, float surface, String localisation) {
@@ -37,4 +39,10 @@ public class Parcelle {
     public void setLocalisation(String localisation) {
         this.localisation = localisation;
     }
+    // Weather getters/setters
+    public double getTemperature() { return temperature; }
+    public void setTemperature(double temperature) { this.temperature = temperature; }
+
+    public String getWeather() { return weather; }
+    public void setWeather(String weather) { this.weather = weather; }
 }

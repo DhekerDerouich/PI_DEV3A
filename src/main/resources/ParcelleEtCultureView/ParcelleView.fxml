@@ -133,9 +133,11 @@
                         <!-- Table View -->
                         <TableView fx:id="tableView" prefHeight="300.0" style="-fx-background-color: transparent; -fx-border-color: #e2e8f0; -fx-border-radius: 8;" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colId" prefWidth="100.0" text="ID" />
+
                                 <TableColumn fx:id="colSurface" prefWidth="200.0" text="Surface (m²)" />
                                 <TableColumn fx:id="colLocalisation" prefWidth="300.0" text="Localisation" />
+                                <TableColumn fx:id="colTemperature" prefWidth="150.0" text="Température (°C)" />
+                                <TableColumn fx:id="colWeather" prefWidth="150.0" text="Météo" />
                                 <TableColumn fx:id="colActions" prefWidth="150.0" text="Actions" />
                             </columns>
                             <columnResizePolicy>

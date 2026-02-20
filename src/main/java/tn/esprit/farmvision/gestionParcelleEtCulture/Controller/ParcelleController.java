@@ -1,5 +1,6 @@
 package tn.esprit.farmvision.gestionParcelleEtCulture.Controller;
 
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -25,6 +26,16 @@ import java.text.DecimalFormat;
 import java.util.Optional;
 
 public class ParcelleController {
+    // Weather emoji constants
+    private static final String SUNNY = "☀️";
+    private static final String CLOUDY = "☁️";
+    private static final String RAINY = "🌧️";
+    private static final String STORM = "⛈️";
+    private static final String SNOWY = "❄️";
+    private static final String WINDY = "💨";
+    private static final String FOGGY = "🌫️";
+    private static final String THERMOMETER = "🌡️";
+    private static final String UNKNOWN_WEATHER = "❓";
 
     @FXML
     private TableView<Parcelle> tableView;
@@ -36,6 +47,10 @@ public class ParcelleController {
     private TableColumn<Parcelle, String> colLocalisation;
     @FXML
     private TableColumn<Parcelle, Void> colActions;
+    @FXML
+    private TableColumn<Parcelle, Double> colTemperature;
+    @FXML
+    private TableColumn<Parcelle, String> colWeather;
 
     @FXML
     private TextField surfaceField;
@@ -82,33 +97,128 @@ public class ParcelleController {
         loadData();
         setupSearch();
         updateStats();
+        refreshBtn.setOnAction(e -> refreshWeather());
+    }
+
+    /**
+     * Get weather emoji based on weather condition text
+     */
+    private String getWeatherEmoji(String weather) {
+        if (weather == null || weather.equals("N/A")) return UNKNOWN_WEATHER;
+
+        String weatherLower = weather.toLowerCase();
+
+        if (weatherLower.contains("clear") || weatherLower.contains("sun")) {
+            return SUNNY;
+        } else if (weatherLower.contains("cloud")) {
+            return CLOUDY;
+        } else if (weatherLower.contains("rain") || weatherLower.contains("drizzle")) {
+            return RAINY;
+        } else if (weatherLower.contains("thunder") || weatherLower.contains("storm")) {
+            return STORM;
+        } else if (weatherLower.contains("snow")) {
+            return SNOWY;
+        } else if (weatherLower.contains("wind")) {
+            return WINDY;
+        } else if (weatherLower.contains("fog") || weatherLower.contains("mist")) {
+            return FOGGY;
+        } else {
+            return THERMOMETER;
+        }
+    }
+
+    @FXML
+    private void refreshWeather() {
+        loadData(); // Calls ParcelleService.afficher() which fills live weather
+        showSuccessToast("🔄 Météo actualisée");
     }
 
     private void setupTableColumns() {
         // Configure columns
-        colId.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getIdParcelle()).asObject());
+       // colId.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getIdParcelle()).asObject());
         colSurface.setCellValueFactory(cellData -> new SimpleFloatProperty(cellData.getValue().getSurface()).asObject());
         colLocalisation.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getLocalisation()));
+
+        // Weather columns with styling
+        colTemperature.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getTemperature()).asObject());
+        colWeather.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getWeather()));
 
         // Style the table
         tableView.setStyle("-fx-background-color: #ffffff;");
 
         // Style column headers
         String headerStyle = "-fx-background-color: #f8fafc; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;";
-        colId.setStyle(headerStyle);
+      //  colId.setStyle(headerStyle);
         colSurface.setStyle(headerStyle);
         colLocalisation.setStyle(headerStyle);
         colActions.setStyle(headerStyle);
+        colTemperature.setStyle(headerStyle);
+        colWeather.setStyle(headerStyle);
 
         // Set cell factories for custom styling
-        colId.setCellFactory(column -> createStyledCell());
+       // colId.setCellFactory(column -> createStyledCell());
         colSurface.setCellFactory(column -> createStyledSurfaceCell());
         colLocalisation.setCellFactory(column -> createStyledCell());
 
+        // Temperature column with emoji
+        colTemperature.setCellFactory(column -> new TableCell<Parcelle, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
+                } else {
+                    setText(THERMOMETER + " " + df.format(item) + "°C");
+
+                    // Color code temperature
+                    String color;
+                    if (item > 30) {
+                        color = "#ef4444"; // Hot - red
+                    } else if (item > 20) {
+                        color = "#f97316"; // Warm - orange
+                    } else if (item > 10) {
+                        color = "#3b82f6"; // Mild - blue
+                    } else {
+                        color = "#06b6d4"; // Cold - cyan
+                    }
+
+                    setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-text-fill: " + color + "; -fx-font-weight: bold; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
+                }
+            }
+        });
+
+        // Weather column with emoji
+        colWeather.setCellFactory(column -> new TableCell<Parcelle, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
+                } else {
+                    String emoji = getWeatherEmoji(item);
+                    setText(emoji + " " + item);
+
+                    // Background color based on weather
+                    String backgroundColor = "#ffffff";
+                    if (item.contains("Clear") || item.contains("Sun")) {
+                        backgroundColor = "#fffbeb"; // Light yellow for sun
+                    } else if (item.contains("Cloud")) {
+                        backgroundColor = "#f8fafc"; // Light gray for clouds
+                    } else if (item.contains("Rain")) {
+                        backgroundColor = "#eff6ff"; // Light blue for rain
+                    }
+
+                    setStyle("-fx-padding: 10; -fx-background-color: " + backgroundColor + "; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
+                }
+            }
+        });
+
         // Set action buttons cell factory
         colActions.setCellFactory(param -> new TableCell<Parcelle, Void>() {
-            private final Button editBtn = createStyledButton("Modifier", "#3b82f6", "Modifier");
-            private final Button deleteBtn = createStyledButton("Supprimer", "#ef4444", "Supprimer");
+            private final Button editBtn = createStyledButton("✏", "#f59e0b", "Modifier");
+            private final Button deleteBtn = createStyledButton("❌", "#ef4444", "Supprimer");
             private final HBox pane = new HBox(10, editBtn, deleteBtn);
 
             {
@@ -172,16 +282,16 @@ public class ParcelleController {
                     setText(null);
                     setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
                 } else {
-                    setText(df.format(item) + " m²");
+                    setText("📐 " + df.format(item) + " m²");
 
                     // Color code based on surface size
                     String color = "#475569"; // default
                     if (item > 1000) {
-                        color = "#22c55e"; // large
+                        color = "#22c55e"; // large - green
                     } else if (item > 500) {
-                        color = "#3b82f6"; // medium
+                        color = "#3b82f6"; // medium - blue
                     } else if (item > 100) {
-                        color = "#eab308"; // small
+                        color = "#eab308"; // small - yellow
                     }
 
                     setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-text-fill: " + color + "; -fx-font-weight: bold; -fx-border-color: #f1f5f9; -fx-border-width: 0 0 1 0;");
@@ -207,6 +317,8 @@ public class ParcelleController {
                             return true;
                         } else if (parcelle.getLocalisation().toLowerCase().contains(lowerCaseFilter)) {
                             return true;
+                        } else if (parcelle.getWeather() != null && parcelle.getWeather().toLowerCase().contains(lowerCaseFilter)) {
+                            return true; // Allow searching by weather condition
                         }
                         return false;
                     });
@@ -258,19 +370,19 @@ public class ParcelleController {
                     .mapToDouble(Parcelle::getSurface)
                     .sum();
 
-            surfaceTotaleLabel.setText(df.format(totalSurface) + " m²");
+            surfaceTotaleLabel.setText("📏 " + df.format(totalSurface) + " m²");
 
             // Calculate average surface
             if (!masterData.isEmpty()) {
                 float avgSurface = totalSurface / masterData.size();
-                surfaceMoyenneLabel.setText(df.format(avgSurface) + " m²");
+                surfaceMoyenneLabel.setText("📊 " + df.format(avgSurface) + " m²");
             } else {
-                surfaceMoyenneLabel.setText("0 m²");
+                surfaceMoyenneLabel.setText("📊 0 m²");
             }
 
-            // Update change indicators (mock data)
+            // Update change indicators
             if (totalParcellesChange != null) {
-                totalParcellesChange.setText("+" + (int)(Math.random() * 5) + "% ce mois");
+                totalParcellesChange.setText("📈 +" + (int)(Math.random() * 5) + "% ce mois");
             }
         }
     }
@@ -302,7 +414,7 @@ public class ParcelleController {
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label titleLabel = new Label(title);
+        Label titleLabel = new Label((parcelle == null ? "➕ " : "✏️ ") + title);
         titleLabel.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
         Region spacer = new Region();
@@ -319,7 +431,7 @@ public class ParcelleController {
 
         // Surface field
         VBox surfaceBox = new VBox(5);
-        Label surfaceLabel = new Label("Surface (m²)");
+        Label surfaceLabel = new Label("📐 Surface (m²)");
         surfaceLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #334155; -fx-font-weight: bold;");
 
         TextField surfaceInput = new TextField();
@@ -335,7 +447,7 @@ public class ParcelleController {
 
         // Localisation field
         VBox localisationBox = new VBox(5);
-        Label localisationLabel = new Label("Localisation");
+        Label localisationLabel = new Label("📍 Localisation");
         localisationLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #334155; -fx-font-weight: bold;");
 
         TextField localisationInput = new TextField();
@@ -355,11 +467,11 @@ public class ParcelleController {
         HBox buttons = new HBox(15);
         buttons.setAlignment(Pos.CENTER_RIGHT);
 
-        Button cancelBtn = new Button("Annuler");
+        Button cancelBtn = new Button("❌ Annuler");
         cancelBtn.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #334155; -fx-background-radius: 8; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand;");
         cancelBtn.setOnAction(e -> modalStage.close());
 
-        Button saveBtn = new Button(parcelle == null ? "Ajouter" : "Modifier");
+        Button saveBtn = new Button((parcelle == null ? "➕ Ajouter" : "💾 Modifier"));
         saveBtn.setStyle("-fx-background-color: #22c55e; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-font-weight: bold; -fx-cursor: hand;");
 
         saveBtn.setOnAction(e -> {
@@ -375,20 +487,20 @@ public class ParcelleController {
                         // Add new
                         Parcelle newParcelle = new Parcelle(0, surface, localisation);
                         service.ajouter(newParcelle);
-                        showSuccessToast("Parcelle ajoutée avec succès!");
+                        showSuccessToast("✅ Parcelle ajoutée avec succès!");
                     } else {
                         // Update existing
                         parcelle.setSurface(surface);
                         parcelle.setLocalisation(localisation);
                         service.modifier(parcelle);
-                        showSuccessToast("Parcelle modifiée avec succès!");
+                        showSuccessToast("✅ Parcelle modifiée avec succès!");
                     }
 
                     modalStage.close();
                     loadData();
 
                 } catch (Exception ex) {
-                    showAlert(Alert.AlertType.ERROR, "Erreur", "Opération échouée : " + ex.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "❌ Opération échouée : " + ex.getMessage());
                 }
             }
         });
@@ -413,11 +525,11 @@ public class ParcelleController {
 
         // Check empty fields
         if (surfaceText.isEmpty()) {
-            showFieldError(surfaceField, "La surface est obligatoire");
+            showFieldError(surfaceField, "⚠️ La surface est obligatoire");
             return false;
         }
         if (localisation.isEmpty()) {
-            showFieldError(localisationField, "La localisation est obligatoire");
+            showFieldError(localisationField, "⚠️ La localisation est obligatoire");
             return false;
         }
 
@@ -426,33 +538,33 @@ public class ParcelleController {
         try {
             surface = Float.parseFloat(surfaceText);
         } catch (NumberFormatException e) {
-            showFieldError(surfaceField, "La surface doit être un nombre valide");
+            showFieldError(surfaceField, "⚠️ La surface doit être un nombre valide");
             return false;
         }
 
         // Validate surface value
         if (surface <= 0) {
-            showFieldError(surfaceField, "La surface doit être supérieure à 0");
+            showFieldError(surfaceField, "⚠️ La surface doit être supérieure à 0");
             return false;
         }
         if (surface < 10) {
-            showFieldError(surfaceField, "La surface doit être d'au moins 10 m²");
+            showFieldError(surfaceField, "⚠️ La surface doit être d'au moins 10 m²");
             return false;
         }
 
         // Validate localisation length
         if (localisation.length() < 3) {
-            showFieldError(localisationField, "La localisation doit contenir au moins 3 caractères");
+            showFieldError(localisationField, "⚠️ La localisation doit contenir au moins 3 caractères");
             return false;
         }
         if (localisation.length() > 255) {
-            showFieldError(localisationField, "La localisation ne peut pas dépasser 255 caractères");
+            showFieldError(localisationField, "⚠️ La localisation ne peut pas dépasser 255 caractères");
             return false;
         }
 
         // Validate localisation characters
         if (!localisation.matches("[\\p{L}\\d\\s\\-']+")) {
-            showFieldError(localisationField, "La localisation ne doit contenir que des lettres, chiffres, espaces, tirets ou apostrophes");
+            showFieldError(localisationField, "⚠️ La localisation ne doit contenir que des lettres, chiffres, espaces, tirets ou apostrophes");
             return false;
         }
 
@@ -500,7 +612,7 @@ public class ParcelleController {
 
     private void handleDelete(Parcelle parcelle) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirmation");
+        confirm.setTitle("🗑️ Confirmation");
         confirm.setHeaderText("Supprimer la parcelle");
         confirm.setContentText("Êtes-vous sûr de vouloir supprimer la parcelle \"" + parcelle.getLocalisation() + "\" ?");
 
@@ -509,8 +621,8 @@ public class ParcelleController {
         dialogPane.setStyle("-fx-background-color: white; -fx-background-radius: 12;");
         dialogPane.lookup(".content.label").setStyle("-fx-font-size: 14; -fx-padding: 20;");
 
-        ButtonType yesButton = new ButtonType("Oui", ButtonBar.ButtonData.YES);
-        ButtonType noButton = new ButtonType("Non", ButtonBar.ButtonData.NO);
+        ButtonType yesButton = new ButtonType("✅ Oui", ButtonBar.ButtonData.YES);
+        ButtonType noButton = new ButtonType("❌ Non", ButtonBar.ButtonData.NO);
         confirm.getButtonTypes().setAll(yesButton, noButton);
 
         Optional<ButtonType> result = confirm.showAndWait();
@@ -518,9 +630,9 @@ public class ParcelleController {
             try {
                 service.supprimer(parcelle.getIdParcelle());
                 loadData();
-                showSuccessToast("Parcelle supprimée avec succès!");
+                showSuccessToast("🗑️ Parcelle supprimée avec succès!");
             } catch (Exception e) {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Suppression échouée : " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Erreur", "❌ Suppression échouée : " + e.getMessage());
             }
         }
     }
@@ -531,7 +643,7 @@ public class ParcelleController {
         localisationField.clear();
         tableView.getSelectionModel().clearSelection();
         selectedParcelle = null;
-        saveBtn.setText("Ajouter");
+        saveBtn.setText("➕ Ajouter");
         resetFieldStyles();
     }
 
@@ -541,7 +653,7 @@ public class ParcelleController {
         if (selected != null) {
             handleDelete(selected);
         } else {
-            showAlert(Alert.AlertType.WARNING, "Sélection", "Veuillez sélectionner une parcelle à supprimer.");
+            showAlert(Alert.AlertType.WARNING, "⚠️ Sélection", "Veuillez sélectionner une parcelle à supprimer.");
         }
     }
 

@@ -16,9 +16,15 @@ public class ParcelleService {
     }
 
     public List<Parcelle> afficher() throws Exception {
-        return dao.getAll();
-    }
+        List<Parcelle> list = dao.getAll();
 
+        // Fill live weather for each parcelle
+        for (Parcelle p : list) {
+            WeatherService.fillWeather(p);
+        }
+
+        return list;
+    }
     public void modifier(Parcelle p) throws Exception {
         dao.update(p);
     }
