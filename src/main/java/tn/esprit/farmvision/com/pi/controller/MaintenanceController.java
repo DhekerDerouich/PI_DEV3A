@@ -4,6 +4,8 @@ import com.pi.model.Maintenance;
 import com.pi.model.Equipement;
 import com.pi.service.MaintenanceService;
 import com.pi.service.EquipementService;
+import com.pi.service.external.SunriseSunsetService;
+import com.pi.service.external.SunriseSunsetService.SunriseSunsetData;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +35,7 @@ public class MaintenanceController {
     @FXML private TableColumn<Maintenance, String> colDate;
     @FXML private TableColumn<Maintenance, Double> colCout;
     @FXML private TableColumn<Maintenance, String> colStatut;
+    @FXML private TableColumn<Maintenance, String> colMeilleurePeriode;
     @FXML private TableColumn<Maintenance, String> colActions;
 
     @FXML private ComboBox<String> filterStatut;
@@ -40,11 +44,16 @@ public class MaintenanceController {
     @FXML private Label planifieesLabel;
     @FXML private Label realiseesLabel;
     @FXML private Label coutTotalLabel;
+    @FXML private Label infoSolaireLabel;
 
     private final MaintenanceService maintenanceService = new MaintenanceService();
     private final EquipementService equipementService = new EquipementService();
     private final ObservableList<Maintenance> data = FXCollections.observableArrayList();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+    // Service solaire
+    private SunriseSunsetService sunriseService = new SunriseSunsetService();
 
     // Pour le calendrier - date présélectionnée
     private LocalDate datePreselectionnee = null;
@@ -54,6 +63,9 @@ public class MaintenanceController {
         setupTableColumns();
         setupFilters();
         loadData();
+
+        // Ajouter les informations solaires
+        mettreAJourInfosSolaires();
     }
 
     private void setupTableColumns() {
@@ -69,11 +81,36 @@ public class MaintenanceController {
 
         colType.setCellValueFactory(cellData -> cellData.getValue().typeMaintenanceProperty());
         colDescription.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
+
         colDate.setCellValueFactory(cellData -> new SimpleStringProperty(
                 cellData.getValue().getDateMaintenance() != null ?
                         cellData.getValue().getDateMaintenance().format(dateFormatter) : ""));
+
         colCout.setCellValueFactory(cellData -> cellData.getValue().coutProperty().asObject());
         colStatut.setCellValueFactory(cellData -> cellData.getValue().statutProperty());
+
+        // Colonne Meilleure période
+        colMeilleurePeriode.setCellValueFactory(cellData -> {
+            LocalDate date = cellData.getValue().getDateMaintenance();
+            String periode = sunriseService.getRecommendedWorkHours(date);
+            return new SimpleStringProperty(periode);
+        });
+
+        // Style pour la colonne Meilleure période
+        colMeilleurePeriode.setCellFactory(column -> new TableCell<Maintenance, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
+                    setTooltip(new Tooltip("Meilleure période pour les travaux extérieurs"));
+                }
+            }
+        });
 
         // Style pour le statut
         colStatut.setCellFactory(column -> new TableCell<>() {
@@ -94,22 +131,44 @@ public class MaintenanceController {
             }
         });
 
-        // Colonne Actions avec boutons Modifier/Supprimer
+        // Style pour le coût
+        colCout.setCellFactory(column -> new TableCell<Maintenance, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f DT", item));
+                    setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        // Colonne Actions avec boutons
         colActions.setCellFactory(column -> new TableCell<>() {
             private final Button editBtn = new Button("✏️");
             private final Button deleteBtn = new Button("🗑️");
             private final Button completeBtn = new Button("✅");
             private final Button calendarBtn = new Button("📅");
+            private final Button soleilBtn = new Button("☀️");
 
             {
-                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
-                completeBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;");
-                calendarBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;");
+                // Style des boutons
+                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 12px; -fx-padding: 5 8;");
+                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 12px; -fx-padding: 5 8;");
+                completeBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 12px; -fx-padding: 5 8;");
+                calendarBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 12px; -fx-padding: 5 8;");
+                soleilBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 12px; -fx-padding: 5 8;");
 
+                // Tooltips
+                editBtn.setTooltip(new Tooltip("Modifier la maintenance"));
+                deleteBtn.setTooltip(new Tooltip("Supprimer la maintenance"));
                 completeBtn.setTooltip(new Tooltip("Marquer comme réalisée"));
                 calendarBtn.setTooltip(new Tooltip("Voir dans le calendrier"));
+                soleilBtn.setTooltip(new Tooltip("Voir les informations solaires"));
 
+                // Actions
                 editBtn.setOnAction(e -> {
                     Maintenance m = getTableView().getItems().get(getIndex());
                     showEditDialog(m);
@@ -129,6 +188,11 @@ public class MaintenanceController {
                     Maintenance m = getTableView().getItems().get(getIndex());
                     ouvrirCalendrierAvecDate(m.getDateMaintenance());
                 });
+
+                soleilBtn.setOnAction(e -> {
+                    Maintenance m = getTableView().getItems().get(getIndex());
+                    afficherInfosSolaires(m);
+                });
             }
 
             @Override
@@ -139,7 +203,7 @@ public class MaintenanceController {
                 } else {
                     Maintenance m = getTableView().getItems().get(getIndex());
                     HBox buttons = new HBox(5);
-                    buttons.getChildren().addAll(editBtn, deleteBtn, calendarBtn);
+                    buttons.getChildren().addAll(editBtn, deleteBtn, calendarBtn, soleilBtn);
                     if ("Planifiée".equals(m.getStatut())) {
                         buttons.getChildren().add(completeBtn);
                     }
@@ -171,6 +235,45 @@ public class MaintenanceController {
                         .collect(Collectors.toList())
         );
         filterEquipement.setValue(0);
+
+        // Ajouter un converter pour afficher le nom au lieu de l'ID
+        filterEquipement.setCellFactory(lv -> new ListCell<Integer>() {
+            @Override
+            protected void updateItem(Integer id, boolean empty) {
+                super.updateItem(id, empty);
+                if (empty || id == null) {
+                    setText(null);
+                } else if (id == 0) {
+                    setText("Tous les équipements");
+                } else {
+                    try {
+                        Equipement e = equipementService.getEquipementById(id);
+                        setText(e != null ? e.getNom() : "ID: " + id);
+                    } catch (Exception e) {
+                        setText("ID: " + id);
+                    }
+                }
+            }
+        });
+
+        filterEquipement.setButtonCell(new ListCell<Integer>() {
+            @Override
+            protected void updateItem(Integer id, boolean empty) {
+                super.updateItem(id, empty);
+                if (empty || id == null) {
+                    setText(null);
+                } else if (id == 0) {
+                    setText("Tous les équipements");
+                } else {
+                    try {
+                        Equipement e = equipementService.getEquipementById(id);
+                        setText(e != null ? e.getNom() : "ID: " + id);
+                    } catch (Exception e) {
+                        setText("ID: " + id);
+                    }
+                }
+            }
+        });
     }
 
     @FXML
@@ -217,6 +320,100 @@ public class MaintenanceController {
         coutTotalLabel.setText(String.format("%.2f DT", coutTotal));
     }
 
+    /**
+     * Met à jour les informations solaires dans l'interface
+     */
+    private void mettreAJourInfosSolaires() {
+        if (infoSolaireLabel != null) {
+            SunriseSunsetData data = sunriseService.getSunriseSunsetToday();
+            if (data != null) {
+                String info = String.format("☀️ Aujourd'hui: Lever %s, Coucher %s, Durée %s",
+                        data.getSunrise().format(timeFormatter),
+                        data.getSunset().format(timeFormatter),
+                        data.getDayLengthFormatted());
+                infoSolaireLabel.setText(info);
+                infoSolaireLabel.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
+            } else {
+                infoSolaireLabel.setText("☀️ Données solaires temporairement indisponibles");
+                infoSolaireLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+            }
+        }
+    }
+
+    /**
+     * Affiche les informations solaires pour une maintenance
+     */
+    private void afficherInfosSolaires(Maintenance maintenance) {
+        LocalDate date = maintenance.getDateMaintenance();
+        SunriseSunsetData solar = sunriseService.getSunriseSunsetForDate(date);
+
+        String message;
+        String title;
+
+        if (solar != null) {
+            message = String.format(
+                    "☀️ INFORMATIONS SOLAIRES - %s\n\n" +
+                            "Date: %s\n" +
+                            "Lever du soleil: %s\n" +
+                            "Coucher du soleil: %s\n" +
+                            "Durée du jour: %s\n" +
+                            "Midi solaire: %s\n\n" +
+                            "🌞 Meilleure période pour les travaux extérieurs:\n" +
+                            "%s\n\n" +
+                            "📊 Recommandation: %s",
+                    date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    date.format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy")),
+                    solar.getSunrise().format(timeFormatter),
+                    solar.getSunset().format(timeFormatter),
+                    solar.getDayLengthFormatted(),
+                    solar.getSolarNoon() != null ? solar.getSolarNoon().format(timeFormatter) : "12:00",
+                    sunriseService.getRecommendedWorkHours(date),
+                    getRecommandationSpecifique(date, solar)
+            );
+            title = "☀️ Informations Solaires";
+        } else {
+            message = String.format(
+                    "☀️ INFORMATIONS SOLAIRES (estimations) - %s\n\n" +
+                            "Date: %s\n" +
+                            "Lever du soleil estimé: 06:30\n" +
+                            "Coucher du soleil estimé: 18:30\n" +
+                            "Durée du jour estimée: 12h 00m\n\n" +
+                            "🌞 Meilleure période pour les travaux extérieurs:\n" +
+                            "08:00 - 17:00\n\n" +
+                            "⚠️ Note: Les données sont des estimations (API temporairement indisponible)",
+                    date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    date.format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy"))
+            );
+            title = "☀️ Informations Solaires (Estimations)";
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText("☀️ " + maintenance.getDescription());
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Génère une recommandation spécifique basée sur la saison
+     */
+    private String getRecommandationSpecifique(LocalDate date, SunriseSunsetData solar) {
+        int month = date.getMonthValue();
+        int dayLength = solar.getDayLengthSeconds();
+
+        if (dayLength > 14 * 3600) { // Plus de 14h
+            return "Très longue journée ! Idéal pour les gros travaux extérieurs.";
+        } else if (dayLength < 10 * 3600) { // Moins de 10h
+            return "Journée courte. Planifiez les travaux prioritaires le matin.";
+        } else if (month >= 6 && month <= 8) {
+            return "Attention à la chaleur en été. Travaillez tôt le matin.";
+        } else if (month >= 12 || month <= 2) {
+            return "Période froide. Prévoyez des pauses régulières.";
+        } else {
+            return "Conditions favorables pour les travaux extérieurs.";
+        }
+    }
+
     // Méthode pour définir la date présélectionnée (utilisée par le calendrier)
     public void setDatePreselectionnee(LocalDate date) {
         this.datePreselectionnee = date;
@@ -260,28 +457,65 @@ public class MaintenanceController {
             }
         });
         equipementBox.setPromptText("Sélectionner un équipement");
+        equipementBox.setPrefWidth(300);
 
         // Type de maintenance
         ComboBox<String> typeBox = new ComboBox<>();
         typeBox.getItems().addAll("Préventive", "Corrective");
         typeBox.setPromptText("Type de maintenance");
+        typeBox.setPrefWidth(200);
 
         // Description
         TextField descriptionField = new TextField();
         descriptionField.setPromptText("Description de la maintenance");
+        descriptionField.setPrefWidth(300);
 
         // Date
         DatePicker datePicker = new DatePicker();
         datePicker.setPromptText("Date de maintenance");
 
+        // Indicateur solaire
+        Label solarIndicator = new Label("☀️");
+        solarIndicator.setTooltip(new Tooltip("Vérifier les heures d'ensoleillement"));
+        solarIndicator.setStyle("-fx-cursor: hand; -fx-font-size: 16px;");
+
+        datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
+            if (newDate != null) {
+                SunriseSunsetData solar = sunriseService.getSunriseSunsetForDate(newDate);
+                if (solar != null) {
+                    solarIndicator.setText("☀️ " + solar.getDayLengthFormatted());
+                    solarIndicator.setStyle("-fx-text-fill: #27ae60; -fx-cursor: hand; -fx-font-weight: bold;");
+
+                    // Tooltip détaillé
+                    Tooltip tip = new Tooltip(
+                            String.format("Lever: %s, Coucher: %s\nMeilleure période: %s",
+                                    solar.getSunrise().format(timeFormatter),
+                                    solar.getSunset().format(timeFormatter),
+                                    sunriseService.getRecommendedWorkHours(newDate))
+                    );
+                    Tooltip.install(solarIndicator, tip);
+                } else {
+                    solarIndicator.setText("☀️ Données indisponibles");
+                    solarIndicator.setStyle("-fx-text-fill: #7f8c8d; -fx-cursor: hand;");
+                }
+            } else {
+                solarIndicator.setText("☀️");
+                solarIndicator.setStyle("-fx-cursor: hand; -fx-font-size: 16px;");
+            }
+        });
+
+        HBox dateBox = new HBox(10, datePicker, solarIndicator);
+
         // Coût
         TextField coutField = new TextField();
         coutField.setPromptText("Coût (DT)");
+        coutField.setPrefWidth(150);
 
         // Statut
         ComboBox<String> statutBox = new ComboBox<>();
         statutBox.getItems().addAll("Planifiée", "Réalisée");
         statutBox.setPromptText("Statut");
+        statutBox.setPrefWidth(150);
 
         // Pré-remplir si édition
         if (isEdit) {
@@ -307,21 +541,31 @@ public class MaintenanceController {
             statutBox.setValue("Planifiée");
         }
 
-        // Ajout au grid
-        grid.add(new Label("Équipement:"), 0, 0);
-        grid.add(equipementBox, 1, 0);
-        grid.add(new Label("Type:"), 0, 1);
-        grid.add(typeBox, 1, 1);
-        grid.add(new Label("Description:"), 0, 2);
-        grid.add(descriptionField, 1, 2);
-        grid.add(new Label("Date:"), 0, 3);
-        grid.add(datePicker, 1, 3);
-        grid.add(new Label("Coût:"), 0, 4);
-        grid.add(coutField, 1, 4);
-        grid.add(new Label("Statut:"), 0, 5);
-        grid.add(statutBox, 1, 5);
+        // Ajout au grid avec organisation
+        int row = 0;
+        grid.add(new Label("Équipement:"), 0, row);
+        grid.add(equipementBox, 1, row++);
+
+        grid.add(new Label("Type:"), 0, row);
+        grid.add(typeBox, 1, row++);
+
+        grid.add(new Label("Description:"), 0, row);
+        grid.add(descriptionField, 1, row++);
+
+        grid.add(new Label("Date:"), 0, row);
+        grid.add(dateBox, 1, row++);
+
+        grid.add(new Label("Coût:"), 0, row);
+        grid.add(coutField, 1, row++);
+
+        grid.add(new Label("Statut:"), 0, row);
+        grid.add(statutBox, 1, row++);
 
         dialog.getDialogPane().setContent(grid);
+
+        // Validation
+        Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
+        saveButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white;");
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
@@ -329,6 +573,10 @@ public class MaintenanceController {
                     // Validation
                     if (equipementBox.getValue() == null) {
                         showError("Erreur", "Veuillez sélectionner un équipement");
+                        return null;
+                    }
+                    if (typeBox.getValue() == null) {
+                        showError("Erreur", "Veuillez sélectionner un type de maintenance");
                         return null;
                     }
                     if (descriptionField.getText() == null || descriptionField.getText().trim().isEmpty()) {
@@ -339,10 +587,14 @@ public class MaintenanceController {
                         showError("Erreur", "La date est obligatoire");
                         return null;
                     }
+                    if (statutBox.getValue() == null) {
+                        showError("Erreur", "Veuillez sélectionner un statut");
+                        return null;
+                    }
 
                     double cout;
                     try {
-                        cout = Double.parseDouble(coutField.getText().trim());
+                        cout = Double.parseDouble(coutField.getText().trim().replace(",", "."));
                         if (cout < 0) {
                             showError("Erreur", "Le coût ne peut pas être négatif");
                             return null;
@@ -450,6 +702,15 @@ public class MaintenanceController {
         double coutMoyen = maintenanceService.getCoutMoyenMaintenance();
         long aujourdhui = maintenanceService.getNombreMaintenancesAujourdhui();
 
+        // Ajouter les infos solaires
+        SunriseSunsetData solar = sunriseService.getSunriseSunsetToday();
+        String solarInfo = solar != null ?
+                String.format("Lever: %s | Coucher: %s | Durée: %s",
+                        solar.getSunrise().format(timeFormatter),
+                        solar.getSunset().format(timeFormatter),
+                        solar.getDayLengthFormatted()) :
+                "Données solaires non disponibles";
+
         String stats = String.format(
                 "📊 STATISTIQUES DES MAINTENANCES\n\n" +
                         "Total des maintenances : %d\n" +
@@ -460,10 +721,14 @@ public class MaintenanceController {
                         "💰 Coût total : %.2f DT\n" +
                         "💵 Coût moyen : %.2f DT\n\n" +
                         "📅 Maintenances aujourd'hui : %d\n" +
-                        "📆 Maintenances à venir : %d",
+                        "📆 Maintenances à venir : %d\n\n" +
+                        "☀️ Infos solaires aujourd'hui:\n%s\n\n" +
+                        "🌞 Recommandation: %s",
                 total, planifiees, realisees, preventives, correctives,
                 coutTotal, coutMoyen, aujourdhui,
-                maintenanceService.getUpcomingMaintenances().size()
+                maintenanceService.getUpcomingMaintenances().size(),
+                solarInfo,
+                sunriseService.getRecommendedWorkHours(LocalDate.now())
         );
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

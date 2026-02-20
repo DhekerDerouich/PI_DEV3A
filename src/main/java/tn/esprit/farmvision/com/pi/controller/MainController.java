@@ -228,6 +228,7 @@ public class MainController {
         }
     }
 
+
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

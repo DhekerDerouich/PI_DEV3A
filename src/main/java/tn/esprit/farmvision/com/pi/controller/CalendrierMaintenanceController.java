@@ -4,26 +4,26 @@ import com.pi.model.Maintenance;
 import com.pi.model.Equipement;
 import com.pi.service.MaintenanceService;
 import com.pi.service.EquipementService;
+import com.pi.service.external.SunriseSunsetService;
+import com.pi.service.external.SunriseSunsetService.SunriseSunsetData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.effect.DropShadow;
+import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-
 
 public class CalendrierMaintenanceController {
 
@@ -43,6 +43,7 @@ public class CalendrierMaintenanceController {
     @FXML private Button moisSuivantBtn;
     @FXML private Button ajouterMaintenanceBtn;
     @FXML private VBox legendeBox;
+    @FXML private HBox solarInfoBox; // Maintenant lié avec votre FXML
 
     private YearMonth currentYearMonth;
     private LocalDate dateSelectionnee;
@@ -51,10 +52,12 @@ public class CalendrierMaintenanceController {
 
     private MaintenanceService maintenanceService = new MaintenanceService();
     private EquipementService equipementService = new EquipementService();
+    private SunriseSunsetService sunriseService = new SunriseSunsetService();
 
     private DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH);
     private DateTimeFormatter dayFormatter = DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy", Locale.FRENCH);
     private DateTimeFormatter shortDayFormatter = DateTimeFormatter.ofPattern("dd/MM");
+    private DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     @FXML
     public void initialize() {
@@ -66,6 +69,9 @@ public class CalendrierMaintenanceController {
         chargerMaintenances();
         dessinerCalendrier();
         mettreAJourStatistiques();
+
+        // Ajouter les informations solaires
+        mettreAJourInfosSolaires();
 
         // Mettre en surbrillance aujourd'hui
         mettreEnSurbrillanceAujourdhui();
@@ -120,6 +126,40 @@ public class CalendrierMaintenanceController {
         legendeBox.getChildren().addAll(legendePreventive, legendeCorrective, legendeAujourdhui);
     }
 
+    /**
+     * Met à jour les informations de lever/coucher du soleil dans le HBox solarInfoBox
+     */
+    private void mettreAJourInfosSolaires() {
+        if (solarInfoBox == null) return;
+
+        solarInfoBox.getChildren().clear();
+
+        // Ajouter pour aujourd'hui
+        SunriseSunsetData data = sunriseService.getSunriseSunsetToday();
+        if (data != null) {
+            Label icon = new Label("☀️");
+            icon.setStyle("-fx-font-size: 20px;");
+
+            Label leverLabel = new Label("Lever: " + data.getSunrise().format(timeFormatter));
+            leverLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e67e22;");
+
+            Label coucherLabel = new Label("Coucher: " + data.getSunset().format(timeFormatter));
+            coucherLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e67e22;");
+
+            Label dureeLabel = new Label("Durée: " + data.getDayLengthFormatted());
+            dureeLabel.setStyle("-fx-text-fill: #7f8c8d;");
+
+            Label recommandation = new Label("🏆 " + sunriseService.getRecommendedWorkHours(LocalDate.now()));
+            recommandation.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+            solarInfoBox.getChildren().addAll(icon, leverLabel, coucherLabel, dureeLabel, recommandation);
+        } else {
+            Label errorLabel = new Label("☀️ Données solaires non disponibles");
+            errorLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
+            solarInfoBox.getChildren().add(errorLabel);
+        }
+    }
+
     private void chargerMaintenances() {
         maintenancesParJour.clear();
         cellulesCalendrier.clear();
@@ -146,7 +186,7 @@ public class CalendrierMaintenanceController {
             calendrierGrid.getColumnConstraints().add(col);
         }
 
-        // Créer 6 lignes
+        // Créer 6 lignes (pour les semaines)
         for (int i = 0; i < 7; i++) {
             RowConstraints row = new RowConstraints();
             row.setPercentHeight(100.0 / 7);
@@ -175,7 +215,7 @@ public class CalendrierMaintenanceController {
 
         // Premier jour du mois
         LocalDate firstDayOfMonth = currentYearMonth.atDay(1);
-        int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() - 1; // 0 pour lundi
+        int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() - 1; // 0 pour lundi (1 pour mardi, etc.)
 
         int daysInMonth = currentYearMonth.lengthOfMonth();
         int row = 1;
@@ -185,7 +225,6 @@ public class CalendrierMaintenanceController {
         for (int i = 0; i < dayOfWeek; i++) {
             VBox emptyCell = creerCelluleVide();
             calendrierGrid.add(emptyCell, i, row);
-            col = i + 1;
         }
 
         // Ajouter les jours du mois
@@ -236,6 +275,18 @@ public class CalendrierMaintenanceController {
         cell.setMaxHeight(Double.MAX_VALUE);
         cell.setOnMouseClicked(e -> selectionnerDate(date));
 
+        // Ajouter un tooltip avec les infos solaires
+        SunriseSunsetData solarData = sunriseService.getSunriseSunsetForDate(date);
+        if (solarData != null) {
+            Tooltip solarTip = new Tooltip(
+                    String.format("☀️ Lever: %s\n🌙 Coucher: %s\n⏱️ Durée: %s",
+                            solarData.getSunrise().format(timeFormatter),
+                            solarData.getSunset().format(timeFormatter),
+                            solarData.getDayLengthFormatted())
+            );
+            Tooltip.install(cell, solarTip);
+        }
+
         // Effet hover
         cell.setOnMouseEntered(e -> {
             if (!date.equals(dateSelectionnee)) {
@@ -280,7 +331,10 @@ public class CalendrierMaintenanceController {
                     couleur = "#95a5a6";
                 }
 
-                Label maintLabel = new Label(icone + " " + m.getDescription().substring(0, Math.min(10, m.getDescription().length())) + "...");
+                String desc = m.getDescription();
+                String descAbregee = desc.length() > 10 ? desc.substring(0, 10) + "..." : desc;
+
+                Label maintLabel = new Label(icone + " " + descAbregee);
                 maintLabel.setStyle("-fx-text-fill: " + couleur + "; -fx-font-size: 10px;");
                 maintLabel.setTooltip(new Tooltip(m.getDescription() + " (" + statut + ")"));
                 maintBox.getChildren().add(maintLabel);
@@ -309,6 +363,13 @@ public class CalendrierMaintenanceController {
             footerBox.setAlignment(Pos.CENTER_RIGHT);
 
             cell.getChildren().addAll(maintBox, footerBox);
+        } else {
+            // Même sans maintenance, afficher un petit indicateur solaire si disponible
+            if (solarData != null && solarData.getDayLengthSeconds() > 43200) { // Plus de 12h
+                Label sunIcon = new Label("☀️ Longue journée");
+                sunIcon.setStyle("-fx-text-fill: #f39c12; -fx-font-size: 9px;");
+                cell.getChildren().add(sunIcon);
+            }
         }
 
         return cell;
@@ -335,7 +396,18 @@ public class CalendrierMaintenanceController {
 
     private void selectionnerDate(LocalDate date) {
         dateSelectionnee = date;
-        dateSelectionneeLabel.setText("📅 " + date.format(dayFormatter));
+
+        // Ajouter les infos solaires à la date sélectionnée
+        SunriseSunsetData solarData = sunriseService.getSunriseSunsetForDate(date);
+        String solarText = "";
+        if (solarData != null) {
+            solarText = String.format(" | ☀️ %s - %s (%s)",
+                    solarData.getSunrise().format(timeFormatter),
+                    solarData.getSunset().format(timeFormatter),
+                    solarData.getDayLengthFormatted());
+        }
+
+        dateSelectionneeLabel.setText("📅 " + date.format(dayFormatter) + solarText);
 
         // Mettre à jour le style des cellules
         for (Map.Entry<LocalDate, VBox> entry : cellulesCalendrier.entrySet()) {
@@ -350,8 +422,18 @@ public class CalendrierMaintenanceController {
      * Méthode publique pour définir la date sélectionnée (appelée depuis MaintenanceController)
      */
     public void setDateSelectionnee(LocalDate date) {
-        this.dateSelectionnee = date;
-        selectionnerDate(date);
+        if (date != null) {
+            // Si la date est dans un mois différent, changer de mois
+            if (YearMonth.from(date).equals(currentYearMonth)) {
+                this.dateSelectionnee = date;
+                selectionnerDate(date);
+            } else {
+                currentYearMonth = YearMonth.from(date);
+                this.dateSelectionnee = date;
+                filtrerMaintenances();
+                selectionnerDate(date);
+            }
+        }
     }
 
     private void mettreEnSurbrillanceAujourdhui() {
@@ -443,8 +525,12 @@ public class CalendrierMaintenanceController {
             boolean correspondEquip = true;
 
             if (!"Tous".equals(equipFiltre)) {
-                int equipId = Integer.parseInt(equipFiltre.split(" - ")[0]);
-                correspondEquip = m.getEquipementId() == equipId;
+                try {
+                    int equipId = Integer.parseInt(equipFiltre.split(" - ")[0]);
+                    correspondEquip = m.getEquipementId() == equipId;
+                } catch (NumberFormatException e) {
+                    correspondEquip = false;
+                }
             }
 
             if (correspondType && correspondStatut && correspondEquip) {
@@ -476,12 +562,16 @@ public class CalendrierMaintenanceController {
     private void moisPrecedent() {
         currentYearMonth = currentYearMonth.minusMonths(1);
         filtrerMaintenances();
+        // Mettre à jour les infos solaires (le jour peut changer)
+        mettreAJourInfosSolaires();
     }
 
     @FXML
     private void moisSuivant() {
         currentYearMonth = currentYearMonth.plusMonths(1);
         filtrerMaintenances();
+        // Mettre à jour les infos solaires
+        mettreAJourInfosSolaires();
     }
 
     @FXML
@@ -490,6 +580,8 @@ public class CalendrierMaintenanceController {
         dateSelectionnee = LocalDate.now();
         filtrerMaintenances();
         selectionnerDate(dateSelectionnee);
+        // Mettre à jour les infos solaires
+        mettreAJourInfosSolaires();
     }
 
     @FXML
@@ -501,7 +593,12 @@ public class CalendrierMaintenanceController {
 
             MaintenanceController controller = loader.getController();
             controller.setDatePreselectionnee(dateSelectionnee);
-            controller.showAddDialog();
+
+            // Ouvrir la fenêtre de dialogue
+            Stage stage = new Stage();
+            stage.setTitle("Planifier une maintenance");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
 
             // Rafraîchir après ajout
             chargerMaintenances();
@@ -509,6 +606,11 @@ public class CalendrierMaintenanceController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Impossible d'ouvrir la fenêtre d'ajout");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 

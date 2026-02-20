@@ -157,6 +157,7 @@
                             <TableColumn fx:id="colFinGarantie" text="Fin garantie" prefWidth="130"/>
                             <TableColumn fx:id="colAge" text="Âge" prefWidth="90"/>
                             <TableColumn fx:id="colActions" text="Actions" prefWidth="200"/>
+                            <TableColumn fx:id="colEmpreinteCarbone" text="🌱 CO₂/an" prefWidth="120"/>
                         </columns>
                     </TableView>
                 </VBox>

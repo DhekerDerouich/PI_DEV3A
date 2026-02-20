@@ -23,6 +23,8 @@
                                style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
                     </VBox>
                 </HBox>
+                <HBox fx:id="solarInfoBox" spacing="15" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #fff3e0; -fx-padding: 10 20; -fx-background-radius: 8; -fx-border-color: #f39c12; -fx-border-radius: 8;"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <HBox spacing="10">
                     <Button fx:id="moisPrecedentBtn" text="◀ Mois précédent" onAction="#moisPrecedent"

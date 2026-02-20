@@ -1,8 +1,12 @@
 package com.pi.controller;
 
 import com.pi.model.Equipement;
+import com.pi.model.Maintenance;
 import com.pi.service.EquipementService;
+import com.pi.service.MaintenanceService;
 import com.pi.service.QRCodeService;
+import com.pi.service.external.CO2SignalService;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +26,7 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 public class EquipementController {
@@ -34,6 +39,7 @@ public class EquipementController {
     @FXML private TableColumn<Equipement, Integer> colDureeVie;
     @FXML private TableColumn<Equipement, String> colFinGarantie;
     @FXML private TableColumn<Equipement, String> colAge;
+    @FXML private TableColumn<Equipement, String> colEmpreinteCarbone; // Nouvelle colonne
     @FXML private TableColumn<Equipement, String> colActions;
 
     @FXML private TextField searchField;
@@ -44,16 +50,26 @@ public class EquipementController {
     @FXML private Label panneLabel;
     @FXML private Label maintenanceLabel;
     @FXML private Label garantieLabel;
+    @FXML private Label empreinteCarboneLabel; // Nouveau label pour l'empreinte totale
+    @FXML private GridPane statsGrid; // Pour ajouter la carte CO2
 
     private final EquipementService service = new EquipementService();
+    private final MaintenanceService maintenanceService = new MaintenanceService();
     private final ObservableList<Equipement> data = FXCollections.observableArrayList();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    // Nouveau service CO2
+    private CO2SignalService co2Service = new CO2SignalService();
+    private String countryCode = "TN"; // Tunisie par défaut
 
     @FXML
     public void initialize() {
         setupTableColumns();
         setupFilters();
         loadData();
+
+        // Ajouter la carte d'empreinte carbone
+        ajouterCarteEmpreinteCarbone();
     }
 
     private void setupTableColumns() {
@@ -86,6 +102,29 @@ public class EquipementController {
                 return new SimpleStringProperty(age + " an(s)");
             }
             return new SimpleStringProperty("-");
+        });
+
+        // NOUVELLE COLONNE : Empreinte carbone estimée
+        colEmpreinteCarbone.setCellValueFactory(cellData -> {
+            Equipement e = cellData.getValue();
+            double conso = co2Service.getConsommationEstimee(e.getType());
+            double intensite = co2Service.getCarbonIntensity(countryCode);
+            // Estimation: 100 heures d'utilisation par an
+            double emissionsAnnuelles = conso * 100 * intensite;
+
+            String couleur;
+            if (emissionsAnnuelles < 500) {
+                couleur = "#2ecc71"; // Vert
+            } else if (emissionsAnnuelles < 1000) {
+                couleur = "#f39c12"; // Orange
+            } else {
+                couleur = "#e74c3c"; // Rouge
+            }
+
+            Label label = new Label(String.format("%.0f kg CO₂/an", emissionsAnnuelles));
+            label.setStyle("-fx-text-fill: " + couleur + "; -fx-font-weight: bold;");
+
+            return new SimpleStringProperty(label.getText());
         });
 
         // Style pour l'état avec couleurs
@@ -143,15 +182,18 @@ public class EquipementController {
             private final Button deleteBtn = new Button("🗑️");
             private final Button maintenanceBtn = new Button("🔧");
             private final Button qrBtn = new Button("📷");
+            private final Button co2Btn = new Button("🌱"); // Nouveau bouton CO2
 
             {
                 editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
                 deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
                 maintenanceBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;");
                 qrBtn.setStyle("-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-cursor: hand;");
+                co2Btn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;");
 
                 maintenanceBtn.setTooltip(new Tooltip("Planifier une maintenance"));
                 qrBtn.setTooltip(new Tooltip("Générer QR Code"));
+                co2Btn.setTooltip(new Tooltip("Voir l'empreinte carbone"));
 
                 editBtn.setOnAction(event -> {
                     Equipement equip = getTableView().getItems().get(getIndex());
@@ -172,6 +214,11 @@ public class EquipementController {
                     Equipement equip = getTableView().getItems().get(getIndex());
                     showQRCodeDialog(equip);
                 });
+
+                co2Btn.setOnAction(event -> {
+                    Equipement equip = getTableView().getItems().get(getIndex());
+                    afficherEmpreinteCarbone(equip);
+                });
             }
 
             @Override
@@ -180,7 +227,7 @@ public class EquipementController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(new HBox(5, editBtn, maintenanceBtn, qrBtn, deleteBtn));
+                    setGraphic(new HBox(5, editBtn, maintenanceBtn, qrBtn, co2Btn, deleteBtn));
                 }
             }
         });
@@ -266,6 +313,102 @@ public class EquipementController {
         panneLabel.setText(String.valueOf(enPanne));
         maintenanceLabel.setText(String.valueOf(enMaintenance));
         garantieLabel.setText(String.valueOf(sousGarantie));
+
+        // Mettre à jour l'empreinte carbone
+        mettreAJourEmpreinteCarbone();
+    }
+
+    /**
+     * Ajoute une carte d'empreinte carbone au tableau de bord
+     */
+    private void ajouterCarteEmpreinteCarbone() {
+        if (statsGrid != null) {
+            VBox co2Card = new VBox(10);
+            co2Card.setAlignment(javafx.geometry.Pos.CENTER);
+            co2Card.setStyle("-fx-background-color: linear-gradient(135deg, #27ae60, #2ecc71); -fx-background-radius: 14; -fx-padding: 22 18; -fx-effect: dropshadow(gaussian, rgba(39,174,96,0.4), 12, 0, 0, 4); -fx-min-width: 220;");
+
+            Label icon = new Label("🌱");
+            icon.setStyle("-fx-font-size: 32px;");
+
+            empreinteCarboneLabel = new Label("0 kg CO₂");
+            empreinteCarboneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            Label label = new Label("Empreinte carbone (mois)");
+            label.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 600;");
+
+            co2Card.getChildren().addAll(icon, empreinteCarboneLabel, label);
+
+            // Ajouter à la 5ème position (après les 4 cartes existantes)
+            statsGrid.add(co2Card, 4, 0);
+        }
+    }
+
+    /**
+     * Calcule et met à jour l'empreinte carbone totale
+     */
+    private void mettreAJourEmpreinteCarbone() {
+        List<Equipement> equipements = service.getAllEquipements();
+        List<Maintenance> maintenances = maintenanceService.getAllMaintenances();
+
+        double emissions = co2Service.calculerEmissionsMensuelles(maintenances, equipements, countryCode);
+
+        if (empreinteCarboneLabel != null) {
+            empreinteCarboneLabel.setText(String.format("%.0f kg CO₂", emissions));
+
+            // Changer la couleur selon le niveau
+            if (emissions > 200) {
+                empreinteCarboneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffcccc;");
+            } else if (emissions > 100) {
+                empreinteCarboneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffcc;");
+            }
+        }
+
+        // Vérifier et créer une alerte si nécessaire
+        co2Service.verifierEtAlerter(new com.pi.service.AlertesService(), emissions);
+    }
+
+    /**
+     * Affiche les détails de l'empreinte carbone d'un équipement
+     */
+    private void afficherEmpreinteCarbone(Equipement equipement) {
+        double conso = co2Service.getConsommationEstimee(equipement.getType());
+        double intensite = co2Service.getCarbonIntensity(countryCode);
+
+        // Calculs pour différentes durées
+        double parHeure = conso * intensite;
+        double parJour = parHeure * 8; // 8h de travail
+        double parMois = parJour * 22; // 22 jours ouvrés
+        double parAn = parMois * 12;
+
+        String message = String.format(
+                "🌱 EMPREINTE CARBONE - %s\n\n" +
+                        "Type d'équipement: %s\n" +
+                        "Consommation estimée: %.1f kWh/heure\n" +
+                        "Intensité carbone (pays %s): %.3f kg CO₂/kWh\n\n" +
+                        "📊 Émissions estimées:\n" +
+                        "• Par heure: %.2f kg CO₂\n" +
+                        "• Par jour (8h): %.2f kg CO₂\n" +
+                        "• Par mois: %.2f kg CO₂\n" +
+                        "• Par an: %.2f kg CO₂\n\n" +
+                        "🌍 Équivalent en km parcourus en voiture:\n" +
+                        "• ~%.0f km/an",
+                equipement.getNom(),
+                equipement.getType(),
+                conso,
+                countryCode,
+                intensite,
+                parHeure,
+                parJour,
+                parMois,
+                parAn,
+                parAn * 5 // 1 kg CO₂ ≈ 5 km en voiture
+        );
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Empreinte Carbone");
+        alert.setHeaderText("🌱 " + equipement.getNom());
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @FXML
@@ -680,6 +823,16 @@ public class EquipementController {
             case "Maintenance": etatLabel.setStyle("-fx-text-fill: #f39c12;"); break;
         }
         infoGrid.add(etatLabel, 1, 3);
+
+        // Ajouter l'empreinte carbone
+        double conso = co2Service.getConsommationEstimee(equipement.getType());
+        double intensite = co2Service.getCarbonIntensity(countryCode);
+        double parAn = conso * 100 * intensite;
+
+        infoGrid.add(new Label("CO₂/an:"), 0, 4);
+        Label co2Label = new Label(String.format("%.0f kg", parAn));
+        co2Label.setStyle("-fx-text-fill: #27ae60;");
+        infoGrid.add(co2Label, 1, 4);
 
         content.getChildren().add(infoGrid);
 

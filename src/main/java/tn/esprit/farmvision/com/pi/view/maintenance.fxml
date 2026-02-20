@@ -19,6 +19,7 @@
                 </HBox>
                 <Label text="Planifiez, suivez et optimisez toutes vos opérations de maintenance"
                        style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
+                <Label fx:id="infoSolaireLabel" style="-fx-text-fill: #e67e22; -fx-font-weight: bold;"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
 
@@ -132,6 +133,7 @@
                             <TableColumn fx:id="colCout" text="Coût (DT)" prefWidth="110"/>
                             <TableColumn fx:id="colStatut" text="Statut" prefWidth="130"/>
                             <TableColumn fx:id="colActions" text="Actions" prefWidth="200"/>
+                            <TableColumn fx:id="colMeilleurePeriode" text="☀️ Meilleure période" prefWidth="150"/>
                         </columns>
                     </TableView>
                 </VBox>
