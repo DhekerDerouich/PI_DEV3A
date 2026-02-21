@@ -3,6 +3,7 @@ package tn.esprit.farmvision.gestionParcelleEtCulture.service;
 import tn.esprit.farmvision.gestionParcelleEtCulture.model.Parcelle;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -11,18 +12,19 @@ import java.util.List;
 
 public class AIChatService {
 
-    private static final String API_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "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";
+    // Gemini API endpoint (free)
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+    private static final String API_KEY = "AIzaSyDczEXmunBGFSIYfLSm8znUptcgQl46cMc";
     private final HttpClient httpClient;
     private final Gson gson;
-    private boolean useFallbackMode = false; // Will switch to fallback if API fails
+    private boolean useFallbackMode = false;
 
     public AIChatService() {
         this.httpClient = HttpClient.newHttpClient();
         this.gson = new Gson();
     }
 
-    public String getAgriculturalAdvice(String userMessage, List<Parcelle> parcelles) throws Exception {
+    public String getAgriculturalAdvice(String userMessage, List<Parcelle> parcelles) {
         // If we're in fallback mode, use local responses
         if (useFallbackMode) {
             return getFallbackResponse(userMessage, parcelles);
@@ -40,43 +42,156 @@ public class AIChatService {
                     context, userMessage
             );
 
+            // Build Gemini API request body
             JsonObject requestBody = new JsonObject();
-            requestBody.addProperty("model", "gpt-3.5-turbo");
 
-            JsonObject message = new JsonObject();
-            message.addProperty("role", "user");
-            message.addProperty("content", prompt);
+            // Create contents array with the prompt
+            JsonArray contents = new JsonArray();
+            JsonObject content = new JsonObject();
+            JsonArray parts = new JsonArray();
+            JsonObject part = new JsonObject();
+            part.addProperty("text", prompt);
+            parts.add(part);
+            content.add("parts", parts);
+            contents.add(content);
+            requestBody.add("contents", contents);
 
-            requestBody.add("messages", gson.toJsonTree(new JsonObject[]{message}));
-            requestBody.addProperty("temperature", 0.7);
-            requestBody.addProperty("max_tokens", 500);
+            // Add generation config for better responses
+            JsonObject generationConfig = new JsonObject();
+            generationConfig.addProperty("temperature", 0.7);
+            generationConfig.addProperty("maxOutputTokens", 800);
+            generationConfig.addProperty("topP", 0.95);
+            generationConfig.addProperty("topK", 40);
+            requestBody.add("generationConfig", generationConfig);
 
+            // Build HTTP request
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL))
+                    .uri(URI.create(API_URL + "?key=" + API_KEY))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + API_KEY)
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(requestBody)))
                     .build();
 
+            // Send request
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return parseResponse(response.body());
-            } else if (response.statusCode() == 429) {
-                // Quota exceeded - switch to fallback mode
-                useFallbackMode = true;
-                return "⚠️ **Mode hors ligne activé**\n\n" +
-                        getFallbackResponse(userMessage, parcelles);
+                return parseGeminiResponse(response.body());
             } else {
-                throw new Exception("Erreur API: " + response.statusCode() + " - " + response.body());
+                // Check for quota exceeded or other errors
+                if (response.statusCode() == 429 || response.statusCode() == 403) {
+                    useFallbackMode = true;
+                    return "⚠️ **Mode hors ligne activé (limite API atteinte)**\n\n" +
+                            getFallbackResponse(userMessage, parcelles);
+                } else {
+                    System.err.println("API Error " + response.statusCode() + ": " + response.body());
+                    return "❌ Erreur API: " + response.statusCode() + "\n\n" +
+                            getFallbackResponse(userMessage, parcelles);
+                }
             }
+
         } catch (Exception e) {
-            // If any error occurs, use fallback
+            e.printStackTrace();
             useFallbackMode = true;
-            return "⚠️ **Mode hors ligne activé**\n\n" +
+            return "⚠️ **Mode hors ligne activé (erreur de connexion)**\n\n" +
                     getFallbackResponse(userMessage, parcelles);
         }
     }
+
+    private String parseGeminiResponse(String jsonResponse) {
+        try {
+            JsonObject response = gson.fromJson(jsonResponse, JsonObject.class);
+
+            // Navigate to the text content in Gemini's response structure
+            return response.getAsJsonArray("candidates")
+                    .get(0).getAsJsonObject()
+                    .getAsJsonObject("content")
+                    .getAsJsonArray("parts")
+                    .get(0).getAsJsonObject()
+                    .get("text")
+                    .getAsString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Désolé, je n'ai pas pu comprendre la réponse de l'API.";
+        }
+    }
+
+    private String buildParcelContext(List<Parcelle> parcelles) {
+        if (parcelles == null || parcelles.isEmpty()) {
+            return "Aucune parcelle disponible pour le moment.";
+        }
+
+        StringBuilder context = new StringBuilder("📊 **DONNÉES DE VOS PARCELLES:**\n\n");
+
+        for (int i = 0; i < parcelles.size(); i++) {
+            Parcelle p = parcelles.get(i);
+            context.append(String.format(
+                    "🌾 **Parcelle %d:**\n" +
+                            "   • Localisation: %s\n" +
+                            "   • Surface: %.2f m²\n" +
+                            "   • Température: %.1f°C\n" +
+                            "   • Conditions: %s\n\n",
+                    i + 1, p.getLocalisation(), p.getSurface(), p.getTemperature(), p.getWeather()
+            ));
+        }
+
+        // Add weather analysis
+        context.append("📈 **ANALYSE CLIMATIQUE:**\n");
+        context.append(analyzeWeatherPatterns(parcelles));
+
+        return context.toString();
+    }
+
+    private String analyzeWeatherPatterns(List<Parcelle> parcelles) {
+        double avgTemp = parcelles.stream()
+                .mapToDouble(Parcelle::getTemperature)
+                .average()
+                .orElse(0);
+
+        boolean hasRain = parcelles.stream()
+                .anyMatch(p -> p.getWeather() != null &&
+                        p.getWeather().toLowerCase().contains("rain"));
+
+        boolean hasSun = parcelles.stream()
+                .anyMatch(p -> p.getWeather() != null &&
+                        (p.getWeather().toLowerCase().contains("clear") ||
+                                p.getWeather().toLowerCase().contains("sun")));
+
+        boolean hasClouds = parcelles.stream()
+                .anyMatch(p -> p.getWeather() != null &&
+                        p.getWeather().toLowerCase().contains("cloud"));
+
+        StringBuilder analysis = new StringBuilder();
+        analysis.append(String.format("🌡️ Température moyenne: **%.1f°C**\n", avgTemp));
+
+        if (avgTemp > 30) {
+            analysis.append("🔥 **Attention:** Fortes chaleurs - irrigation nécessaire\n");
+        } else if (avgTemp > 25) {
+            analysis.append("☀️ **Température chaude** - Bonne pour les cultures d'été\n");
+        } else if (avgTemp > 15) {
+            analysis.append("🌤️ **Température douce** - Idéale pour la plupart des cultures\n");
+        } else if (avgTemp > 5) {
+            analysis.append("🍂 **Température fraîche** - Cultures d'automne/hiver\n");
+        } else {
+            analysis.append("❄️ **Attention:** Risque de gel - protégez les cultures\n");
+        }
+
+        if (hasRain) {
+            analysis.append("🌧️ **Pluie détectée** - Vérifiez le drainage, réduisez l'irrigation\n");
+        }
+
+        if (hasSun) {
+            analysis.append("☀️ **Bon ensoleillement** - Favorable à la photosynthèse\n");
+        }
+
+        if (hasClouds && !hasRain) {
+            analysis.append("☁️ **Temps nuageux** - Bon pour les semis et transplantations\n");
+        }
+
+        return analysis.toString();
+    }
+
+
 
     private String getFallbackResponse(String userMessage, List<Parcelle> parcelles) {
         // Analyze weather data
@@ -315,74 +430,5 @@ public class AIChatService {
         }
 
         return advice.toString();
-    }
-
-    private String buildParcelContext(List<Parcelle> parcelles) {
-        if (parcelles == null || parcelles.isEmpty()) {
-            return "Aucune parcelle disponible pour le moment.";
-        }
-
-        StringBuilder context = new StringBuilder("Données des parcelles:\n");
-
-        for (int i = 0; i < parcelles.size(); i++) {
-            Parcelle p = parcelles.get(i);
-            context.append(String.format(
-                    "Parcelle %d: Localisation: %s, Surface: %.2f m², Température: %.1f°C, Conditions: %s\n",
-                    i + 1, p.getLocalisation(), p.getSurface(), p.getTemperature(), p.getWeather()
-            ));
-        }
-
-        context.append("\nAnalyse climatique globale:\n");
-        context.append(analyzeWeatherPatterns(parcelles));
-
-        return context.toString();
-    }
-
-    private String analyzeWeatherPatterns(List<Parcelle> parcelles) {
-        double avgTemp = parcelles.stream()
-                .mapToDouble(Parcelle::getTemperature)
-                .average()
-                .orElse(0);
-
-        boolean hasRain = parcelles.stream()
-                .anyMatch(p -> p.getWeather() != null &&
-                        p.getWeather().toLowerCase().contains("rain"));
-
-        boolean hasSun = parcelles.stream()
-                .anyMatch(p -> p.getWeather() != null &&
-                        (p.getWeather().toLowerCase().contains("clear") ||
-                                p.getWeather().toLowerCase().contains("sun")));
-
-        StringBuilder analysis = new StringBuilder();
-        analysis.append(String.format("Température moyenne: %.1f°C. ", avgTemp));
-
-        if (avgTemp > 30) {
-            analysis.append("Attention aux fortes chaleurs, irrigation nécessaire. ");
-        } else if (avgTemp < 10) {
-            analysis.append("Risque de gel, protéger les cultures sensibles. ");
-        }
-
-        if (hasRain) {
-            analysis.append("Présence de pluie, vérifier le drainage. ");
-        }
-
-        if (hasSun) {
-            analysis.append("Bon ensoleillement favorable à la photosynthèse. ");
-        }
-
-        return analysis.toString();
-    }
-
-    private String parseResponse(String jsonResponse) {
-        try {
-            JsonObject response = gson.fromJson(jsonResponse, JsonObject.class);
-            return response.getAsJsonArray("choices")
-                    .get(0).getAsJsonObject()
-                    .getAsJsonObject("message")
-                    .get("content")
-                    .getAsString();
-        } catch (Exception e) {
-            return "Désolé, je n'ai pas pu comprendre la réponse de l'API.";
-        }
     }
 }
