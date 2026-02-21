@@ -59,7 +59,7 @@ public class AIChatService {
             // Add generation config for better responses
             JsonObject generationConfig = new JsonObject();
             generationConfig.addProperty("temperature", 0.7);
-            generationConfig.addProperty("maxOutputTokens", 800);
+            generationConfig.addProperty("maxOutputTokens", 2048);
             generationConfig.addProperty("topP", 0.95);
             generationConfig.addProperty("topK", 40);
             requestBody.add("generationConfig", generationConfig);
