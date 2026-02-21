@@ -135,7 +135,6 @@
                         <!-- Table View -->
                         <TableView fx:id="tableView" prefHeight="300.0" style="-fx-background-color: transparent; -fx-border-color: #e2e8f0; -fx-border-radius: 8;" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colId" prefWidth="80.0" text="ID" />
                                 <TableColumn fx:id="colNom" prefWidth="150.0" text="Nom" />
                                 <TableColumn fx:id="colType" prefWidth="150.0" text="Type" />
                                 <TableColumn fx:id="colSemis" prefWidth="150.0" text="Date semis" />
@@ -155,3 +154,4 @@
         </VBox>
     </children>
 </AnchorPane>
+

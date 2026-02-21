@@ -65,7 +65,7 @@ public class CultureController {
 
     private void setupTableColumns() {
         // Configure columns
-        colId.setCellValueFactory(new PropertyValueFactory<>("idCulture"));
+       // colId.setCellValueFactory(new PropertyValueFactory<>("idCulture"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nomCulture"));
         colType.setCellValueFactory(new PropertyValueFactory<>("typeCulture"));
         colSemis.setCellValueFactory(new PropertyValueFactory<>("dateSemis"));
@@ -76,7 +76,7 @@ public class CultureController {
 
         // Style column headers
         String headerStyle = "-fx-background-color: #f8fafc; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;";
-        colId.setStyle(headerStyle);
+        //colId.setStyle(headerStyle);
         colNom.setStyle(headerStyle);
         colType.setStyle(headerStyle);
         colSemis.setStyle(headerStyle);
@@ -84,7 +84,7 @@ public class CultureController {
         colActions.setStyle(headerStyle);
 
         // Set cell factories for custom styling
-        colId.setCellFactory(column -> createStyledCell());
+      //  colId.setCellFactory(column -> createStyledCell());
         colNom.setCellFactory(column -> createStyledCell());
         colType.setCellFactory(column -> createStyledCell());
         colSemis.setCellFactory(column -> createStyledDateCell());
@@ -92,8 +92,8 @@ public class CultureController {
 
         // Set action buttons cell factory
         colActions.setCellFactory(param -> new TableCell<Culture, Void>() {
-            private final Button editBtn = createStyledButton("Modifier️", "#3b82f6", "Modifier");
-            private final Button deleteBtn = createStyledButton("Supprimer", "#ef4444", "Supprimer");
+            private final Button editBtn = createStyledButton("✏", "#f59e0b", "Modifier");
+            private final Button deleteBtn = createStyledButton("❌", "#ef4444", "Supprimer");
             private final HBox pane = new HBox(10, editBtn, deleteBtn);
 
             {
