@@ -5,7 +5,7 @@ public class Parcelle {
     private int idParcelle;
     private float surface;
     private String localisation;
-    // LIVE WEATHER fields
+
     private double temperature;
     private String weather;
     public Parcelle() {}

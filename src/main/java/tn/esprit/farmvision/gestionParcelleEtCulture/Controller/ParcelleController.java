@@ -2,7 +2,6 @@ package tn.esprit.farmvision.gestionParcelleEtCulture.Controller;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,10 +18,18 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import javafx.application.Platform;
 import tn.esprit.farmvision.gestionParcelleEtCulture.model.Parcelle;
+import tn.esprit.farmvision.gestionParcelleEtCulture.model.WeatherAlert;
 import tn.esprit.farmvision.gestionParcelleEtCulture.service.ParcelleService;
+import tn.esprit.farmvision.gestionParcelleEtCulture.service.WeatherAlertService;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Optional;
 
 public class ParcelleController {
@@ -81,11 +88,25 @@ public class ParcelleController {
     @FXML
     private Button refreshBtn;
 
+    // New alert system fields
+    @FXML
+    private Button alertBellBtn;
+    @FXML
+    private Label alertBadge;
+    @FXML
+    private VBox alertPanel;
+    @FXML
+    private ListView<WeatherAlert> alertListView;
+    @FXML
+    private Button refreshAlertsBtn;
+
     private ParcelleService service = new ParcelleService();
+    private WeatherAlertService alertService = WeatherAlertService.getInstance();
     private ObservableList<Parcelle> masterData = FXCollections.observableArrayList();
     private FilteredList<Parcelle> filteredData;
     private Parcelle selectedParcelle = null;
     private DecimalFormat df = new DecimalFormat("#.00");
+    private Timeline alertCheckerTimeline;
 
     @FXML
     public void initialize() {
@@ -98,6 +119,9 @@ public class ParcelleController {
         setupSearch();
         updateStats();
         refreshBtn.setOnAction(e -> refreshWeather());
+
+        // Setup alert system
+        setupAlertSystem();
     }
 
     /**
@@ -133,9 +157,290 @@ public class ParcelleController {
         showSuccessToast("🔄 Météo actualisée");
     }
 
+    /**
+     * Setup the alert system
+     */
+    private void setupAlertSystem() {
+        // Style alert bell
+        if (alertBellBtn != null) {
+            alertBellBtn.setStyle("-fx-background-color: transparent; -fx-font-size: 20; -fx-cursor: hand;");
+            alertBellBtn.setTooltip(new Tooltip("Notifications météo"));
+        }
+
+        // Hide badge initially
+        if (alertBadge != null) {
+            alertBadge.setVisible(false);
+            alertBadge.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 6; -fx-font-size: 10;");
+        }
+
+        // Hide panel initially
+        if (alertPanel != null) {
+            alertPanel.setVisible(false);
+            alertPanel.setManaged(false);
+        }
+
+        // Setup alert list view
+        if (alertListView != null) {
+            setupAlertListView();
+        }
+
+        // Setup periodic checking (every 2 minutes)
+        alertCheckerTimeline = new Timeline(
+                new KeyFrame(Duration.minutes(2), e -> checkForAlerts())
+        );
+        alertCheckerTimeline.setCycleCount(Animation.INDEFINITE);
+        alertCheckerTimeline.play();
+
+        // Check immediately
+        checkForAlerts();
+    }
+
+    /**
+     * Setup alert list view
+     */
+    private void setupAlertListView() {
+        alertListView.setCellFactory(param -> new ListCell<WeatherAlert>() {
+            @Override
+            protected void updateItem(WeatherAlert alert, boolean empty) {
+                super.updateItem(alert, empty);
+                if (empty || alert == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    HBox cell = new HBox(10);
+                    cell.setAlignment(Pos.CENTER_LEFT);
+                    cell.setPadding(new Insets(8));
+
+                    // Icon based on severity
+                    String icon = getAlertIcon(alert.getSeverity());
+                    Label iconLabel = new Label(icon);
+                    iconLabel.setStyle("-fx-font-size: 16;");
+
+                    // Content
+                    VBox content = new VBox(3);
+
+                    HBox header = new HBox(8);
+                    header.setAlignment(Pos.CENTER_LEFT);
+
+                    Label titleLabel = new Label(alert.getParcelleLocalisation());
+                    titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
+
+                    Label timeLabel = new Label(alert.getRelativeTime());
+                    timeLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 10;");
+
+                    header.getChildren().addAll(titleLabel, timeLabel);
+
+                    Label msgLabel = new Label(alert.getMessage());
+                    msgLabel.setStyle("-fx-text-fill: #475569; -fx-font-size: 11;");
+
+                    content.getChildren().addAll(header, msgLabel);
+
+                    cell.getChildren().addAll(iconLabel, content);
+                    HBox.setHgrow(content, Priority.ALWAYS);
+
+                    // Unread indicator
+                    if (!alert.isRead()) {
+                        Label unreadDot = new Label("●");
+                        unreadDot.setStyle("-fx-text-fill: #3b82f6; -fx-font-size: 12;");
+                        cell.getChildren().add(unreadDot);
+                    }
+
+                    setGraphic(cell);
+
+                    // Background color
+                    String bgColor = alert.isRead() ? "#ffffff" : getAlertBackgroundColor(alert.getSeverity());
+                    setStyle("-fx-background-color: " + bgColor + "; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;");
+                }
+            }
+        });
+
+        // Handle click on alert
+        alertListView.setOnMouseClicked(event -> {
+            WeatherAlert selected = alertListView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                showAlertDetails(selected);
+                alertService.markAsRead(selected.getIdAlert());
+                updateAlertBadge();
+                alertListView.refresh();
+            }
+        });
+    }
+
+    /**
+     * Check for weather alerts
+     */
+    private void checkForAlerts() {
+        try {
+            List<Parcelle> parcelles = service.afficher();
+            List<WeatherAlert> newAlerts = alertService.checkAllParcelles(parcelles);
+
+            Platform.runLater(() -> {
+                updateAlertBadge();
+                if (alertListView != null) {
+                    loadAlertsToList();
+                }
+
+                if (!newAlerts.isEmpty()) {
+                    showInfoToast("🔔 " + newAlerts.size() + " nouvelle(s) alerte(s) météo");
+                }
+            });
+
+        } catch (Exception e) {
+            System.err.println("Error checking alerts: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load alerts into list view
+     */
+    private void loadAlertsToList() {
+        if (alertListView != null) {
+            alertListView.getItems().setAll(alertService.getAllAlerts());
+        }
+    }
+
+    /**
+     * Update alert badge count
+     */
+    private void updateAlertBadge() {
+        if (alertBadge != null) {
+            int unreadCount = alertService.getUnreadAlerts().size();
+            if (unreadCount > 0) {
+                alertBadge.setText(String.valueOf(unreadCount));
+                alertBadge.setVisible(true);
+            } else {
+                alertBadge.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * Toggle alert panel
+     */
+    @FXML
+    private void toggleAlertPanel() {
+        if (alertPanel != null) {
+            alertPanel.setVisible(!alertPanel.isVisible());
+            alertPanel.setManaged(alertPanel.isVisible());
+
+            if (alertPanel.isVisible()) {
+                loadAlertsToList();
+            }
+        }
+    }
+
+    /**
+     * Refresh alerts manually
+     */
+    @FXML
+    private void refreshAlerts() {
+        checkForAlerts();
+        showSuccessToast("✅ Alertes actualisées");
+    }
+
+    /**
+     * Mark all alerts as read
+     */
+    @FXML
+    private void markAllAsRead() {
+        if (alertService != null) {
+            alertService.markAllAsRead();
+            updateAlertBadge();
+            if (alertListView != null) {
+                alertListView.refresh();
+            }
+            showSuccessToast("✓ Toutes les alertes marquées comme lues");
+        }
+    }
+
+    /**
+     * Show alert details
+     */
+    private void showAlertDetails(WeatherAlert alert) {
+        Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+        dialog.setTitle("Détails de l'alerte");
+        dialog.setHeaderText(null);
+
+        String content = String.format(
+                "📍 Parcelle: %s\n" +
+                        "⚠️ Type: %s\n" +
+                        "🔴 Niveau: %s\n" +
+                        "🌡️ Température: %.1f°C\n" +
+                        "☁️ Condition: %s\n" +
+                        "🕐 Heure: %s\n\n" +
+                        "📝 %s",
+                alert.getParcelleLocalisation(),
+                alert.getAlertType(),
+                alert.getSeverity(),
+                alert.getTemperature(),
+                alert.getWeatherCondition(),
+                alert.getFormattedTime(),
+                alert.getMessage()
+        );
+
+        dialog.setContentText(content);
+
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: white; -fx-background-radius: 12;");
+
+        dialog.showAndWait();
+    }
+
+    /**
+     * Get alert icon
+     */
+    private String getAlertIcon(String severity) {
+        switch (severity) {
+            case "ROUGE": return "🔴";
+            case "ORANGE": return "🟠";
+            case "JAUNE": return "🟡";
+            default: return "⚪";
+        }
+    }
+
+    /**
+     * Get alert background color
+     */
+    private String getAlertBackgroundColor(String severity) {
+        switch (severity) {
+            case "ROUGE": return "#fee2e2";
+            case "ORANGE": return "#ffedd5";
+            case "JAUNE": return "#fef9c3";
+            default: return "#f8fafc";
+        }
+    }
+
+    /**
+     * Show info toast
+     */
+    private void showInfoToast(String message) {
+        Stage toastStage = new Stage();
+        toastStage.initStyle(StageStyle.TRANSPARENT);
+
+        Label label = new Label(message);
+        label.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 30; -fx-font-size: 13; -fx-font-weight: bold;");
+        label.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(label);
+        scene.setFill(Color.TRANSPARENT);
+
+        toastStage.setScene(scene);
+        toastStage.setX(javafx.stage.Screen.getPrimary().getVisualBounds().getMaxX() - 350);
+        toastStage.setY(javafx.stage.Screen.getPrimary().getVisualBounds().getMaxY() - 100);
+        toastStage.show();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                javafx.application.Platform.runLater(() -> toastStage.close());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     private void setupTableColumns() {
         // Configure columns
-       // colId.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getIdParcelle()).asObject());
         colSurface.setCellValueFactory(cellData -> new SimpleFloatProperty(cellData.getValue().getSurface()).asObject());
         colLocalisation.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getLocalisation()));
 
@@ -148,7 +453,6 @@ public class ParcelleController {
 
         // Style column headers
         String headerStyle = "-fx-background-color: #f8fafc; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;";
-      //  colId.setStyle(headerStyle);
         colSurface.setStyle(headerStyle);
         colLocalisation.setStyle(headerStyle);
         colActions.setStyle(headerStyle);
@@ -156,7 +460,6 @@ public class ParcelleController {
         colWeather.setStyle(headerStyle);
 
         // Set cell factories for custom styling
-       // colId.setCellFactory(column -> createStyledCell());
         colSurface.setCellFactory(column -> createStyledSurfaceCell());
         colLocalisation.setCellFactory(column -> createStyledCell());
 
@@ -318,7 +621,7 @@ public class ParcelleController {
                         } else if (parcelle.getLocalisation().toLowerCase().contains(lowerCaseFilter)) {
                             return true;
                         } else if (parcelle.getWeather() != null && parcelle.getWeather().toLowerCase().contains(lowerCaseFilter)) {
-                            return true; // Allow searching by weather condition
+                            return true;
                         }
                         return false;
                     });

@@ -6,15 +6,13 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.layout.Region?>
 
@@ -23,7 +21,7 @@
         <!-- Main Container -->
         <VBox layoutX="14.0" layoutY="14.0" prefHeight="722.0" prefWidth="972.0" spacing="15.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
             <children>
-                <!-- Header with Stats -->
+                <!-- Header with Alert Bell and Add Button -->
                 <HBox alignment="CENTER_LEFT" spacing="20.0">
                     <children>
                         <VBox spacing="5.0">
@@ -41,7 +39,36 @@
                             </children>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="addNewBtn" mnemonicParsing="false" onAction="#showAddModal" style="-fx-background-color: #22c55e; -fx-background-radius: 8;" text="+ Nouvelle Parcelle" textFill="white">
+
+                        <!-- Alert Bell with Badge -->
+                        <StackPane>
+                            <Button fx:id="alertBellBtn" mnemonicParsing="false" onAction="#toggleAlertPanel"
+                                    style="-fx-background-color: transparent; -fx-cursor: hand;" text="🔔">
+                                <font>
+                                    <Font size="24.0" />
+                                </font>
+                                <tooltip>
+                                    <Tooltip text="Notifications météo" />
+                                </tooltip>
+                            </Button>
+                            <Label fx:id="alertBadge" alignment="CENTER" translateX="15" translateY="-10" text="0"
+                                   style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 6; -fx-font-size: 10; -fx-min-width: 20; -fx-min-height: 20;" />
+                        </StackPane>
+
+                        <!-- Manual Check Button -->
+                        <Button fx:id="refreshAlertsBtn" mnemonicParsing="false" onAction="#refreshAlerts"
+                                style="-fx-background-color: #3b82f6; -fx-background-radius: 6;" text="🔍 Vérifier alertes" textFill="white">
+                            <font>
+                                <Font size="12.0" />
+                            </font>
+                            <tooltip>
+                                <Tooltip text="Vérifier manuellement les alertes météo" />
+                            </tooltip>
+                        </Button>
+
+                        <!-- Add New Parcelle Button -->
+                        <Button fx:id="addNewBtn" mnemonicParsing="false" onAction="#showAddModal"
+                                style="-fx-background-color: #22c55e; -fx-background-radius: 8;" text="+ Nouvelle Parcelle" textFill="white">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -51,6 +78,54 @@
                         </Button>
                     </children>
                 </HBox>
+
+                <!-- Alert Panel (Collapsible) -->
+                <VBox fx:id="alertPanel" spacing="10" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2); -fx-border-color: #e2e8f0;" visible="false" managed="false">
+                    <children>
+                        <!-- Alert Panel Header -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="🔔 Notifications météo" textFill="#1e293b">
+                                <font>
+                                    <Font name="System Bold" size="14.0" />
+                                </font>
+                            </Label>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button text="✓ Tout lire" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 11; -fx-cursor: hand;" onAction="#markAllAsRead">
+                                <tooltip>
+                                    <Tooltip text="Marquer toutes les alertes comme lues" />
+                                </tooltip>
+                            </Button>
+                            <Button text="🔄" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 12; -fx-cursor: hand;" onAction="#refreshAlerts">
+                                <tooltip>
+                                    <Tooltip text="Actualiser les alertes" />
+                                </tooltip>
+                            </Button>
+                            <Button text="✕" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 14; -fx-cursor: hand;" onAction="#toggleAlertPanel">
+                                <tooltip>
+                                    <Tooltip text="Fermer le panneau" />
+                                </tooltip>
+                            </Button>
+                        </HBox>
+
+                        <Separator />
+
+                        <!-- Alert List View -->
+                        <ListView fx:id="alertListView" prefHeight="200" style="-fx-background-color: transparent; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                            <placeholder>
+                                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 30;">
+                                    <Label text="✅" style="-fx-font-size: 32;" />
+                                    <Label text="Aucune alerte" textFill="#94a3b8" style="-fx-font-size: 14;" />
+                                    <Label text="Les alertes météo apparaîtront ici" textFill="#cbd5e1" style="-fx-font-size: 11;" />
+                                </VBox>
+                            </placeholder>
+                        </ListView>
+
+                        <!-- Footer Info -->
+                        <HBox alignment="CENTER_RIGHT">
+                            <Label text="Mise à jour automatique toutes les 2 minutes" textFill="#94a3b8" style="-fx-font-size: 10;" />
+                        </HBox>
+                    </children>
+                </VBox>
 
                 <!-- Stats Cards -->
                 <HBox spacing="15.0">
@@ -133,7 +208,6 @@
                         <!-- Table View -->
                         <TableView fx:id="tableView" prefHeight="300.0" style="-fx-background-color: transparent; -fx-border-color: #e2e8f0; -fx-border-radius: 8;" VBox.vgrow="ALWAYS">
                             <columns>
-
                                 <TableColumn fx:id="colSurface" prefWidth="200.0" text="Surface (m²)" />
                                 <TableColumn fx:id="colLocalisation" prefWidth="300.0" text="Localisation" />
                                 <TableColumn fx:id="colTemperature" prefWidth="150.0" text="Température (°C)" />
@@ -149,7 +223,11 @@
                         <HBox alignment="CENTER_RIGHT" spacing="15.0">
                             <children>
                                 <Label fx:id="footerStatus" text="⚡ 0 parcelles chargées" textFill="#64748b" />
-                                <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#loadData" style="-fx-background-color: transparent;" text="🔄" />
+                                <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#loadData" style="-fx-background-color: transparent;" text="🔄">
+                                    <tooltip>
+                                        <Tooltip text="Actualiser les données météo" />
+                                    </tooltip>
+                                </Button>
                             </children>
                         </HBox>
                     </children>
