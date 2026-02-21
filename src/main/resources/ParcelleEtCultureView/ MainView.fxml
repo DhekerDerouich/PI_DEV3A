@@ -52,6 +52,11 @@
                                 <Label text="🌱" styleClass="nav-icon" />
                             </graphic>
                         </Button>
+                        <Button fx:id="chatBtn" mnemonicParsing="false" onAction="#showChat" styleClass="nav-button" text="     Assistant IA">
+                            <graphic>
+                                <Label text="🤖" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
 
                     </children>
                 </VBox>

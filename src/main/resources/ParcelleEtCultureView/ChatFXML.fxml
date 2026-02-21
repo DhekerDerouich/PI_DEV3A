@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.effect.DropShadow?>
+
+<AnchorPane prefHeight="750.0" prefWidth="950.0" style="-fx-background-color: linear-gradient(to bottom, #f0f9ff, #e6f2f8);" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.farmvision.gestionParcelleEtCulture.Controller.ChatController">
+    <children>
+        <!-- Main Container with subtle shadow -->
+        <VBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0" style="-fx-background-color: white; -fx-background-radius: 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <!-- Enhanced Header with gradient -->
+                <VBox spacing="10.0">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <!-- Avatar/Icon -->
+                                <VBox alignment="CENTER" prefHeight="60.0" prefWidth="60.0" style="-fx-background-color: linear-gradient(to bottom right, #22c55e, #16a34a); -fx-background-radius: 30;">
+                                    <children>
+                                        <Label text="🌾" style="-fx-font-size: 32px;" textFill="white" />
+                                    </children>
+                                    <effect>
+                                        <DropShadow color="#22c55e80" radius="10" spread="0.2" />
+                                    </effect>
+                                </VBox>
+
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Assistant Agricole " textFill="#1e293b" wrapText="true">
+                                            <font>
+                                                <Font name="System Bold" size="26.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="Conseils personnalisés basés sur vos données météo" textFill="#64748b">
+                                            <font>
+                                                <Font size="14.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- Action buttons with larger font -->
+                                <HBox spacing="8.0">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#refreshWeatherData" style="-fx-background-color: #f1f5f9; -fx-background-radius: 12; -fx-padding: 10 15;" text="🔄" textFill="#334155">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                            <tooltip>
+                                                <Tooltip text="Actualiser la météo" />
+                                            </tooltip>
+                                        </Button>
+                                        <Button mnemonicParsing="false" onAction="#clearChat" style="-fx-background-color: #f1f5f9; -fx-background-radius: 12; -fx-padding: 10 15;" text="🗑️" textFill="#334155">
+                                            <font>
+                                                <Font size="18.0" />
+                                            </font>
+                                            <tooltip>
+                                                <Tooltip text="Nettoyer la conversation" />
+                                            </tooltip>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Weather Summary Card -->
+                        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: linear-gradient(to right, #f8fafc, #f1f5f9); -fx-background-radius: 16; -fx-padding: 15;">
+                            <children>
+                                <Label text="🌡️" style="-fx-font-size: 28px;" />
+                                <Label fx:id="weatherSummaryLabel" text="🌾 Chargement des données..." textFill="#0f172a" wrapText="true">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- Quick Questions Combo - Enhanced -->
+                <ComboBox fx:id="quickQuestionsCombo" promptText="📋 Choisissez une question rapide..." style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 16; -fx-background-radius: 16; -fx-padding: 8 15;">
+
+                </ComboBox>
+
+                <!-- Separator -->
+                <Separator style="-fx-background-color: #e2e8f0;" />
+
+                <!-- Chat Messages Area with improved styling -->
+                <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: #fafcff; -fx-background-radius: 16; -fx-border-color: #e2e8f0; -fx-border-radius: 16;" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                    </padding>
+                    <content>
+                        <VBox fx:id="messagesContainer" spacing="15.0" style="-fx-background-color: transparent;" />
+                    </content>
+                </ScrollPane>
+
+                <!-- Input Area with improved design -->
+                <VBox spacing="10.0">
+                    <children>
+                        <!-- Message Input -->
+                        <HBox spacing="10.0">
+                            <children>
+                                <TextField fx:id="messageInput" promptText="Posez votre question agricole..." HBox.hgrow="ALWAYS">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                    <padding>
+                                        <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+                                    </padding>
+                                    <style>
+                                        -fx-background-color: white;
+                                        -fx-border-color: #e2e8f0;
+                                        -fx-border-radius: 30;
+                                        -fx-background-radius: 30;
+                                    </style>
+                                </TextField>
+
+                                <!-- Send Button with Loading -->
+                                <HBox alignment="CENTER" spacing="10.0">
+                                    <children>
+                                        <ProgressIndicator fx:id="loadingIndicator" prefHeight="35.0" prefWidth="35.0" style="-fx-progress-color: #22c55e;" visible="false" />
+                                        <Button fx:id="sendButton" mnemonicParsing="false" style="-fx-background-color: linear-gradient(to bottom, #22c55e, #16a34a); -fx-background-radius: 30;" textFill="white">
+                                            <graphic>
+                                                <HBox alignment="CENTER" spacing="8.0">
+                                                    <children>
+                                                        <Label text="📤" style="-fx-font-size: 18px;" textFill="white" />
+                                                        <Label text="Envoyer" textFill="white">
+                                                            <font>
+                                                                <Font name="System Bold" size="15.0" />
+                                                            </font>
+                                                        </Label>
+                                                    </children>
+                                                </HBox>
+                                            </graphic>
+                                            <padding>
+                                                <Insets bottom="12.0" left="20.0" right="20.0" top="12.0" />
+                                            </padding>
+                                            <effect>
+                                                <DropShadow color="#22c55e80" radius="5" spread="0.1" />
+                                            </effect>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Hint Text with larger font -->
+                        <HBox alignment="CENTER_LEFT" spacing="8.0">
+                            <children>
+                                <Label text="💡" style="-fx-font-size: 18px;" />
+                                <Label text="Conseil: Posez des questions sur l'irrigation, les maladies, les engrais, la protection contre le gel..." textFill="#64748b" wrapText="true">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+
+                        <!-- Typing indicator (subtle) -->
+                        <Label text="L'assistant répond généralement en quelques secondes" textFill="#94a3b8" alignment="CENTER_RIGHT">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

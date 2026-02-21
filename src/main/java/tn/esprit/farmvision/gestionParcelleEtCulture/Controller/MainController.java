@@ -12,9 +12,11 @@ public class MainController {
     @FXML private StackPane contentArea;
     @FXML private Button parcelleBtn;
     @FXML private Button cultureBtn;
+    @FXML private Button chatBtn;
 
     private Node parcelleView;
     private Node cultureView;
+    private Node chatView;
 
     @FXML
     public void initialize() {
@@ -26,7 +28,10 @@ public class MainController {
             FXMLLoader cultureLoader = new FXMLLoader(getClass().getResource("/ParcelleEtCultureView/CultureView.fxml"));
             cultureView = cultureLoader.load();
 
-            contentArea.getChildren().addAll(parcelleView, cultureView);
+            FXMLLoader chatLoader = new FXMLLoader(getClass().getResource("/ParcelleEtCultureView/ChatFXML.fxml"));
+            chatView = chatLoader.load();
+
+            contentArea.getChildren().addAll(parcelleView, cultureView, chatView);
 
             showParcelle(); // default view
         } catch (IOException e) {
@@ -38,6 +43,7 @@ public class MainController {
     private void showParcelle() {
         parcelleView.setVisible(true);
         cultureView.setVisible(false);
+        chatView.setVisible(false);
         parcelleBtn.getStyleClass().add("active");
         cultureBtn.getStyleClass().remove("active");
     }
@@ -46,7 +52,18 @@ public class MainController {
     private void showCulture() {
         parcelleView.setVisible(false);
         cultureView.setVisible(true);
+        chatView.setVisible(false);
         cultureBtn.getStyleClass().add("active");
         parcelleBtn.getStyleClass().remove("active");
+    }
+    @FXML
+    private void showChat() {
+        parcelleView.setVisible(false);
+        cultureView.setVisible(false);
+        chatView.setVisible(true);
+        chatBtn.getStyleClass().add("active");
+        parcelleBtn.getStyleClass().remove("active");
+        cultureBtn.getStyleClass().remove("active");
+
     }
 }
