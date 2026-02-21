@@ -43,7 +43,7 @@ public class CalendrierMaintenanceController {
     @FXML private Button moisSuivantBtn;
     @FXML private Button ajouterMaintenanceBtn;
     @FXML private VBox legendeBox;
-    @FXML private HBox solarInfoBox; // Maintenant lié avec votre FXML
+    @FXML private HBox solarInfoBox;
 
     private YearMonth currentYearMonth;
     private LocalDate dateSelectionnee;
@@ -69,14 +69,7 @@ public class CalendrierMaintenanceController {
         chargerMaintenances();
         dessinerCalendrier();
         mettreAJourStatistiques();
-
-        // Ajouter les informations solaires
         mettreAJourInfosSolaires();
-
-        // Mettre en surbrillance aujourd'hui
-        mettreEnSurbrillanceAujourdhui();
-
-        // Afficher les maintenances d'aujourd'hui par défaut
         selectionnerDate(LocalDate.now());
     }
 
@@ -104,55 +97,48 @@ public class CalendrierMaintenanceController {
 
         HBox legendePreventive = new HBox(10);
         legendePreventive.setAlignment(Pos.CENTER_LEFT);
-        Label couleurPrev = new Label("🟢");
-        couleurPrev.setStyle("-fx-font-size: 16px;");
+        Label couleurPrev = new Label("●");
+        couleurPrev.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 16px; -fx-font-weight: bold;");
         Label textPrev = new Label("Maintenance préventive");
         legendePreventive.getChildren().addAll(couleurPrev, textPrev);
 
         HBox legendeCorrective = new HBox(10);
         legendeCorrective.setAlignment(Pos.CENTER_LEFT);
-        Label couleurCorr = new Label("🔴");
-        couleurCorr.setStyle("-fx-font-size: 16px;");
+        Label couleurCorr = new Label("●");
+        couleurCorr.setStyle("-fx-text-fill: #f44336; -fx-font-size: 16px; -fx-font-weight: bold;");
         Label textCorr = new Label("Maintenance corrective");
         legendeCorrective.getChildren().addAll(couleurCorr, textCorr);
 
         HBox legendeAujourdhui = new HBox(10);
         legendeAujourdhui.setAlignment(Pos.CENTER_LEFT);
-        Label couleurAuj = new Label("🔵");
-        couleurAuj.setStyle("-fx-font-size: 16px;");
+        Label couleurAuj = new Label("●");
+        couleurAuj.setStyle("-fx-text-fill: #2196F3; -fx-font-size: 16px; -fx-font-weight: bold;");
         Label textAuj = new Label("Aujourd'hui");
         legendeAujourdhui.getChildren().addAll(couleurAuj, textAuj);
 
         legendeBox.getChildren().addAll(legendePreventive, legendeCorrective, legendeAujourdhui);
     }
 
-    /**
-     * Met à jour les informations de lever/coucher du soleil dans le HBox solarInfoBox
-     */
     private void mettreAJourInfosSolaires() {
         if (solarInfoBox == null) return;
 
         solarInfoBox.getChildren().clear();
 
-        // Ajouter pour aujourd'hui
         SunriseSunsetData data = sunriseService.getSunriseSunsetToday();
         if (data != null) {
             Label icon = new Label("☀️");
-            icon.setStyle("-fx-font-size: 20px;");
+            icon.setStyle("-fx-font-size: 18px; -fx-padding: 0 5 0 0;");
 
             Label leverLabel = new Label("Lever: " + data.getSunrise().format(timeFormatter));
-            leverLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e67e22;");
+            leverLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e67e22; -fx-padding: 0 10 0 0;");
 
             Label coucherLabel = new Label("Coucher: " + data.getSunset().format(timeFormatter));
-            coucherLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e67e22;");
+            coucherLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #e67e22; -fx-padding: 0 10 0 0;");
 
             Label dureeLabel = new Label("Durée: " + data.getDayLengthFormatted());
-            dureeLabel.setStyle("-fx-text-fill: #7f8c8d;");
+            dureeLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-padding: 0 10 0 0;");
 
-            Label recommandation = new Label("🏆 " + sunriseService.getRecommendedWorkHours(LocalDate.now()));
-            recommandation.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 12px; -fx-font-weight: bold;");
-
-            solarInfoBox.getChildren().addAll(icon, leverLabel, coucherLabel, dureeLabel, recommandation);
+            solarInfoBox.getChildren().addAll(icon, leverLabel, coucherLabel, dureeLabel);
         } else {
             Label errorLabel = new Label("☀️ Données solaires non disponibles");
             errorLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-style: italic;");
@@ -167,8 +153,10 @@ public class CalendrierMaintenanceController {
         List<Maintenance> toutesMaintenances = maintenanceService.getAllMaintenances();
 
         for (Maintenance m : toutesMaintenances) {
-            LocalDate date = m.getDateMaintenance();
-            maintenancesParJour.computeIfAbsent(date, k -> new ArrayList<>()).add(m);
+            if (m.getDateMaintenance() != null) {
+                LocalDate date = m.getDateMaintenance();
+                maintenancesParJour.computeIfAbsent(date, k -> new ArrayList<>()).add(m);
+            }
         }
     }
 
@@ -178,7 +166,7 @@ public class CalendrierMaintenanceController {
         calendrierGrid.getRowConstraints().clear();
         cellulesCalendrier.clear();
 
-        // Créer 7 colonnes (lundi à dimanche)
+        // Créer 7 colonnes
         for (int i = 0; i < 7; i++) {
             ColumnConstraints col = new ColumnConstraints();
             col.setPercentWidth(100.0 / 7);
@@ -186,11 +174,12 @@ public class CalendrierMaintenanceController {
             calendrierGrid.getColumnConstraints().add(col);
         }
 
-        // Créer 6 lignes (pour les semaines)
+        // Créer 7 lignes (en-tête + 6 semaines)
         for (int i = 0; i < 7; i++) {
             RowConstraints row = new RowConstraints();
-            row.setPercentHeight(100.0 / 7);
-            row.setFillHeight(true);
+            row.setMinHeight(100);
+            row.setPrefHeight(100);
+            row.setVgrow(Priority.ALWAYS);
             calendrierGrid.getRowConstraints().add(row);
         }
 
@@ -204,10 +193,10 @@ public class CalendrierMaintenanceController {
             jourLabel.setMaxWidth(Double.MAX_VALUE);
             jourLabel.setMaxHeight(Double.MAX_VALUE);
 
-            if (i >= 5) { // Weekend
-                jourLabel.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #7f8c8d;");
+            if (i >= 5) {
+                jourLabel.setStyle("-fx-background-color: #f5f5f5; -fx-text-fill: #7f8c8d; -fx-border-color: #ddd; -fx-border-width: 0 1 1 0;");
             } else {
-                jourLabel.setStyle("-fx-background-color: #3498db; -fx-text-fill: white;");
+                jourLabel.setStyle("-fx-background-color: #e3f2fd; -fx-text-fill: #1976d2; -fx-font-weight: bold; -fx-border-color: #ddd; -fx-border-width: 0 1 1 0;");
             }
 
             calendrierGrid.add(jourLabel, i, 0);
@@ -215,19 +204,19 @@ public class CalendrierMaintenanceController {
 
         // Premier jour du mois
         LocalDate firstDayOfMonth = currentYearMonth.atDay(1);
-        int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() - 1; // 0 pour lundi (1 pour mardi, etc.)
+        int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() - 1;
 
         int daysInMonth = currentYearMonth.lengthOfMonth();
         int row = 1;
         int col = dayOfWeek;
 
-        // Ajouter les cellules vides pour les jours avant le premier du mois
+        // Cellules vides avant le premier jour
         for (int i = 0; i < dayOfWeek; i++) {
             VBox emptyCell = creerCelluleVide();
             calendrierGrid.add(emptyCell, i, row);
         }
 
-        // Ajouter les jours du mois
+        // Jours du mois
         for (int day = 1; day <= daysInMonth; day++) {
             LocalDate date = currentYearMonth.atDay(day);
 
@@ -243,7 +232,7 @@ public class CalendrierMaintenanceController {
             col++;
         }
 
-        // Compléter les cellules restantes si nécessaire
+        // Remplir les cellules restantes
         while (row < 6) {
             while (col < 7) {
                 VBox emptyCell = creerCelluleVide();
@@ -258,54 +247,45 @@ public class CalendrierMaintenanceController {
     }
 
     private VBox creerCelluleVide() {
-        VBox cell = new VBox();
+        VBox cell = new VBox(5);
         cell.setPadding(new Insets(5));
         cell.setPrefHeight(100);
         cell.setMaxWidth(Double.MAX_VALUE);
         cell.setMaxHeight(Double.MAX_VALUE);
-        cell.setStyle("-fx-border-color: #ddd; -fx-border-width: 1; -fx-background-color: #f9f9f9;");
+        cell.setStyle("-fx-border-color: #ddd; -fx-border-width: 0 1 1 0; -fx-background-color: #fafafa;");
         return cell;
     }
 
     private VBox creerCelluleJour(LocalDate date, int jour) {
-        VBox cell = new VBox(5);
-        cell.setPadding(new Insets(8));
+        VBox cell = new VBox(3);
+        cell.setPadding(new Insets(5));
         cell.setPrefHeight(100);
         cell.setMaxWidth(Double.MAX_VALUE);
         cell.setMaxHeight(Double.MAX_VALUE);
         cell.setOnMouseClicked(e -> selectionnerDate(date));
 
-        // Ajouter un tooltip avec les infos solaires
-        SunriseSunsetData solarData = sunriseService.getSunriseSunsetForDate(date);
-        if (solarData != null) {
-            Tooltip solarTip = new Tooltip(
-                    String.format("☀️ Lever: %s\n🌙 Coucher: %s\n⏱️ Durée: %s",
-                            solarData.getSunrise().format(timeFormatter),
-                            solarData.getSunset().format(timeFormatter),
-                            solarData.getDayLengthFormatted())
-            );
-            Tooltip.install(cell, solarTip);
+        // Style de base
+        String style = "-fx-border-color: #ddd; -fx-border-width: 0 1 1 0;";
+
+        if (date.equals(LocalDate.now())) {
+            style += " -fx-background-color: #e3f2fd; -fx-border-color: #2196F3; -fx-border-width: 2;";
+        } else if (date.getDayOfWeek().getValue() > 5) {
+            style += " -fx-background-color: #f9f9f9;";
+        } else {
+            style += " -fx-background-color: white;";
         }
 
-        // Effet hover
-        cell.setOnMouseEntered(e -> {
-            if (!date.equals(dateSelectionnee)) {
-                cell.setStyle(cell.getStyle() + " -fx-background-color: #f0f7ff;");
-            }
-        });
-        cell.setOnMouseExited(e -> {
-            if (!date.equals(dateSelectionnee)) {
-                appliquerStyleCellule(cell, date);
-            }
-        });
+        if (date.equals(dateSelectionnee)) {
+            style += " -fx-background-color: #fff3e0; -fx-border-color: #FF9800; -fx-border-width: 2;";
+        }
 
-        // Style de base
-        appliquerStyleCellule(cell, date);
+        cell.setStyle(style);
 
         // Numéro du jour
         Label jourLabel = new Label(String.valueOf(jour));
-        jourLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
-
+        jourLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
+        jourLabel.setAlignment(Pos.TOP_RIGHT);
+        jourLabel.setMaxWidth(Double.MAX_VALUE);
         HBox headerBox = new HBox(jourLabel);
         headerBox.setAlignment(Pos.TOP_RIGHT);
         cell.getChildren().add(headerBox);
@@ -314,130 +294,80 @@ public class CalendrierMaintenanceController {
         List<Maintenance> maintenancesJour = maintenancesParJour.getOrDefault(date, new ArrayList<>());
 
         if (!maintenancesJour.isEmpty()) {
-            VBox maintBox = new VBox(3);
+            VBox maintBox = new VBox(2);
+            maintBox.setPadding(new Insets(2, 0, 0, 0));
 
-            // Limiter à 3 affichages maximum dans la cellule
             int count = 0;
             for (Maintenance m : maintenancesJour) {
-                if (count >= 3) break;
+                if (count >= 2) break;
 
                 String type = m.getTypeMaintenance();
-                String statut = m.getStatut();
+                String couleur = "Préventive".equals(type) ? "#4CAF50" : "#f44336";
 
-                String icone = "Préventive".equals(type) ? "🛡️" : "🔧";
-                String couleur = "Préventive".equals(type) ? "#27ae60" : "#e67e22";
-
-                if ("Réalisée".equals(statut)) {
-                    couleur = "#95a5a6";
-                }
-
-                String desc = m.getDescription();
-                String descAbregee = desc.length() > 10 ? desc.substring(0, 10) + "..." : desc;
-
-                Label maintLabel = new Label(icone + " " + descAbregee);
-                maintLabel.setStyle("-fx-text-fill: " + couleur + "; -fx-font-size: 10px;");
-                maintLabel.setTooltip(new Tooltip(m.getDescription() + " (" + statut + ")"));
+                Label maintLabel = new Label("• " + m.getDescription());
+                maintLabel.setStyle("-fx-text-fill: " + couleur + "; -fx-font-size: 10px; -fx-font-weight: bold;");
+                maintLabel.setMaxWidth(Double.MAX_VALUE);
                 maintBox.getChildren().add(maintLabel);
                 count++;
             }
 
-            // Indicateur de nombre si plus de 3
-            if (maintenancesJour.size() > 3) {
-                Label plusLabel = new Label("+" + (maintenancesJour.size() - 3) + " autres");
-                plusLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 9px; -fx-font-style: italic;");
+            if (maintenancesJour.size() > 2) {
+                Label plusLabel = new Label("+" + (maintenancesJour.size() - 2) + " autres");
+                plusLabel.setStyle("-fx-text-fill: #757575; -fx-font-size: 9px; -fx-font-style: italic;");
+                plusLabel.setMaxWidth(Double.MAX_VALUE);
                 maintBox.getChildren().add(plusLabel);
             }
 
-            // Indicateur de quantité (badge)
-            Label countLabel = new Label(String.valueOf(maintenancesJour.size()));
-            boolean hasCorrective = maintenancesJour.stream().anyMatch(m -> "Corrective".equals(m.getTypeMaintenance()));
-            String badgeColor = hasCorrective ? "#e74c3c" : "#3498db";
-
-            countLabel.setStyle(
-                    "-fx-text-fill: white; -fx-background-color: " + badgeColor +
-                            "; -fx-padding: 2 6; -fx-background-radius: 10; -fx-font-size: 10px; -fx-font-weight: bold;"
-            );
-            countLabel.setAlignment(Pos.CENTER);
-
-            HBox footerBox = new HBox(countLabel);
-            footerBox.setAlignment(Pos.CENTER_RIGHT);
-
-            cell.getChildren().addAll(maintBox, footerBox);
-        } else {
-            // Même sans maintenance, afficher un petit indicateur solaire si disponible
-            if (solarData != null && solarData.getDayLengthSeconds() > 43200) { // Plus de 12h
-                Label sunIcon = new Label("☀️ Longue journée");
-                sunIcon.setStyle("-fx-text-fill: #f39c12; -fx-font-size: 9px;");
-                cell.getChildren().add(sunIcon);
-            }
+            cell.getChildren().add(maintBox);
         }
 
         return cell;
     }
 
-    private void appliquerStyleCellule(VBox cell, LocalDate date) {
-        String style = "-fx-border-color: #ddd; -fx-border-width: 1;";
-
-        if (date.equals(LocalDate.now())) {
-            style += " -fx-background-color: #e8f4fd; -fx-border-color: #3498db; -fx-border-width: 2;";
-        } else if (date.getDayOfWeek().getValue() > 5) { // Weekend
-            style += " -fx-background-color: #f9f9f9;";
-        } else {
-            style += " -fx-background-color: white;";
-        }
-
-        // Si c'est la date sélectionnée
-        if (date.equals(dateSelectionnee)) {
-            style += " -fx-background-color: #e0f0ff; -fx-border-color: #2980b9; -fx-border-width: 2;";
-        }
-
-        cell.setStyle(style);
-    }
-
     private void selectionnerDate(LocalDate date) {
         dateSelectionnee = date;
 
-        // Ajouter les infos solaires à la date sélectionnée
-        SunriseSunsetData solarData = sunriseService.getSunriseSunsetForDate(date);
-        String solarText = "";
-        if (solarData != null) {
-            solarText = String.format(" | ☀️ %s - %s (%s)",
-                    solarData.getSunrise().format(timeFormatter),
-                    solarData.getSunset().format(timeFormatter),
-                    solarData.getDayLengthFormatted());
-        }
-
-        dateSelectionneeLabel.setText("📅 " + date.format(dayFormatter) + solarText);
+        dateSelectionneeLabel.setText("📅 " + date.format(dayFormatter));
 
         // Mettre à jour le style des cellules
         for (Map.Entry<LocalDate, VBox> entry : cellulesCalendrier.entrySet()) {
-            appliquerStyleCellule(entry.getValue(), entry.getKey());
+            LocalDate d = entry.getKey();
+            VBox cell = entry.getValue();
+
+            String style = "-fx-border-color: #ddd; -fx-border-width: 0 1 1 0;";
+
+            if (d.equals(LocalDate.now())) {
+                style += " -fx-background-color: #e3f2fd; -fx-border-color: #2196F3; -fx-border-width: 2;";
+            } else if (d.getDayOfWeek().getValue() > 5) {
+                style += " -fx-background-color: #f9f9f9;";
+            } else {
+                style += " -fx-background-color: white;";
+            }
+
+            if (d.equals(dateSelectionnee)) {
+                style += " -fx-background-color: #fff3e0; -fx-border-color: #FF9800; -fx-border-width: 2;";
+            }
+
+            cell.setStyle(style);
         }
 
         afficherMaintenancesDuJour(date);
         maintenancesJourLabel.setText(String.valueOf(maintenancesParJour.getOrDefault(date, new ArrayList<>()).size()));
     }
 
-    /**
-     * Méthode publique pour définir la date sélectionnée (appelée depuis MaintenanceController)
-     */
     public void setDateSelectionnee(LocalDate date) {
         if (date != null) {
-            // Si la date est dans un mois différent, changer de mois
             if (YearMonth.from(date).equals(currentYearMonth)) {
                 this.dateSelectionnee = date;
                 selectionnerDate(date);
             } else {
                 currentYearMonth = YearMonth.from(date);
                 this.dateSelectionnee = date;
-                filtrerMaintenances();
+                chargerMaintenances();
+                dessinerCalendrier();
                 selectionnerDate(date);
             }
         }
-    }
-
-    private void mettreEnSurbrillanceAujourdhui() {
-        // Déjà géré dans appliquerStyleCellule
     }
 
     private void afficherMaintenancesDuJour(LocalDate date) {
@@ -446,63 +376,59 @@ public class CalendrierMaintenanceController {
         ObservableList<Maintenance> items = FXCollections.observableArrayList(maintenancesJour);
         maintenancesJourListView.setItems(items);
 
-        // Configuration de l'affichage des éléments
         maintenancesJourListView.setCellFactory(lv -> new ListCell<Maintenance>() {
             @Override
             protected void updateItem(Maintenance m, boolean empty) {
                 super.updateItem(m, empty);
 
                 if (empty || m == null) {
-                    setText(null);
                     setGraphic(null);
                 } else {
                     try {
                         Equipement e = equipementService.getEquipementById(m.getEquipementId());
                         String nomEquip = e != null ? e.getNom() : "Inconnu";
 
-                        String icon = "Préventive".equals(m.getTypeMaintenance()) ? "🛡️" : "🔧";
-                        String statutIcon = "Réalisée".equals(m.getStatut()) ? "✅" : "⏳";
+                        VBox cell = new VBox(5);
+                        cell.setPadding(new Insets(10));
 
-                        VBox cell = new VBox(3);
-                        cell.setPadding(new Insets(8));
+                        String bgColor = "Préventive".equals(m.getTypeMaintenance()) ? "#E8F5E9" : "#FFEBEE";
+                        cell.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;");
 
-                        HBox line1 = new HBox(10);
-                        Label typeLabel = new Label(icon + " " + m.getTypeMaintenance());
-                        typeLabel.setStyle("-fx-font-weight: bold;");
-                        Label statutLabel = new Label(statutIcon + " " + m.getStatut());
-                        statutLabel.setStyle("-fx-text-fill: " + ("Réalisée".equals(m.getStatut()) ? "#2ecc71" : "#f39c12") + ";");
+                        HBox header = new HBox(10);
+                        Label typeLabel = new Label(m.getTypeMaintenance());
+                        typeLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: " +
+                                ("Préventive".equals(m.getTypeMaintenance()) ? "#4CAF50" : "#f44336") + ";");
+
+                        Label equipLabel = new Label(nomEquip);
+                        equipLabel.setStyle("-fx-text-fill: #757575;");
 
                         Region spacer = new Region();
                         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                        Label equipLabel = new Label(nomEquip);
-                        equipLabel.setStyle("-fx-text-fill: #7f8c8d;");
+                        Label statutLabel = new Label(m.getStatut());
+                        statutLabel.setStyle("-fx-text-fill: " +
+                                ("Réalisée".equals(m.getStatut()) ? "#4CAF50" : "#FF9800") + "; -fx-font-weight: bold;");
 
-                        line1.getChildren().addAll(typeLabel, statutLabel, spacer, equipLabel);
+                        header.getChildren().addAll(typeLabel, equipLabel, spacer, statutLabel);
 
                         Label descLabel = new Label(m.getDescription());
                         descLabel.setWrapText(true);
-                        descLabel.setStyle("-fx-font-size: 11px;");
+                        descLabel.setStyle("-fx-font-size: 12px;");
 
-                        HBox line3 = new HBox(10);
+                        HBox footer = new HBox(15);
                         Label dateLabel = new Label("📅 " + m.getDateMaintenance().format(shortDayFormatter));
-                        dateLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 10px;");
+                        dateLabel.setStyle("-fx-text-fill: #757575; -fx-font-size: 11px;");
 
                         Label coutLabel = new Label(String.format("💰 %.2f DT", m.getCout()));
-                        coutLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 10px; -fx-font-weight: bold;");
+                        coutLabel.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 11px; -fx-font-weight: bold;");
 
-                        line3.getChildren().addAll(dateLabel, coutLabel);
+                        footer.getChildren().addAll(dateLabel, coutLabel);
 
-                        cell.getChildren().addAll(line1, descLabel, line3);
-
-                        // Style de fond selon le type
-                        String bgColor = "Préventive".equals(m.getTypeMaintenance()) ? "#e8f5e9" : "#ffebee";
-                        cell.setStyle("-fx-background-color: " + bgColor + "; -fx-background-radius: 5; -fx-padding: 8;");
-
+                        cell.getChildren().addAll(header, descLabel, footer);
                         setGraphic(cell);
 
                     } catch (Exception ex) {
-                        setText(m.getTypeMaintenance() + " - ID: " + m.getEquipementId());
+                        setText(m.getTypeMaintenance() + " - " + m.getDescription());
                     }
                 }
             }
@@ -514,11 +440,9 @@ public class CalendrierMaintenanceController {
         String statutFiltre = filtreStatutCombo.getValue();
         String equipFiltre = filtreEquipementCombo.getValue();
 
-        // Recharger les maintenances
         List<Maintenance> toutesMaintenances = maintenanceService.getAllMaintenances();
         maintenancesParJour.clear();
 
-        // Appliquer les filtres
         for (Maintenance m : toutesMaintenances) {
             boolean correspondType = "Tous".equals(typeFiltre) || m.getTypeMaintenance().equals(typeFiltre);
             boolean correspondStatut = "Tous".equals(statutFiltre) || m.getStatut().equals(statutFiltre);
@@ -533,7 +457,7 @@ public class CalendrierMaintenanceController {
                 }
             }
 
-            if (correspondType && correspondStatut && correspondEquip) {
+            if (correspondType && correspondStatut && correspondEquip && m.getDateMaintenance() != null) {
                 LocalDate date = m.getDateMaintenance();
                 maintenancesParJour.computeIfAbsent(date, k -> new ArrayList<>()).add(m);
             }
@@ -547,7 +471,7 @@ public class CalendrierMaintenanceController {
     private void mettreAJourStatistiques() {
         List<Maintenance> toutes = maintenanceService.getAllMaintenances();
         List<Maintenance> maintenancesMois = toutes.stream()
-                .filter(m -> YearMonth.from(m.getDateMaintenance()).equals(currentYearMonth))
+                .filter(m -> m.getDateMaintenance() != null && YearMonth.from(m.getDateMaintenance()).equals(currentYearMonth))
                 .collect(Collectors.toList());
 
         totalMaintenancesLabel.setText(String.valueOf(toutes.size()));
@@ -561,16 +485,18 @@ public class CalendrierMaintenanceController {
     @FXML
     private void moisPrecedent() {
         currentYearMonth = currentYearMonth.minusMonths(1);
-        filtrerMaintenances();
-        // Mettre à jour les infos solaires (le jour peut changer)
+        chargerMaintenances();
+        dessinerCalendrier();
+        mettreAJourStatistiques();
         mettreAJourInfosSolaires();
     }
 
     @FXML
     private void moisSuivant() {
         currentYearMonth = currentYearMonth.plusMonths(1);
-        filtrerMaintenances();
-        // Mettre à jour les infos solaires
+        chargerMaintenances();
+        dessinerCalendrier();
+        mettreAJourStatistiques();
         mettreAJourInfosSolaires();
     }
 
@@ -578,31 +504,31 @@ public class CalendrierMaintenanceController {
     private void aujourdhui() {
         currentYearMonth = YearMonth.now();
         dateSelectionnee = LocalDate.now();
-        filtrerMaintenances();
+        chargerMaintenances();
+        dessinerCalendrier();
         selectionnerDate(dateSelectionnee);
-        // Mettre à jour les infos solaires
+        mettreAJourStatistiques();
         mettreAJourInfosSolaires();
     }
 
     @FXML
     private void ajouterMaintenance() {
         try {
-            // Ouvrir dialogue d'ajout avec date présélectionnée
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/pi/view/maintenance.fxml"));
             Parent root = loader.load();
 
             MaintenanceController controller = loader.getController();
             controller.setDatePreselectionnee(dateSelectionnee);
 
-            // Ouvrir la fenêtre de dialogue
             Stage stage = new Stage();
             stage.setTitle("Planifier une maintenance");
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
-            // Rafraîchir après ajout
             chargerMaintenances();
-            filtrerMaintenances();
+            dessinerCalendrier();
+            afficherMaintenancesDuJour(dateSelectionnee);
+            mettreAJourStatistiques();
 
         } catch (Exception e) {
             e.printStackTrace();

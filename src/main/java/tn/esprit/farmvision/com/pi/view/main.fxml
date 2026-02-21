@@ -1,131 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
 
-<BorderPane prefHeight="800.0" prefWidth="1300.0"
-            style="-fx-background-color: #f5f6fa;"
-            xmlns="http://javafx.com/javafx/17.0.2-ea"
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600" minWidth="1000"
+            prefHeight="800.0" prefWidth="1400.0"
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.pi.controller.MainController">
 
-    <top>
-        <VBox spacing="0">
-            <!-- Header Bar avec indicateur d'alertes -->
-            <HBox style="-fx-background-color: linear-gradient(to right, #2c3e50, #3498db); -fx-padding: 15 30; -fx-alignment: CENTER_LEFT;">
-                <Label text="🌾 FarmVision"
-                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-
-                <!-- Indicateur d'alertes -->
-                <Region HBox.hgrow="ALWAYS"/>
-
-                <HBox spacing="10" alignment="CENTER_RIGHT">
-                    <Button fx:id="alertesButton" text="🔔" onAction="#openAlertes"
-                            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 18px; -fx-cursor: hand; -fx-background-radius: 20; -fx-padding: 8 15;"/>
-                    <Label fx:id="alerteCount" text="0"
-                           style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+    <left>
+        <VBox prefHeight="800.0" prefWidth="260.0" styleClass="sidebar" BorderPane.alignment="CENTER"
+              minWidth="200" maxWidth="300">
+            <children>
+                <!-- Logo Section -->
+                <HBox alignment="CENTER_LEFT" spacing="13.0" styleClass="logo-container">
+                    <children>
+                        <StackPane>
+                            <children>
+                                <Circle radius="26.0" styleClass="logo-circle" />
+                                <Label text="🌾" styleClass="logo-emoji" />
+                            </children>
+                        </StackPane>
+                        <VBox spacing="2.0">
+                            <children>
+                                <Label text="FarmVision" styleClass="logo-title" />
+                                <Label text="Smart Agriculture" styleClass="logo-subtitle" />
+                            </children>
+                        </VBox>
+                    </children>
                 </HBox>
 
-                <Label text="Gestion d'équipements agricoles"
-                       style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 13px; -fx-padding: 0 0 0 20;"/>
-            </HBox>
-
-            <!-- MenuBar améliorée -->
-            <MenuBar style="-fx-background-color: white; -fx-border-color: #e1e8ed; -fx-border-width: 0 0 1 0; -fx-padding: 5;">
-                <Menu text="📁 Fichier">
-                    <MenuItem text="🏠 Tableau de bord" onAction="#showDashboard"/>
-                    <SeparatorMenuItem/>
-                    <MenuItem text="🚪 Quitter" onAction="#handleQuit"/>
-                </Menu>
-
-                <Menu text="🚜 Équipements">
-                    <MenuItem text="📋 Gérer les équipements" onAction="#showEquipementView"/>
-                    <MenuItem text="➕ Ajouter un équipement" onAction="#showAddEquipementDialog"/>
-                </Menu>
-
-                <Menu text="🔧 Maintenances">
-                    <MenuItem text="📋 Gérer les maintenances" onAction="#showMaintenanceView"/>
-                    <MenuItem text="➕ Planifier une maintenance" onAction="#showAddMaintenanceDialog"/>
-                </Menu>
-
-                <Menu text="📊 Outils">
-                    <MenuItem text="🔔 Centre d'alertes" onAction="#openAlertes"/>
-                    <MenuItem text="📅 Calendrier des maintenances" onAction="#openCalendrier"/>
-                </Menu>
-            </MenuBar>
-        </VBox>
-    </top>
-
-    <center>
-        <StackPane fx:id="contentPane" style="-fx-background-color: #f5f6fa;">
-            <!-- Welcome Screen amélioré -->
-            <VBox alignment="CENTER" spacing="30" style="-fx-padding: 60;">
-                <VBox alignment="CENTER" spacing="15">
-                    <Label text="🌾" style="-fx-font-size: 100px;"/>
-                    <Label text="Bienvenue dans FarmVision"
-                           style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                    <Label text="Votre solution intelligente de gestion d'équipements agricoles"
-                           style="-fx-font-size: 16px; -fx-text-fill: #7f8c8d;"/>
+                <!-- Navigation Buttons - Les icônes seront blanches via le CSS -->
+                <VBox spacing="2.0" styleClass="nav-container" VBox.vgrow="ALWAYS">
+                    <children>
+                        <Button fx:id="dashboardBtn" mnemonicParsing="false" onAction="#showDashboard"
+                                styleClass="nav-button" text="Tableau de bord" maxWidth="Infinity">
+                            <graphic>
+                                <Label text="📊" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+                        <Button fx:id="equipementBtn" mnemonicParsing="false" onAction="#showEquipementView"
+                                styleClass="nav-button" text="Équipements" maxWidth="Infinity">
+                            <graphic>
+                                <Label text="🚜" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+                        <Button fx:id="maintenanceBtn" mnemonicParsing="false" onAction="#showMaintenanceView"
+                                styleClass="nav-button" text="Maintenances" maxWidth="Infinity">
+                            <graphic>
+                                <Label text="🔧" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+                        <Button fx:id="calendrierBtn" mnemonicParsing="false" onAction="#openCalendrier"
+                                styleClass="nav-button" text="Calendrier" maxWidth="Infinity">
+                            <graphic>
+                                <Label text="📅" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+                        <Button fx:id="alertesBtn" mnemonicParsing="false" onAction="#openAlertes"
+                                styleClass="nav-button" text="Alertes" maxWidth="Infinity">
+                            <graphic>
+                                <Label text="🔔" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+                    </children>
                 </VBox>
 
-                <!-- Quick Access Cards améliorés -->
-                <HBox spacing="30" alignment="CENTER">
-                    <!-- Équipements Card -->
-                    <VBox alignment="CENTER" spacing="15" onMouseClicked="#showEquipementView"
-                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5); -fx-cursor: hand; -fx-min-width: 250; -fx-min-height: 250;">
-                        <VBox alignment="CENTER" spacing="5"
-                              style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2); -fx-background-radius: 60; -fx-pref-width: 100; -fx-pref-height: 100;">
-                            <Label text="🚜" style="-fx-font-size: 50px;"/>
-                        </VBox>
-                        <Label text="Équipements" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="Gérez votre parc d'équipements" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
-                    </VBox>
+                <!-- Spacer -->
+                <Region VBox.vgrow="ALWAYS" />
 
-                    <!-- Maintenances Card -->
-                    <VBox alignment="CENTER" spacing="15" onMouseClicked="#showMaintenanceView"
-                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5); -fx-cursor: hand; -fx-min-width: 250; -fx-min-height: 250;">
-                        <VBox alignment="CENTER" spacing="5"
-                              style="-fx-background-color: linear-gradient(to bottom right, #f093fb, #f5576c); -fx-background-radius: 60; -fx-pref-width: 100; -fx-pref-height: 100;">
-                            <Label text="🔧" style="-fx-font-size: 50px;"/>
-                        </VBox>
-                        <Label text="Maintenances" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="Planifiez et suivez" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
-                    </VBox>
+                <!-- User Card -->
+                <VBox VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets bottom="25.0" left="15.0" right="15.0" top="15.0" />
+                    </padding>
+                    <children>
+                        <HBox styleClass="user-card" alignment="CENTER_LEFT" spacing="10.0" maxWidth="Infinity">
+                            <children>
+                                <StackPane>
+                                    <children>
+                                        <Circle radius="18.0" styleClass="user-avatar" />
+                                        <Label text="👨‍🌾" style="-fx-font-size: 16px; -fx-text-fill: white;" />
+                                    </children>
+                                </StackPane>
+                                <VBox spacing="1.0">
+                                    <children>
+                                        <Label text="Admin" styleClass="user-name" />
+                                        <Label text="En ligne" styleClass="user-status" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
 
-                    <!-- Alertes Card -->
-                    <VBox alignment="CENTER" spacing="15" onMouseClicked="#openAlertes"
-                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5); -fx-cursor: hand; -fx-min-width: 250; -fx-min-height: 250;">
-                        <VBox alignment="CENTER" spacing="5"
-                              style="-fx-background-color: linear-gradient(to bottom right, #e74c3c, #c0392b); -fx-background-radius: 60; -fx-pref-width: 100; -fx-pref-height: 100;">
-                            <Label text="🔔" style="-fx-font-size: 50px;"/>
-                        </VBox>
-                        <Label text="Alertes" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="Centre de notifications" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
-                    </VBox>
-
-                    <!-- Calendrier Card -->
-                    <VBox alignment="CENTER" spacing="15" onMouseClicked="#openCalendrier"
-                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5); -fx-cursor: hand; -fx-min-width: 250; -fx-min-height: 250;">
-                        <VBox alignment="CENTER" spacing="5"
-                              style="-fx-background-color: linear-gradient(to bottom right, #3498db, #2980b9); -fx-background-radius: 60; -fx-pref-width: 100; -fx-pref-height: 100;">
-                            <Label text="📅" style="-fx-font-size: 50px;"/>
-                        </VBox>
-                        <Label text="Calendrier" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                        <Label text="Vue interactive" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
-                    </VBox>
-                </HBox>
-            </VBox>
-        </StackPane>
+    <center>
+        <StackPane fx:id="contentPane" styleClass="content-area" BorderPane.alignment="CENTER" />
     </center>
 
     <bottom>
-        <HBox style="-fx-background-color: white; -fx-padding: 12 30; -fx-border-color: #e1e8ed; -fx-border-width: 1 0 0 0; -fx-alignment: CENTER_LEFT;" spacing="15">
-            <Label fx:id="connectionStatus" style="-fx-font-size: 12px;"/>
-            <Separator orientation="VERTICAL" prefHeight="20"/>
-            <Label fx:id="statusLabel" text="Prêt" style="-fx-text-fill: #7f8c8d; -fx-font-size: 12px;"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label text="© 2024 FarmVision - Gestion Agricole Intelligente" style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;"/>
+        <HBox style="-fx-background-color: white; -fx-padding: 10 28; -fx-border-color: #EBEBEB; -fx-border-width: 1 0 0 0; -fx-alignment: CENTER_LEFT;"
+              spacing="14.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label fx:id="connectionStatus" style="-fx-font-size: 11px; -fx-text-fill: #43A047;">● Connecté</Label>
+                <Separator orientation="VERTICAL" prefHeight="16.0" />
+                <Label fx:id="statusLabel" text="Prêt" style="-fx-text-fill: #757575; -fx-font-size: 11px;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="© 2025 FarmVision - Gestion Agricole Intelligente" style="-fx-text-fill: #BDBDBD; -fx-font-size: 10px;" />
+            </children>
         </HBox>
     </bottom>
 </BorderPane>

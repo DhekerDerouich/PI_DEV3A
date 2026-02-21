@@ -39,7 +39,7 @@ public class EquipementController {
     @FXML private TableColumn<Equipement, Integer> colDureeVie;
     @FXML private TableColumn<Equipement, String> colFinGarantie;
     @FXML private TableColumn<Equipement, String> colAge;
-    @FXML private TableColumn<Equipement, String> colEmpreinteCarbone; // Nouvelle colonne
+    @FXML private TableColumn<Equipement, String> colEmpreinteCarbone;
     @FXML private TableColumn<Equipement, String> colActions;
 
     @FXML private TextField searchField;
@@ -50,26 +50,28 @@ public class EquipementController {
     @FXML private Label panneLabel;
     @FXML private Label maintenanceLabel;
     @FXML private Label garantieLabel;
-    @FXML private Label empreinteCarboneLabel; // Nouveau label pour l'empreinte totale
-    @FXML private GridPane statsGrid; // Pour ajouter la carte CO2
+    @FXML private Label empreinteCarboneLabel;
+    @FXML private GridPane statsGrid;
 
     private final EquipementService service = new EquipementService();
     private final MaintenanceService maintenanceService = new MaintenanceService();
     private final ObservableList<Equipement> data = FXCollections.observableArrayList();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    // Nouveau service CO2
     private CO2SignalService co2Service = new CO2SignalService();
-    private String countryCode = "TN"; // Tunisie par défaut
+    private String countryCode = "TN";
 
     @FXML
     public void initialize() {
         setupTableColumns();
         setupFilters();
         loadData();
-
-        // Ajouter la carte d'empreinte carbone
         ajouterCarteEmpreinteCarbone();
+
+        // Ajuster la largeur de la colonne Actions
+        colActions.setPrefWidth(250);
+        colActions.setMinWidth(250);
+        colActions.setMaxWidth(250);
     }
 
     private void setupTableColumns() {
@@ -83,7 +85,6 @@ public class EquipementController {
 
         colDureeVie.setCellValueFactory(cellData -> cellData.getValue().dureeVieEstimeeProperty().asObject());
 
-        // Colonne Fin de garantie (date d'achat + durée de vie)
         colFinGarantie.setCellValueFactory(cellData -> {
             LocalDate dateAchat = cellData.getValue().getDateAchat();
             int dureeVie = cellData.getValue().getDureeVieEstimee();
@@ -94,7 +95,6 @@ public class EquipementController {
             return new SimpleStringProperty("-");
         });
 
-        // Colonne Âge de l'équipement
         colAge.setCellValueFactory(cellData -> {
             LocalDate dateAchat = cellData.getValue().getDateAchat();
             if (dateAchat != null) {
@@ -104,30 +104,15 @@ public class EquipementController {
             return new SimpleStringProperty("-");
         });
 
-        // NOUVELLE COLONNE : Empreinte carbone estimée
         colEmpreinteCarbone.setCellValueFactory(cellData -> {
             Equipement e = cellData.getValue();
             double conso = co2Service.getConsommationEstimee(e.getType());
             double intensite = co2Service.getCarbonIntensity(countryCode);
-            // Estimation: 100 heures d'utilisation par an
             double emissionsAnnuelles = conso * 100 * intensite;
-
-            String couleur;
-            if (emissionsAnnuelles < 500) {
-                couleur = "#2ecc71"; // Vert
-            } else if (emissionsAnnuelles < 1000) {
-                couleur = "#f39c12"; // Orange
-            } else {
-                couleur = "#e74c3c"; // Rouge
-            }
-
-            Label label = new Label(String.format("%.0f kg CO₂/an", emissionsAnnuelles));
-            label.setStyle("-fx-text-fill: " + couleur + "; -fx-font-weight: bold;");
-
-            return new SimpleStringProperty(label.getText());
+            return new SimpleStringProperty(String.format("%.0f kg CO₂/an", emissionsAnnuelles));
         });
 
-        // Style pour l'état avec couleurs
+        // Style pour l'état
         colEtat.setCellFactory(column -> new TableCell<Equipement, String>() {
             @Override
             protected void updateItem(String etat, boolean empty) {
@@ -152,7 +137,7 @@ public class EquipementController {
             }
         });
 
-        // Style pour la fin de garantie (rouge si dépassée)
+        // Style pour la fin de garantie
         colFinGarantie.setCellFactory(column -> new TableCell<Equipement, String>() {
             @Override
             protected void updateItem(String date, boolean empty) {
@@ -176,25 +161,61 @@ public class EquipementController {
             }
         });
 
-        // Colonne Actions avec boutons
+        // Style pour l'empreinte carbone
+        colEmpreinteCarbone.setCellFactory(column -> new TableCell<Equipement, String>() {
+            @Override
+            protected void updateItem(String valeur, boolean empty) {
+                super.updateItem(valeur, empty);
+                if (empty || valeur == null) {
+                    setText(null);
+                } else {
+                    setText(valeur);
+                    try {
+                        double emissions = Double.parseDouble(valeur.split(" ")[0]);
+                        if (emissions < 500) {
+                            setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+                        } else if (emissions < 1000) {
+                            setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+                        } else {
+                            setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                        }
+                    } catch (Exception e) {
+                        setStyle("");
+                    }
+                }
+            }
+        });
+
+        // COLONNE ACTIONS - AVEC BOUTONS VISIBLES
         colActions.setCellFactory(column -> new TableCell<Equipement, String>() {
-            private final Button editBtn = new Button("✏️");
-            private final Button deleteBtn = new Button("🗑️");
-            private final Button maintenanceBtn = new Button("🔧");
+            private final Button editBtn = new Button("📝");  // ✏️ → 📝
+            private final Button deleteBtn = new Button("❌"); // 🗑️ → ❌
+            private final Button maintenanceBtn = new Button("🔧"); // Garde celui-ci
             private final Button qrBtn = new Button("📷");
-            private final Button co2Btn = new Button("🌱"); // Nouveau bouton CO2
+            private final Button co2Btn = new Button("🌱");
+            private final HBox buttonsContainer = new HBox(5);
 
             {
-                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
-                maintenanceBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;");
-                qrBtn.setStyle("-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-cursor: hand;");
-                co2Btn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;");
+                // Style commun pour tous les boutons
+                String buttonStyle = "-fx-background-radius: 4; -fx-padding: 8 12; -fx-cursor: hand; " +
+                        "-fx-font-size: 14px; -fx-min-width: 40px; -fx-min-height: 36px; " +
+                        "-fx-background-insets: 0; -fx-border-insets: 0; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);";
 
+                editBtn.setStyle(buttonStyle + " -fx-background-color: #f39c12; -fx-text-fill: white;");
+                deleteBtn.setStyle(buttonStyle + " -fx-background-color: #e74c3c; -fx-text-fill: white;");
+                maintenanceBtn.setStyle(buttonStyle + " -fx-background-color: #3498db; -fx-text-fill: white;");
+                qrBtn.setStyle(buttonStyle + " -fx-background-color: #9b59b6; -fx-text-fill: white;");
+                co2Btn.setStyle(buttonStyle + " -fx-background-color: #27ae60; -fx-text-fill: white;");
+
+                // Tooltips
+                editBtn.setTooltip(new Tooltip("Modifier l'équipement"));
+                deleteBtn.setTooltip(new Tooltip("Supprimer l'équipement"));
                 maintenanceBtn.setTooltip(new Tooltip("Planifier une maintenance"));
                 qrBtn.setTooltip(new Tooltip("Générer QR Code"));
                 co2Btn.setTooltip(new Tooltip("Voir l'empreinte carbone"));
 
+                // Actions
                 editBtn.setOnAction(event -> {
                     Equipement equip = getTableView().getItems().get(getIndex());
                     showEditDialog(equip);
@@ -219,6 +240,9 @@ public class EquipementController {
                     Equipement equip = getTableView().getItems().get(getIndex());
                     afficherEmpreinteCarbone(equip);
                 });
+
+                buttonsContainer.getChildren().addAll(editBtn, maintenanceBtn, qrBtn, co2Btn, deleteBtn);
+                buttonsContainer.setStyle("-fx-alignment: CENTER; -fx-spacing: 5; -fx-padding: 5;");
             }
 
             @Override
@@ -227,7 +251,7 @@ public class EquipementController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(new HBox(5, editBtn, maintenanceBtn, qrBtn, co2Btn, deleteBtn));
+                    setGraphic(buttonsContainer);
                 }
             }
         });
@@ -235,24 +259,25 @@ public class EquipementController {
         equipementTable.setItems(data);
     }
 
-    private void setupFilters() {
-        // Filtre par état
-        filterEtat.getItems().addAll("Tous", "Fonctionnel", "En panne", "Maintenance");
+    // Le reste des méthodes reste identique...
+    // (setupFilters, filterData, loadData, refreshTable, clearFilters, updateStats, etc.)
+
+    @FXML
+    private void refreshTable() {
+        loadData();
+        filterData();
+    }
+
+    @FXML
+    private void clearFilters() {
+        searchField.clear();
         filterEtat.setValue("Tous");
-
-        // Filtre par type (extraire les types uniques)
-        filterType.getItems().add("Tous");
-        service.getAllEquipements().stream()
-                .map(Equipement::getType)
-                .distinct()
-                .sorted()
-                .forEach(filterType.getItems()::add);
         filterType.setValue("Tous");
+    }
 
-        // Listeners
-        searchField.textProperty().addListener((obs, old, val) -> filterData());
-        filterEtat.valueProperty().addListener((obs, old, val) -> filterData());
-        filterType.valueProperty().addListener((obs, old, val) -> filterData());
+    private void loadData() {
+        data.setAll(service.getAllEquipements());
+        updateStats();
     }
 
     private void filterData() {
@@ -279,22 +304,21 @@ public class EquipementController {
         updateStats();
     }
 
-    private void loadData() {
-        data.setAll(service.getAllEquipements());
-        updateStats();
-    }
-
-    @FXML
-    private void refreshTable() {
-        loadData();
-        filterData();
-    }
-
-    @FXML
-    private void clearFilters() {
-        searchField.clear();
+    private void setupFilters() {
+        filterEtat.getItems().addAll("Tous", "Fonctionnel", "En panne", "Maintenance");
         filterEtat.setValue("Tous");
+
+        filterType.getItems().add("Tous");
+        service.getAllEquipements().stream()
+                .map(Equipement::getType)
+                .distinct()
+                .sorted()
+                .forEach(filterType.getItems()::add);
         filterType.setValue("Tous");
+
+        searchField.textProperty().addListener((obs, old, val) -> filterData());
+        filterEtat.valueProperty().addListener((obs, old, val) -> filterData());
+        filterType.valueProperty().addListener((obs, old, val) -> filterData());
     }
 
     private void updateStats() {
@@ -313,14 +337,8 @@ public class EquipementController {
         panneLabel.setText(String.valueOf(enPanne));
         maintenanceLabel.setText(String.valueOf(enMaintenance));
         garantieLabel.setText(String.valueOf(sousGarantie));
-
-        // Mettre à jour l'empreinte carbone
-        mettreAJourEmpreinteCarbone();
     }
 
-    /**
-     * Ajoute une carte d'empreinte carbone au tableau de bord
-     */
     private void ajouterCarteEmpreinteCarbone() {
         if (statsGrid != null) {
             VBox co2Card = new VBox(10);
@@ -337,47 +355,17 @@ public class EquipementController {
             label.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.95); -fx-font-weight: 600;");
 
             co2Card.getChildren().addAll(icon, empreinteCarboneLabel, label);
-
-            // Ajouter à la 5ème position (après les 4 cartes existantes)
             statsGrid.add(co2Card, 4, 0);
         }
     }
 
-    /**
-     * Calcule et met à jour l'empreinte carbone totale
-     */
-    private void mettreAJourEmpreinteCarbone() {
-        List<Equipement> equipements = service.getAllEquipements();
-        List<Maintenance> maintenances = maintenanceService.getAllMaintenances();
-
-        double emissions = co2Service.calculerEmissionsMensuelles(maintenances, equipements, countryCode);
-
-        if (empreinteCarboneLabel != null) {
-            empreinteCarboneLabel.setText(String.format("%.0f kg CO₂", emissions));
-
-            // Changer la couleur selon le niveau
-            if (emissions > 200) {
-                empreinteCarboneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffcccc;");
-            } else if (emissions > 100) {
-                empreinteCarboneLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffcc;");
-            }
-        }
-
-        // Vérifier et créer une alerte si nécessaire
-        co2Service.verifierEtAlerter(new com.pi.service.AlertesService(), emissions);
-    }
-
-    /**
-     * Affiche les détails de l'empreinte carbone d'un équipement
-     */
     private void afficherEmpreinteCarbone(Equipement equipement) {
         double conso = co2Service.getConsommationEstimee(equipement.getType());
         double intensite = co2Service.getCarbonIntensity(countryCode);
 
-        // Calculs pour différentes durées
         double parHeure = conso * intensite;
-        double parJour = parHeure * 8; // 8h de travail
-        double parMois = parJour * 22; // 22 jours ouvrés
+        double parJour = parHeure * 8;
+        double parMois = parJour * 22;
         double parAn = parMois * 12;
 
         String message = String.format(
@@ -401,7 +389,7 @@ public class EquipementController {
                 parJour,
                 parMois,
                 parAn,
-                parAn * 5 // 1 kg CO₂ ≈ 5 km en voiture
+                parAn * 5
         );
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -484,7 +472,7 @@ public class EquipementController {
                             etatBox.getValue(),
                             datePicker.getValue(),
                             dureeVie,
-                            null // Pas de parcelle
+                            null
                     );
                 } catch (Exception e) {
                     showError("Erreur", e.getMessage());
@@ -555,7 +543,7 @@ public class EquipementController {
                             etatBox.getValue(),
                             datePicker.getValue(),
                             dureeVie,
-                            null // Pas de parcelle
+                            null
                     );
                 } catch (Exception e) {
                     showError("Erreur", e.getMessage());
@@ -668,7 +656,6 @@ public class EquipementController {
     @FXML
     private void ouvrirCentreAlertes() {
         try {
-            // Essayer différents chemins possibles
             FXMLLoader loader = null;
             String[] chemins = {
                     "/com/pi/view/AlertesView.fxml",
@@ -706,7 +693,6 @@ public class EquipementController {
     @FXML
     private void ouvrirCalendrierMaintenance() {
         try {
-            // Essayer différents chemins possibles
             FXMLLoader loader = null;
             String[] chemins = {
                     "/com/pi/view/CalendrierMaintenance.fxml",
@@ -802,7 +788,6 @@ public class EquipementController {
             content.getChildren().add(qrView);
         }
 
-        // Informations de l'équipement
         GridPane infoGrid = new GridPane();
         infoGrid.setHgap(10);
         infoGrid.setVgap(5);
@@ -824,7 +809,6 @@ public class EquipementController {
         }
         infoGrid.add(etatLabel, 1, 3);
 
-        // Ajouter l'empreinte carbone
         double conso = co2Service.getConsommationEstimee(equipement.getType());
         double intensite = co2Service.getCarbonIntensity(countryCode);
         double parAn = conso * 100 * intensite;
@@ -836,7 +820,6 @@ public class EquipementController {
 
         content.getChildren().add(infoGrid);
 
-        // Instructions
         Label instruction = new Label("Scannez ce code pour accéder rapidement aux informations de l'équipement");
         instruction.setWrapText(true);
         instruction.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d;");
@@ -844,7 +827,6 @@ public class EquipementController {
 
         dialog.getDialogPane().setContent(content);
 
-        // Gestion des boutons
         dialog.setResultConverter(button -> {
             if (button == sauvegarderButton) {
                 sauvegarderQRCode(equipement);

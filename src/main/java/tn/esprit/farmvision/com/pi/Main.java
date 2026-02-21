@@ -41,6 +41,32 @@ public class Main extends Application {
             Parent root = loader.load();
 
             Scene scene = new Scene(root, 1300, 800);
+
+            // ============================================
+            // CHARGEMENT CSS - méthode robuste multi-chemins
+            // ============================================
+            String[] cssPaths = {
+                    "/com/pi/view/styles.css",
+                    "/tn/esprit/farmvision/com/pi/view/styles.css",
+                    "/styles.css"
+            };
+
+            boolean cssLoaded = false;
+            for (String cssPath : cssPaths) {
+                URL cssUrl = getClass().getResource(cssPath);
+                if (cssUrl != null) {
+                    scene.getStylesheets().clear();
+                    scene.getStylesheets().add(cssUrl.toExternalForm());
+                    System.out.println("✅ CSS chargé depuis: " + cssPath);
+                    cssLoaded = true;
+                    break;
+                }
+            }
+
+            if (!cssLoaded) {
+                System.err.println("⚠️ CSS non trouvé - vérifiez que styles.css est dans src/main/resources/com/pi/view/");
+            }
+
             primaryStage.setTitle("FarmVision - Gestion Agricole Intelligente");
             primaryStage.setScene(scene);
             primaryStage.show();

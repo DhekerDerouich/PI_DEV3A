@@ -20,7 +20,7 @@ public class MainController {
     @FXML private StackPane contentPane;
     @FXML private Label statusLabel;
     @FXML private Label connectionStatus;
-    @FXML private Label alerteCount;
+    @FXML private Label alerteCount;  // Vérifiez que ce champ existe
     @FXML private Button alertesButton;
 
     // Chemins possibles pour les fichiers FXML
@@ -32,19 +32,40 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // Vérifier la connexion à la base de données
-        if (DatabaseConnection.testConnection()) {
-            connectionStatus.setText("✅ Connecté à la base");
-            connectionStatus.setStyle("-fx-text-fill: #2ecc71;");
-        } else {
-            connectionStatus.setText("❌ Non connecté");
-            connectionStatus.setStyle("-fx-text-fill: #e74c3c;");
+        try {
+            // Vérifier que tous les champs FXML sont injectés
+            System.out.println("=== Initialisation du MainController ===");
+            System.out.println("contentPane: " + (contentPane != null ? "✅" : "❌"));
+            System.out.println("statusLabel: " + (statusLabel != null ? "✅" : "❌"));
+            System.out.println("connectionStatus: " + (connectionStatus != null ? "✅" : "❌"));
+            System.out.println("alerteCount: " + (alerteCount != null ? "✅" : "❌"));
+            System.out.println("alertesButton: " + (alertesButton != null ? "✅" : "❌"));
+
+            if (alerteCount == null) {
+                System.err.println("⚠️ ATTENTION: alerteCount est null dans MainController");
+                System.err.println("Vérifiez que le fx:id='alerteCount' est bien défini dans main.fxml");
+                // Créer un label par défaut pour éviter NullPointerException
+                alerteCount = new Label("0");
+            }
+
+            // Vérifier la connexion à la base de données
+            if (DatabaseConnection.testConnection()) {
+                connectionStatus.setText("✅ Connecté à la base");
+                connectionStatus.setStyle("-fx-text-fill: #2ecc71;");
+            } else {
+                connectionStatus.setText("❌ Non connecté");
+                connectionStatus.setStyle("-fx-text-fill: #e74c3c;");
+            }
+
+            statusLabel.setText("Prêt");
+
+            // Mettre à jour le compteur d'alertes
+            mettreAJourCompteurAlertes();
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur dans initialize(): " + e.getMessage());
+            e.printStackTrace();
         }
-
-        statusLabel.setText("Prêt");
-
-        // Mettre à jour le compteur d'alertes
-        mettreAJourCompteurAlertes();
     }
 
     /**
@@ -190,18 +211,6 @@ public class MainController {
         // Retour à l'écran d'accueil
         contentPane.getChildren().clear();
         statusLabel.setText("Accueil");
-
-        // Recharger la vue d'accueil (optionnel)
-        try {
-            URL resource = getFXMLResource("main.fxml");
-            if (resource != null) {
-                FXMLLoader loader = new FXMLLoader(resource);
-                Parent root = loader.load();
-                // Ne pas remplacer contentPane pour éviter la récursion
-            }
-        } catch (Exception e) {
-            // Ignorer
-        }
     }
 
     @FXML
@@ -212,22 +221,33 @@ public class MainController {
 
     private void mettreAJourCompteurAlertes() {
         try {
+            if (alerteCount == null) {
+                System.err.println("⚠️ alerteCount est null, impossible de mettre à jour");
+                return;
+            }
+
             AlertesService alertesService = new AlertesService();
             int nbAlertes = alertesService.getToutesLesAlertes().size();
             alerteCount.setText(String.valueOf(nbAlertes));
 
             if (nbAlertes > 0) {
                 alerteCount.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold;");
-                alertesButton.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 18px; -fx-cursor: hand; -fx-background-radius: 20;");
+                if (alertesButton != null) {
+                    alertesButton.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-size: 18px; -fx-cursor: hand; -fx-background-radius: 20;");
+                }
             } else {
                 alerteCount.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 15; -fx-font-size: 12px; -fx-font-weight: bold;");
-                alertesButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 18px; -fx-cursor: hand; -fx-background-radius: 20;");
+                if (alertesButton != null) {
+                    alertesButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 18px; -fx-cursor: hand; -fx-background-radius: 20;");
+                }
             }
         } catch (Exception e) {
-            alerteCount.setText("0");
+            System.err.println("❌ Erreur dans mettreAJourCompteurAlertes: " + e.getMessage());
+            if (alerteCount != null) {
+                alerteCount.setText("0");
+            }
         }
     }
-
 
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

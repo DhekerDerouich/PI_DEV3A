@@ -48,7 +48,6 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <!-- ADD THIS: JavaFX Swing module for SwingFXUtils -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
@@ -64,12 +63,12 @@
     </dependencies>
 
     <build>
-        <!-- FORCE COPY ALL FXML FILES - THIS WILL WORK -->
         <resources>
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.fxml</include>
+                    <include>**/*.css</include>
                 </includes>
                 <targetPath>${project.build.outputDirectory}</targetPath>
             </resource>
@@ -95,24 +94,24 @@
                 </configuration>
             </plugin>
 
-            <!-- ANOTHER FORCE COPY - BACKUP METHOD -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
                 <executions>
                     <execution>
-                        <id>copy-fxml</id>
+                        <id>copy-fxml-css</id>
                         <phase>process-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/com/pi/view</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/tn/esprit/farmvision/com/pi/view</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/java/com/pi/view</directory>
+                                    <directory>src/main/java/tn/esprit/farmvision/com/pi/view</directory>
                                     <includes>
                                         <include>*.fxml</include>
+                                        <include>*.css</include>
                                     </includes>
                                 </resource>
                             </resources>
