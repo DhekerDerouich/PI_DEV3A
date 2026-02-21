@@ -12,7 +12,8 @@ import java.util.List;
 
 public class AIChatService {
 
-    // Gemini API endpoint (free)
+    // Gemini API endpoint
+    //updating path
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
     private static final String API_KEY = "AIzaSyDczEXmunBGFSIYfLSm8znUptcgQl46cMc";
     private final HttpClient httpClient;
@@ -96,7 +97,7 @@ public class AIChatService {
                     getFallbackResponse(userMessage, parcelles);
         }
     }
-//test
+
     private String parseGeminiResponse(String jsonResponse) {
         try {
             JsonObject response = gson.fromJson(jsonResponse, JsonObject.class);

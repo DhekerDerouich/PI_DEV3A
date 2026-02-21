@@ -61,7 +61,7 @@ public class ChatController {
         sendButton.setOnAction(e -> sendMessage());
         messageInput.setOnAction(e -> sendMessage());
 
-        // Add loading indicator
+        // Add loading indicator for waiting
         loadingIndicator.setVisible(false);
     }
 
