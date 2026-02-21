@@ -96,7 +96,7 @@ public class AIChatService {
                     getFallbackResponse(userMessage, parcelles);
         }
     }
-
+//test
     private String parseGeminiResponse(String jsonResponse) {
         try {
             JsonObject response = gson.fromJson(jsonResponse, JsonObject.class);
