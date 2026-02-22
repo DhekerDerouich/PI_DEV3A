@@ -43,6 +43,14 @@
                             </children>
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="calendarBtn" mnemonicParsing="false" onAction="#showCalendarView" style="-fx-background-color: #3b82f6; -fx-background-radius: 8;" text="📅 Voir Calendrier" textFill="white">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <tooltip>
+                                <Tooltip text="Afficher le calendrier des cultures" />
+                            </tooltip>
+                        </Button>
                         <Button fx:id="addNewBtn" mnemonicParsing="false" onAction="#showAddModal" style="-fx-background-color: #22c55e; -fx-background-radius: 8;" text="+ Nouvelle Culture" textFill="white">
                             <font>
                                 <Font size="14.0" />
@@ -154,4 +162,3 @@
         </VBox>
     </children>
 </AnchorPane>
-

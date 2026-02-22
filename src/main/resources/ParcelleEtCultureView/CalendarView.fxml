@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="750.0" prefWidth="1120.0" style="-fx-background-color: #f8fafc;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tn.esprit.farmvision.gestionParcelleEtCulture.Controller.CalendarController">
+    <children>
+        <!-- Scrollable Main Container -->
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;"
+                    AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0"
+                    AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+            <content>
+                <VBox spacing="15.0" prefWidth="1080.0">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <!-- Header with Back Button -->
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Calendrier des Cultures" textFill="#1e293b">
+                                            <font>
+                                                <Font name="System Bold" size="28.0" />
+                                            </font>
+                                        </Label>
+                                        <Label text="📅 Visualisation mensuelle" textFill="#64748b">
+                                            <font>
+                                                <Font size="14.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+
+                                <!-- Back to Cultures Button -->
+                                <Button fx:id="backToCulturesBtn" mnemonicParsing="false" onAction="#backToCultures" style="-fx-background-color: #64748b; -fx-background-radius: 8;" text="← Retour aux cultures" textFill="white">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                    <tooltip>
+                                        <Tooltip text="Retour à la liste des cultures" />
+                                    </tooltip>
+                                </Button>
+                            </children>
+                        </HBox>
+
+                        <Separator />
+
+                        <!-- Calendar Container - Will be populated by controller -->
+                        <VBox fx:id="calendarContainer" spacing="10.0"
+                              style="-fx-background-color: white; -fx-background-radius: 12;
+                                     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                              VBox.vgrow="ALWAYS">
+                            <padding>
+                                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                            </padding>
+                            <children>
+                                <!-- Calendar will be added here programmatically -->
+                            </children>
+                        </VBox>
+
+                        <!-- Legend -->
+                        <HBox spacing="20.0" alignment="CENTER">
+                            <padding>
+                                <Insets top="10.0" bottom="10.0" />
+                            </padding>
+                            <children>
+                                <HBox spacing="5.0" alignment="CENTER">
+                                    <Label text="🆕" style="-fx-font-size: 14;" />
+                                    <Label text="Nouvelle" textFill="#475569" />
+                                </HBox>
+                                <HBox spacing="5.0" alignment="CENTER">
+                                    <Label text="🌱" style="-fx-font-size: 14;" />
+                                    <Label text="En croissance" textFill="#475569" />
+                                </HBox>
+                                <HBox spacing="5.0" alignment="CENTER">
+                                    <Label text="🔔" style="-fx-font-size: 14;" />
+                                    <Label text="Prête à récolter" textFill="#475569" />
+                                </HBox>
+                                <HBox spacing="5.0" alignment="CENTER">
+                                    <Label text="🌾" style="-fx-font-size: 14;" />
+                                    <Label text="Récoltée" textFill="#475569" />
+                                </HBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

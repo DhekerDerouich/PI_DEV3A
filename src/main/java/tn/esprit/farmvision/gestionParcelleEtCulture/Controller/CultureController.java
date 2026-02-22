@@ -1,15 +1,17 @@
 package tn.esprit.farmvision.gestionParcelleEtCulture.Controller;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import java.io.IOException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -47,13 +49,14 @@ public class CultureController {
     @FXML private Label totalCulturesChange;
     @FXML private Label recolteesChange;
     @FXML private TextField searchField;
+    @FXML private Button calendarBtn;
     @FXML private Label footerStatus;
 
     private CultureService service = new CultureService();
     private ObservableList<Culture> masterData = FXCollections.observableArrayList();
     private FilteredList<Culture> filteredData;
     private Culture selectedCulture = null;
-
+    private MainController mainController;
     @FXML
     public void initialize() {
         setupTableColumns();
@@ -62,10 +65,36 @@ public class CultureController {
         setupLiveValidation();
         updateStats();
     }
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
+    @FXML
+    private void showCalendarView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ParcelleEtCultureView/CalendarView.fxml"));
+            Node calendarView = loader.load();
+
+            CalendarController calendarController = loader.getController();
+            calendarController.setOnBackToCultures(() -> {
+                // Switch back to culture view
+                if (mainController != null) {
+                    mainController.showCulture();
+                }
+            });
+
+            // Get the contentArea from MainController and show calendar
+            if (mainController != null) {
+                mainController.showCustomView(calendarView);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ouvrir le calendrier");
+        }
+    }
 
     private void setupTableColumns() {
         // Configure columns
-       // colId.setCellValueFactory(new PropertyValueFactory<>("idCulture"));
+        // colId.setCellValueFactory(new PropertyValueFactory<>("idCulture"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nomCulture"));
         colType.setCellValueFactory(new PropertyValueFactory<>("typeCulture"));
         colSemis.setCellValueFactory(new PropertyValueFactory<>("dateSemis"));
@@ -84,7 +113,7 @@ public class CultureController {
         colActions.setStyle(headerStyle);
 
         // Set cell factories for custom styling
-      //  colId.setCellFactory(column -> createStyledCell());
+        //  colId.setCellFactory(column -> createStyledCell());
         colNom.setCellFactory(column -> createStyledCell());
         colType.setCellFactory(column -> createStyledCell());
         colSemis.setCellFactory(column -> createStyledDateCell());
@@ -224,7 +253,7 @@ public class CultureController {
         tableView.setItems(sortedData);
     }
 
-    private void loadData() {
+    public void loadData() {
         try {
             masterData.clear();
             masterData.addAll(service.afficher());
