@@ -5,8 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
 
 public class Main extends Application {
 
@@ -15,32 +13,24 @@ public class Main extends Application {
         try {
             System.out.println("=== DÉMARRAGE FARMVISION ===");
 
-            // Charger le FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_stock.fxml"));
+            // Charger directement la page de stocks
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/gestion_stock.fxml"));
             Parent root = loader.load();
 
-            // Créer la scène
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root, 1400, 800);
 
-            // Charger le CSS
             String css = getClass().getResource("/css/style.css").toExternalForm();
             if (css != null) {
                 scene.getStylesheets().add(css);
                 System.out.println("✅ CSS chargé");
             }
 
-            primaryStage.setTitle("FarmVision - Gestion de Stock");
+            primaryStage.setTitle("FarmVision - Gestion Agricole");
             primaryStage.setScene(scene);
-
-            // Centrer la fenêtre sur l'écran
             primaryStage.centerOnScreen();
-
-            // Optionnel: Plein écran centré
-            // primaryStage.setFullScreen(true);
-
             primaryStage.show();
 
-            System.out.println("✅ Application démarrée et centrée");
+            System.out.println("✅ Application démarrée");
 
         } catch (Exception e) {
             System.err.println("❌ Erreur: " + e.getMessage());
