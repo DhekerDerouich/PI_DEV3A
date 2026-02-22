@@ -14,12 +14,15 @@ public abstract class Utilisateur {
     private String email;
     private String password;
     private Date dateCreation;
-    private boolean activated;         // true = compte validé par admin
+    private boolean activated;
+    private String remarques;
+
 
     // Constructeur par défaut
     public Utilisateur() {
         this.dateCreation = new Date();   // Date actuelle
         this.activated = false;           // Par défaut : en attente de validation
+        this.remarques = null;
     }
 
     // Constructeur principal (sans id)
@@ -88,6 +91,13 @@ public abstract class Utilisateur {
         this.activated = activated;
     }
 
+    public String getRemarques() {
+        return remarques;
+    }
+
+    public void setRemarques(String remarques) {
+        this.remarques = remarques;
+    }
     // Méthode toString pour debug facile (polymorphisme : sera override dans les enfants)
     @Override
     public String toString() {

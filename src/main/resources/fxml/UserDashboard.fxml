@@ -24,6 +24,7 @@
         <Button text="📂 Accéder à mon espace" fx:id="btnEspace" onAction="#ouvrirEspace"
                 style="-fx-background-color: #198754; -fx-text-fill: white; -fx-padding: 12 40; -fx-font-size: 16px; -fx-font-weight: bold;"/>
 
+
         <Button text="🔓 Déconnexion" fx:id="btnLogout" onAction="#logout"
                 style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 10 30; -fx-font-size: 14px; -fx-font-weight: bold;"/>
     </VBox>

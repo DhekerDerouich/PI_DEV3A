@@ -29,8 +29,8 @@ public class UtilisateurDAO {
     }
 
     public void save(Utilisateur user) throws SQLException {
-        String sql = "INSERT INTO utilisateur (type_role, nom, prenom, email, password, matricule, telephone, adresse, activated, date_creation) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO utilisateur (type_role, nom, prenom, email, password, matricule, telephone, adresse, activated, date_creation, remarques) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement pstmt = null;
         ResultSet generatedKeys = null;
         try {
@@ -41,7 +41,6 @@ public class UtilisateurDAO {
             String telephone = null;
             String adresse = null;
 
-            // ✅ CORRECTION ICI
             if (user instanceof Administrateur a) {
                 matricule = a.getMatricule();
             } else if (user instanceof Agriculteur a) {
@@ -61,6 +60,7 @@ public class UtilisateurDAO {
             pstmt.setString(8, adresse);
             pstmt.setBoolean(9, user.isActivated());
             pstmt.setTimestamp(10, new Timestamp(user.getDateCreation().getTime()));
+            pstmt.setString(11, user.getRemarques()); // ✅ AJOUT remarques
 
             int rows = pstmt.executeUpdate();
             if (rows > 0) {
@@ -144,13 +144,17 @@ public class UtilisateurDAO {
         }
     }
 
+    /**
+     * ✅ MÉTHODE UPDATE CORRIGÉE avec remarques
+     */
     public void update(Utilisateur user) {
-        String sql = "UPDATE utilisateur SET nom=?, prenom=?, email=?, password=?";
+        String sql = "UPDATE utilisateur SET nom=?, prenom=?, email=?, password=?, remarques=?";
         List<Object> params = new ArrayList<>();
         params.add(user.getNom());
         params.add(user.getPrenom());
         params.add(user.getEmail());
         params.add(user.getPassword());
+        params.add(user.getRemarques()); // ✅ AJOUT remarques
 
         if (user instanceof Agriculteur a) {
             sql += ", telephone=?, adresse=?";
@@ -159,6 +163,9 @@ public class UtilisateurDAO {
         } else if (user instanceof ResponsableExploitation r) {
             sql += ", matricule=?";
             params.add(r.getMatricule());
+        } else if (user instanceof Administrateur admin) {
+            sql += ", matricule=?";
+            params.add(admin.getMatricule());
         }
 
         sql += " WHERE id=?";
@@ -170,9 +177,11 @@ public class UtilisateurDAO {
             for (int i = 0; i < params.size(); i++) {
                 pstmt.setObject(i + 1, params.get(i));
             }
-            pstmt.executeUpdate();
+            int rows = pstmt.executeUpdate();
+            System.out.println("✅ Update réussi: " + rows + " ligne(s) modifiée(s)");
         } catch (SQLException e) {
-            System.out.println("Erreur update : " + e.getMessage());
+            System.err.println("❌ Erreur update : " + e.getMessage());
+            e.printStackTrace();
         } finally {
             if (pstmt != null) try { pstmt.close(); } catch (SQLException ignored) {}
         }
@@ -191,6 +200,9 @@ public class UtilisateurDAO {
         }
     }
 
+    /**
+     * ✅ MAPPING CORRIGÉ avec remarques
+     */
     private Utilisateur mapRowToUtilisateur(ResultSet rs) throws SQLException {
         String role = rs.getString("type_role");
         Utilisateur u;
@@ -220,6 +232,7 @@ public class UtilisateurDAO {
         u.setPassword(rs.getString("password"));
         u.setDateCreation(rs.getTimestamp("date_creation"));
         u.setActivated(rs.getBoolean("activated"));
+        u.setRemarques(rs.getString("remarques")); // ✅ AJOUT remarques
 
         return u;
     }

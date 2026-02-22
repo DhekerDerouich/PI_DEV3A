@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
+import tn.esprit.farmvision.gestionuser.service.EmailService;
+
 
 public class GestionUsersControllerFX {
 
@@ -151,9 +153,6 @@ public class GestionUsersControllerFX {
         });
     }
 
-    /**
-     * ✅ NOUVELLE MÉTHODE : Réinitialiser le mot de passe
-     */
     private void handleResetPassword(Utilisateur user) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Réinitialiser mot de passe");
@@ -176,7 +175,10 @@ public class GestionUsersControllerFX {
             Optional<ButtonType> confirmResult = confirm.showAndWait();
             if (confirmResult.isPresent() && confirmResult.get() == ButtonType.OK) {
                 if (service.resetPassword(user.getId(), newPassword.trim())) {
-                    showMessage("✅ Mot de passe réinitialisé avec succès", "green");
+                    // ✅ AJOUTEZ CETTE LIGNE - Envoyer email avec nouveau mot de passe
+                    EmailService.sendPasswordResetEmail(user, newPassword.trim());
+
+                    showMessage("✅ Mot de passe réinitialisé + Email envoyé", "green");
                 } else {
                     showMessage("❌ Erreur lors de la réinitialisation", "red");
                 }
@@ -270,9 +272,14 @@ public class GestionUsersControllerFX {
         }
     }
 
+
     @FXML
     private void handleValidate() {
+        // Récupérer l'utilisateur sélectionné dans votre TableView
+        // ⚠️ ADAPTEZ LE NOM DE VOTRE TABLEVIEW SI NÉCESSAIRE
+        // Si votre TableView s'appelle différemment, changez 'tableUsers'
         Utilisateur selected = tableUsers.getSelectionModel().getSelectedItem();
+
         if (selected == null) {
             showMessage("⚠️ Veuillez sélectionner un utilisateur", "orange");
             return;
@@ -290,14 +297,37 @@ public class GestionUsersControllerFX {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            if (service.validerUtilisateur(selected.getId())) {
-                showMessage("✅ Compte validé avec succès", "green");
-                loadUsers();
+            System.out.println("🔄 Activation du compte de: " + selected.getEmail());
+
+            // Activer le compte dans la base de données
+            boolean success = service.validerUtilisateur(selected.getId());
+
+            if (success) {
+                System.out.println("✅ Compte activé dans la base de données");
+
+                // ✅ NOUVEAU : Envoyer l'email de validation
+                System.out.println("📧 Envoi email de validation à: " + selected.getEmail());
+                boolean emailSent = EmailService.sendAccountValidationEmail(selected);
+
+                if (emailSent) {
+                    System.out.println("✅ Email de validation envoyé avec succès");
+                    showMessage("✅ Compte validé ! Email de confirmation envoyé à " + selected.getEmail(), "green");
+                } else {
+                    System.out.println("⚠️ Échec envoi email (compte activé quand même)");
+                    showMessage("✅ Compte validé (erreur envoi email)", "green");
+                }
+
+                // Rafraîchir la table (adaptez le nom de votre méthode si nécessaire)
+                // ⚠️ SI VOUS AVEZ UNE MÉTHODE loadUsers() OU refreshTable(), UTILISEZ-LA
+                loadUsers();  // OU refreshTable(); selon votre code
+
             } else {
-                showMessage("❌ Erreur lors de la validation", "red");
+                System.out.println("❌ Erreur lors de l'activation du compte");
+                showMessage("❌ Erreur lors de l'activation", "red");
             }
         }
     }
+
 
     @FXML
     private void handleRetour() {

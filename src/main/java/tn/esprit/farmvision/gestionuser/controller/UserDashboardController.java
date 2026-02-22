@@ -9,7 +9,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import tn.esprit.farmvision.SessionManager;
 import tn.esprit.farmvision.gestionuser.model.Utilisateur;
+import tn.esprit.farmvision.gestionuser.model.Agriculteur;
 import tn.esprit.farmvision.gestionuser.util.AnimationManager;
+import javafx.scene.control.ComboBox;
 
 import java.io.IOException;
 
@@ -44,6 +46,7 @@ public class UserDashboardController {
             rootPane.setFocusTraversable(true);
             rootPane.requestFocus();
         }
+
     }
 
     @FXML

@@ -5,89 +5,74 @@
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="tn.esprit.farmvision.gestionuser.controller.GestionUsersControllerFX"
-      spacing="20" style="-fx-background-color: #f8f9fa;">
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.gestionuser.controller.GestionUsersControllerFX"
+            style="-fx-background-color: #f8f9fa;">
 
     <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
 
-    <!-- Header avec bouton retour -->
-    <HBox alignment="CENTER_LEFT" spacing="20">
-        <Button text="← Retour Dashboard" fx:id="btnRetour" onAction="#handleRetour"
-                style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20; -fx-font-weight: bold;"/>
-        <Label text="Gestion des Utilisateurs" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;" HBox.hgrow="ALWAYS"/>
-    </HBox>
+    <top>
+        <VBox spacing="15">
+            <!-- Header avec bouton retour -->
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Button text="← Retour Dashboard" fx:id="btnRetour" onAction="#handleRetour"
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-padding: 10 20; -fx-font-weight: bold;"/>
+                <Label text="Gestion des Utilisateurs" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;" HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-    <!-- Barre de recherche -->
-    <HBox spacing="15">
-        <TextField fx:id="txtSearch" promptText="🔎 Recherche en temps réel (nom, prénom, email)..." prefWidth="400"/>
-        <ComboBox fx:id="cbFilterRole" promptText="Filtrer par rôle" prefWidth="200"/>
-        <Label text="💡 La recherche est automatique !" style="-fx-text-fill: #198754; -fx-font-weight: bold;"/>
-    </HBox>
+            <!-- Barre de recherche -->
+            <HBox spacing="15">
+                <TextField fx:id="txtSearch" promptText="🔎 Recherche en temps réel (nom, prénom, email)..." prefWidth="400"/>
+                <ComboBox fx:id="cbFilterRole" promptText="Filtrer par rôle" prefWidth="200"/>
+                <Label text="💡 La recherche est automatique !" style="-fx-text-fill: #198754; -fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+    </top>
 
-    <!-- Tableau SANS colonne ID + AVEC colonne Mot de passe -->
-    <TableView fx:id="tableUsers" VBox.vgrow="ALWAYS">
-        <columns>
-            <!-- ❌ Colonne ID supprimée -->
+    <center>
+        <!-- ✅ Tableau avec colonne Remarques -->
+        <TableView fx:id="tableUsers" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colNom" text="Nom" prefWidth="110"/>
+                <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="110"/>
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="200"/>
+                <TableColumn fx:id="colRole" text="Rôle" prefWidth="150" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colDetails" text="📋 Détails" prefWidth="220"/>
 
-            <TableColumn fx:id="colNom" text="Nom" prefWidth="120">
-                <cellValueFactory>
-                    <PropertyValueFactory property="nom"/>
-                </cellValueFactory>
-            </TableColumn>
+                <!-- ✅ NOUVELLE COLONNE: Remarques -->
+                <TableColumn fx:id="colRemarques" text="💬 Remarques" prefWidth="200" style="-fx-alignment: CENTER_LEFT;"/>
 
-            <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="120">
-                <cellValueFactory>
-                    <PropertyValueFactory property="prenom"/>
-                </cellValueFactory>
-            </TableColumn>
+                <TableColumn fx:id="colPassword" text="🔑 MDP" prefWidth="130" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colActivated" text="Activé" prefWidth="80" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colDateCreation" text="Date création" prefWidth="120" style="-fx-alignment: CENTER;"/>
+            </columns>
 
-            <TableColumn fx:id="colEmail" text="Email" prefWidth="220">
-                <cellValueFactory>
-                    <PropertyValueFactory property="email"/>
-                </cellValueFactory>
-            </TableColumn>
+            <placeholder>
+                <VBox alignment="CENTER" spacing="10" style="-fx-padding: 40;">
+                    <Label text="📋" style="-fx-font-size: 40px;"/>
+                    <Label text="Aucun utilisateur trouvé" style="-fx-font-size: 16px; -fx-text-fill: #999999;"/>
+                    <Label text="Ajoutez votre premier utilisateur ou modifiez les filtres" style="-fx-font-size: 12px; -fx-text-fill: #cccccc;"/>
+                </VBox>
+            </placeholder>
+        </TableView>
+    </center>
 
-            <TableColumn fx:id="colRole" text="Rôle" prefWidth="160" style="-fx-alignment: CENTER;"/>
+    <bottom>
+        <VBox spacing="15">
+            <!-- Boutons CRUD -->
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <Button text="➕ Ajouter" fx:id="btnAdd" onAction="#handleAddUser"
+                        style="-fx-background-color: #198754; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30;"/>
+                <Button text="✏️ Modifier" fx:id="btnEdit" onAction="#handleEdit" disable="true"
+                        style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30;"/>
+                <Button text="🗑️ Supprimer" fx:id="btnDelete" onAction="#handleDelete" disable="true"
+                        style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30;"/>
+                <Button text="✅ Valider" fx:id="btnValidate" onAction="#handleValidate" disable="true"
+                        style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-font-weight: bold; -fx-padding: 12 30;"/>
+            </HBox>
 
-            <TableColumn fx:id="colDetails" text="📋 Détails" prefWidth="250"/>
+            <Label fx:id="lblMessage" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+        </VBox>
+    </bottom>
 
-            <!-- ✅ NOUVELLE COLONNE : Mot de passe -->
-            <TableColumn fx:id="colPassword" text="🔑 Mot de passe" prefWidth="150" style="-fx-alignment: CENTER;"/>
-
-            <TableColumn fx:id="colActivated" text="Activé" prefWidth="90" style="-fx-alignment: CENTER;">
-                <cellValueFactory>
-                    <PropertyValueFactory property="activated"/>
-                </cellValueFactory>
-            </TableColumn>
-
-            <TableColumn fx:id="colDateCreation" text="Date création" prefWidth="130" style="-fx-alignment: CENTER;">
-                <cellValueFactory>
-                    <PropertyValueFactory property="dateCreation"/>
-                </cellValueFactory>
-            </TableColumn>
-        </columns>
-
-        <placeholder>
-            <VBox alignment="CENTER" spacing="10" style="-fx-padding: 40;">
-                <Label text="📋" style="-fx-font-size: 40px;"/>
-                <Label text="Aucun utilisateur trouvé" style="-fx-font-size: 16px; -fx-text-fill: #999999;"/>
-                <Label text="Ajoutez votre premier utilisateur ou modifiez les filtres" style="-fx-font-size: 12px; -fx-text-fill: #cccccc;"/>
-            </VBox>
-        </placeholder>
-    </TableView>
-
-    <!-- Boutons CRUD -->
-    <HBox spacing="15" alignment="CENTER_RIGHT">
-        <Button text="➕ Ajouter" fx:id="btnAdd" onAction="#handleAddUser"
-                style="-fx-background-color: #198754; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30;"/>
-        <Button text="✏️ Modifier" fx:id="btnEdit" onAction="#handleEdit" disable="true"
-                style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30;"/>
-        <Button text="🗑️ Supprimer" fx:id="btnDelete" onAction="#handleDelete" disable="true"
-                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 30;"/>
-        <Button text="✅ Valider" fx:id="btnValidate" onAction="#handleValidate" disable="true"
-                style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-font-weight: bold; -fx-padding: 12 30;"/>
-    </HBox>
-
-    <Label fx:id="lblMessage" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
-</VBox>
+</BorderPane>

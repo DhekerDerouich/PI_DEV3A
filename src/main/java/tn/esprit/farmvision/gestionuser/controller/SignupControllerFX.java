@@ -2,6 +2,7 @@ package tn.esprit.farmvision.gestionuser.controller;
 
 import tn.esprit.farmvision.gestionuser.util.AnimationManager;
 import javafx.fxml.FXML;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,7 +15,8 @@ import tn.esprit.farmvision.gestionuser.model.Agriculteur;
 import tn.esprit.farmvision.gestionuser.model.ResponsableExploitation;
 import tn.esprit.farmvision.gestionuser.model.Utilisateur;
 import tn.esprit.farmvision.gestionuser.service.UtilisateurService;
-
+import tn.esprit.farmvision.gestionuser.service.EmailService;
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class SignupControllerFX {
@@ -29,15 +31,15 @@ public class SignupControllerFX {
     @FXML private BorderPane rootPane;
 
     private final UtilisateurService service = new UtilisateurService();
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^[0-9]{8}$");
 
     @FXML
     private void initialize() {
         if (rootPane != null) {
             AnimationManager.fadeInPage(rootPane);
-            rootPane.setOnKeyTyped(event ->
-                    AnimationManager.handleSecretCode(event.getCharacter(), rootPane));
+            rootPane.setOnKeyTyped(event -> AnimationManager.handleSecretCode(event.getCharacter(), rootPane));
             rootPane.setFocusTraversable(true);
             rootPane.requestFocus();
         }
@@ -75,9 +77,18 @@ public class SignupControllerFX {
             paneAgriculteur.setManaged(true);
         }
 
+        // Validation email en temps réel
         txtEmail.textProperty().addListener((obs, old, newVal) -> {
-            if (!newVal.isEmpty() && !EMAIL_PATTERN.matcher(newVal).matches()) {
-                lblEmailError.setText("Format email invalide");
+            if (newVal == null || newVal.trim().isEmpty()) {
+                lblEmailError.setVisible(false);
+                return;
+            }
+            if (!EMAIL_PATTERN.matcher(newVal.trim()).matches()) {
+                if (!newVal.contains("@")) lblEmailError.setText("❌ L'email doit contenir @");
+                else if (newVal.startsWith("@")) lblEmailError.setText("❌ L'email ne peut pas commencer par @");
+                else if (newVal.endsWith("@")) lblEmailError.setText("❌ Domaine manquant après @");
+                else if (!newVal.substring(newVal.indexOf("@")).contains(".")) lblEmailError.setText("❌ Extension manquante (ex: .com, .tn)");
+                else lblEmailError.setText("❌ Format email invalide");
                 lblEmailError.setVisible(true);
             } else {
                 lblEmailError.setVisible(false);
@@ -85,7 +96,11 @@ public class SignupControllerFX {
         });
 
         txtPassword.textProperty().addListener((obs, old, newVal) -> {
-            if (!newVal.isEmpty() && newVal.length() < 6) {
+            if (newVal == null || newVal.isEmpty()) {
+                lblPasswordError.setVisible(false);
+                return;
+            }
+            if (newVal.length() < 6) {
                 lblPasswordError.setText("Minimum 6 caractères");
                 lblPasswordError.setVisible(true);
             } else {
@@ -94,13 +109,19 @@ public class SignupControllerFX {
         });
 
         txtTelephone.textProperty().addListener((obs, old, newVal) -> {
-            if (!newVal.isEmpty() && !PHONE_PATTERN.matcher(newVal).matches()) {
+            if (newVal == null || newVal.trim().isEmpty()) {
+                lblTelError.setVisible(false);
+                return;
+            }
+            if (!PHONE_PATTERN.matcher(newVal.trim()).matches()) {
                 lblTelError.setText("8 chiffres requis");
                 lblTelError.setVisible(true);
             } else {
                 lblTelError.setVisible(false);
             }
         });
+
+        System.out.println("Signup initialize terminé.");
     }
 
     @FXML
@@ -128,20 +149,31 @@ public class SignupControllerFX {
             }
 
             service.register(newUser);
+
+            System.out.println("📧 Envoi email de bienvenue à: " + newUser.getEmail());
+            boolean emailSent = EmailService.sendWelcomeEmail(newUser);
+
+            if (emailSent) {
+                System.out.println("✅ Email de bienvenue envoyé");
+            } else {
+                System.out.println("⚠️ Échec envoi email (compte créé quand même)");
+            }
+
             AnimationManager.stopLoadingButton(btnRegister, "S'inscrire");
 
-            lblSuccess.setText("✅ Inscription réussie ! Compte en attente de validation.");
+            lblSuccess.setText("✅ Inscription réussie ! Vérifiez votre email.");
             lblSuccess.setVisible(true);
             btnRegister.setDisable(true);
 
             new Thread(() -> {
                 try {
                     Thread.sleep(3000);
-                    javafx.application.Platform.runLater(this::handleGoToLogin);
+                    Platform.runLater(this::handleGoToLogin);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }).start();
+
         } catch (Exception e) {
             AnimationManager.stopLoadingButton(btnRegister, "S'inscrire");
             AnimationManager.showError(lblError, "Erreur : " + e.getMessage());
@@ -153,17 +185,22 @@ public class SignupControllerFX {
 
         if (txtNom.getText().trim().isEmpty()) errors.append("• Le nom est obligatoire\n");
         if (txtPrenom.getText().trim().isEmpty()) errors.append("• Le prénom est obligatoire\n");
-        if (txtEmail.getText().trim().isEmpty()) errors.append("• L'email est obligatoire\n");
-        else if (!EMAIL_PATTERN.matcher(txtEmail.getText()).matches())
-            errors.append("• Format email invalide\n");
+
+        if (txtEmail.getText().trim().isEmpty()) {
+            errors.append("• L'email est obligatoire\n");
+        } else if (!EMAIL_PATTERN.matcher(txtEmail.getText().trim()).matches()) {
+            errors.append("• Format email invalide (ex: user@example.com)\n");
+        }
+
         if (txtPassword.getText().isEmpty()) errors.append("• Le mot de passe est obligatoire\n");
         else if (txtPassword.getText().length() < 6) errors.append("• Minimum 6 caractères\n");
+
         if (!txtPassword.getText().equals(txtPasswordConfirm.getText()))
             errors.append("• Les mots de passe ne correspondent pas\n");
 
         if (rbAgriculteur.isSelected()) {
             if (txtTelephone.getText().trim().isEmpty()) errors.append("• Le téléphone est obligatoire\n");
-            else if (!PHONE_PATTERN.matcher(txtTelephone.getText()).matches())
+            else if (!PHONE_PATTERN.matcher(txtTelephone.getText().trim()).matches())
                 errors.append("• Téléphone : 8 chiffres\n");
             if (txtAdresse.getText().trim().isEmpty()) errors.append("• L'adresse est obligatoire\n");
         } else if (rbResponsable.isSelected()) {
