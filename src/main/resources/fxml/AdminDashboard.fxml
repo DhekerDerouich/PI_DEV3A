@@ -5,318 +5,195 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.chart.*?>
 
-<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javxml.com/fxml/1"
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.farmvision.gestionuser.controller.AdminDashboardController"
-            style="-fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);">
+            stylesheets="@../css/dashboard-ai.css">
 
     <!-- HEADER -->
     <top>
-        <VBox style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
-            <padding>
-                <Insets top="20" right="30" bottom="20" left="30"/>
-            </padding>
+        <VBox styleClass="header-container">
+            <padding><Insets top="20" right="30" bottom="20" left="30"/></padding>
 
             <HBox alignment="CENTER_LEFT" spacing="20">
                 <VBox HBox.hgrow="ALWAYS">
-                    <Label fx:id="lblWelcome" text="👋 Bienvenue Administrateur"
-                           style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                    <Label text="Dashboard Statistique avec Intelligence Artificielle"
-                           style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
+                    <Label fx:id="lblWelcome" text="👋 Bienvenue Administrateur" styleClass="header-title"/>
+                    <Label text="Dashboard Statistique " styleClass="header-subtitle"/>
                 </VBox>
 
-                <Button text="🤖 AI"
-                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-size: 13px;
-                               -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;"/>
-
-                <Button text="👤 Profil" onAction="#ouvrirProfil"
-                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 13px;
-                               -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
-
-                <Button text="🔓 Déconnexion" onAction="#logout"
-                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 13px;
-                               -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                <Button text="🤖 AI" styleClass="btn-ai"/>
+                <Button text="👤 Profil" onAction="#ouvrirProfil" styleClass="btn-profile"/>
+                <Button text="🔓 Déconnexion" onAction="#logout" styleClass="btn-logout"/>
             </HBox>
         </VBox>
     </top>
 
     <!-- CONTENU PRINCIPAL -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <ScrollPane fitToWidth="true">
             <VBox spacing="25">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
+                <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
 
-                <!-- CARTES STATISTIQUES -->
+                <!-- CARTES STATISTIQUES KPI -->
                 <GridPane hgap="20" vgap="20">
-                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="10" alignment="CENTER"
-                          style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);
-                                 -fx-background-radius: 15; -fx-padding: 25;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);">
-                        <Label text="👥" style="-fx-font-size: 40px;"/>
-                        <Label fx:id="lblTotalUsers" text="0"
-                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <Label text="Total Utilisateurs"
-                               style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.9;"/>
+                    <VBox GridPane.columnIndex="0" spacing="10" alignment="CENTER" styleClass="kpi-card-purple">
+                        <Label text="👥" styleClass="kpi-icon"/>
+                        <Label fx:id="lblTotalUsers" text="0" styleClass="kpi-value"/>
+                        <Label text="Total Utilisateurs" styleClass="kpi-label"/>
                     </VBox>
 
-                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="10" alignment="CENTER"
-                          style="-fx-background-color: linear-gradient(to bottom right, #56ab2f, #a8e063);
-                                 -fx-background-radius: 15; -fx-padding: 25;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);">
-                        <Label text="✅" style="-fx-font-size: 40px;"/>
-                        <Label fx:id="lblActiveUsers" text="0"
-                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <Label text="Utilisateurs Actifs"
-                               style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.9;"/>
+                    <VBox GridPane.columnIndex="1" spacing="10" alignment="CENTER" styleClass="kpi-card-green">
+                        <Label text="✅" styleClass="kpi-icon"/>
+                        <Label fx:id="lblActiveUsers" text="0" styleClass="kpi-value"/>
+                        <Label text="Utilisateurs Actifs" styleClass="kpi-label"/>
                     </VBox>
 
-                    <VBox GridPane.columnIndex="2" GridPane.rowIndex="0" spacing="10" alignment="CENTER"
-                          style="-fx-background-color: linear-gradient(to bottom right, #f093fb, #f5576c);
-                                 -fx-background-radius: 15; -fx-padding: 25;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);">
-                        <Label text="⏳" style="-fx-font-size: 40px;"/>
-                        <Label fx:id="lblPendingUsers" text="0"
-                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <Label text="En Attente"
-                               style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.9;"/>
+                    <VBox GridPane.columnIndex="2" spacing="10" alignment="CENTER" styleClass="kpi-card-pink">
+                        <Label text="⏳" styleClass="kpi-icon"/>
+                        <Label fx:id="lblPendingUsers" text="0" styleClass="kpi-value"/>
+                        <Label text="En Attente" styleClass="kpi-label"/>
                     </VBox>
 
-                    <VBox GridPane.columnIndex="3" GridPane.rowIndex="0" spacing="10" alignment="CENTER"
-                          style="-fx-background-color: linear-gradient(to bottom right, #4facfe, #00f2fe);
-                                 -fx-background-radius: 15; -fx-padding: 25;
-                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);">
-                        <Label text="🆕" style="-fx-font-size: 40px;"/>
-                        <Label fx:id="lblNewUsers" text="0"
-                               style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <Label text="Nouveaux (7j)"
-                               style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.9;"/>
+                    <VBox GridPane.columnIndex="3" spacing="10" alignment="CENTER" styleClass="kpi-card-blue">
+                        <Label text="🆕" styleClass="kpi-icon"/>
+                        <Label fx:id="lblNewUsers" text="0" styleClass="kpi-value"/>
+                        <Label text="Nouveaux (7j)" styleClass="kpi-label"/>
                     </VBox>
                 </GridPane>
 
-                <!-- ========== SECTION AI - PRÉDICTIONS ========== -->
-                <VBox spacing="15"
-                      style="-fx-background-color: linear-gradient(to bottom right, #8E2DE2, #4A00E0);
-                             -fx-background-radius: 15; -fx-padding: 25;
-                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 8);">
-
+                <!-- SECTION IA - PRÉDICTIONS -->
+                <VBox spacing="15" styleClass="ai-section">
                     <HBox alignment="CENTER_LEFT" spacing="15">
                         <Label text="🤖" style="-fx-font-size: 32px;"/>
-                        <Label text="Intelligence Artificielle - Prédictions"
-                               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                        <Label text="Intelligence Artificielle - Prédictions" styleClass="ai-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="POWERED BY AI" styleClass="ai-badge"/>
                     </HBox>
 
                     <GridPane hgap="20" vgap="15">
-                        <!-- Prédiction 7 jours -->
-                        <VBox GridPane.columnIndex="0" spacing="8"
-                              style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 12;
-                                     -fx-padding: 20;">
-                            <Label text="📅 Dans 7 jours"
-                                   style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.8;"/>
-                            <Label fx:id="lblPredict7Days" text="+0"
-                                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                            <Label text="nouveaux utilisateurs"
-                                   style="-fx-font-size: 12px; -fx-text-fill: white; -fx-opacity: 0.7;"/>
+                        <VBox GridPane.columnIndex="0" spacing="8" styleClass="ai-prediction-box">
+                            <Label text="📅 Dans 7 jours" styleClass="ai-prediction-label"/>
+                            <Label fx:id="lblPredict7Days" text="+0" styleClass="ai-prediction-value"/>
+                            <Label text="nouveaux utilisateurs" styleClass="ai-prediction-desc"/>
                         </VBox>
 
-                        <!-- Prédiction 30 jours -->
-                        <VBox GridPane.columnIndex="1" spacing="8"
-                              style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 12;
-                                     -fx-padding: 20;">
-                            <Label text="📈 Dans 30 jours"
-                                   style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.8;"/>
-                            <Label fx:id="lblPredict30Days" text="+0"
-                                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                            <Label text="nouveaux utilisateurs"
-                                   style="-fx-font-size: 12px; -fx-text-fill: white; -fx-opacity: 0.7;"/>
+                        <VBox GridPane.columnIndex="1" spacing="8" styleClass="ai-prediction-box">
+                            <Label text="📈 Dans 30 jours" styleClass="ai-prediction-label"/>
+                            <Label fx:id="lblPredict30Days" text="+0" styleClass="ai-prediction-value"/>
+                            <Label text="nouveaux utilisateurs" styleClass="ai-prediction-desc"/>
                         </VBox>
 
-                        <!-- Confiance AI -->
-                        <VBox GridPane.columnIndex="2" spacing="8" alignment="CENTER"
-                              style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 12;
-                                     -fx-padding: 20;">
-                            <Label text="🎯 Confiance"
-                                   style="-fx-font-size: 14px; -fx-text-fill: white; -fx-opacity: 0.8;"/>
-                            <Label fx:id="lblAIConfidence" text="0%"
-                                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                            <Label text="niveau de précision"
-                                   style="-fx-font-size: 12px; -fx-text-fill: white; -fx-opacity: 0.7;"/>
+                        <VBox GridPane.columnIndex="2" spacing="8" alignment="CENTER" styleClass="ai-prediction-box">
+                            <Label text="🎯 Confiance" styleClass="ai-prediction-label"/>
+                            <Label fx:id="lblAIConfidence" text="0%" styleClass="ai-prediction-value"/>
+                            <Label text="niveau de précision" styleClass="ai-prediction-desc"/>
                         </VBox>
                     </GridPane>
 
-                    <Label fx:id="lblGrowthTrend" text="📊 Tendance: Croissance stable"
-                           style="-fx-font-size: 13px; -fx-text-fill: white; -fx-opacity: 0.9;"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="ai-trend">
+                        <Label text="📉" style="-fx-font-size: 18px;"/>
+                        <Label fx:id="lblGrowthTrend" text="Tendance: Croissance stable" styleClass="ai-trend-text"/>
+                    </HBox>
                 </VBox>
 
-                <!-- ========== SECTION AI - ANOMALIES & RECOMMANDATIONS ========== -->
+                <!-- ANOMALIES & RECOMMANDATIONS -->
                 <GridPane hgap="20">
-                    <!-- Anomalies Détectées -->
-                    <VBox GridPane.columnIndex="0" spacing="15"
-                          style="-fx-background-color: white; -fx-background-radius: 15;
-                                 -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+                    <VBox GridPane.columnIndex="0" spacing="15" styleClass="white-card">
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label text="🔍" style="-fx-font-size: 24px;"/>
-                            <Label text="Anomalies Détectées"
-                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Label text="🔍" styleClass="card-icon"/>
+                            <Label text="Anomalies Détectées" styleClass="card-title"/>
                         </HBox>
-
-                        <ListView fx:id="listAnomalies"
-                                  prefHeight="200"
-                                  style="-fx-background-color: transparent;"/>
+                        <Separator/>
+                        <ListView fx:id="listAnomalies" prefHeight="200"/>
                     </VBox>
 
-                    <!-- Recommandations AI -->
-                    <VBox GridPane.columnIndex="1" spacing="15"
-                          style="-fx-background-color: white; -fx-background-radius: 15;
-                                 -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+                    <VBox GridPane.columnIndex="1" spacing="15" styleClass="white-card">
                         <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label text="💡" style="-fx-font-size: 24px;"/>
-                            <Label text="Recommandations IA"
-                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Label text="💡" styleClass="card-icon"/>
+                            <Label text="Recommandations IA" styleClass="card-title"/>
                         </HBox>
-
-                        <ListView fx:id="listRecommendations"
-                                  prefHeight="200"
-                                  style="-fx-background-color: transparent;"/>
+                        <Separator/>
+                        <ListView fx:id="listRecommendations" prefHeight="200"/>
                     </VBox>
                 </GridPane>
 
-                <!-- ========== INSIGHTS INTELLIGENTS ========== -->
-                <VBox spacing="15"
-                      style="-fx-background-color: white; -fx-background-radius: 15;
-                             -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+                <!-- INSIGHTS INTELLIGENTS -->
+                <VBox spacing="15" styleClass="white-card">
                     <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="✨" style="-fx-font-size: 24px;"/>
-                        <Label text="Insights Intelligents"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                        <Label text="✨" styleClass="card-icon"/>
+                        <Label text="Insights Intelligents" styleClass="card-title"/>
                     </HBox>
-
+                    <Separator/>
                     <HBox fx:id="boxInsights" spacing="20"/>
                 </VBox>
 
                 <!-- GRAPHIQUES -->
                 <GridPane hgap="20" vgap="20">
-                    <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" spacing="15"
-                          style="-fx-background-color: white; -fx-background-radius: 15;
-                                 -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
-                        <Label text="📊 Distribution des Utilisateurs"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-
-                        <PieChart fx:id="pieChartDistribution"
-                                  legendVisible="true"
-                                  prefHeight="300"
-                                  style="-fx-background-color: transparent;"/>
-
+                    <VBox GridPane.columnIndex="0" spacing="15" styleClass="white-card">
+                        <Label text="📊 Distribution des Utilisateurs" styleClass="card-title"/>
+                        <PieChart fx:id="pieChartDistribution" legendVisible="true" prefHeight="300"/>
                         <VBox spacing="8">
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="🌾" style="-fx-font-size: 18px;"/>
                                 <Label text="Agriculteurs:" style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;"/>
-                                <Label fx:id="lblAgriculteurs" text="0"
-                                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                                <Label fx:id="lblAgriculteurs" text="0" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="👔" style="-fx-font-size: 18px;"/>
                                 <Label text="Responsables:" style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;"/>
-                                <Label fx:id="lblResponsables" text="0"
-                                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
+                                <Label fx:id="lblResponsables" text="0" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #3498db;"/>
                             </HBox>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="⚙️" style="-fx-font-size: 18px;"/>
                                 <Label text="Administrateurs:" style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;"/>
-                                <Label fx:id="lblAdmins" text="0"
-                                       style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                                <Label fx:id="lblAdmins" text="0" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
                             </HBox>
                         </VBox>
                     </VBox>
 
-                    <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="15"
-                          style="-fx-background-color: white; -fx-background-radius: 15;
-                                 -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
-                        <Label text="📈 Évolution des Inscriptions (30j)"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-
-                        <LineChart fx:id="lineChartTrend"
-                                   prefHeight="300"
-                                   legendVisible="false"
-                                   style="-fx-background-color: transparent;">
-                            <xAxis>
-                                <CategoryAxis side="BOTTOM" label="Date"/>
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis side="LEFT" label="Inscriptions"/>
-                            </yAxis>
+                    <VBox GridPane.columnIndex="1" spacing="15" styleClass="white-card">
+                        <Label text="📈 Évolution des Inscriptions (30j)" styleClass="card-title"/>
+                        <LineChart fx:id="lineChartTrend" prefHeight="300" legendVisible="false">
+                            <xAxis><CategoryAxis side="BOTTOM" label="Date"/></xAxis>
+                            <yAxis><NumberAxis side="LEFT" label="Inscriptions"/></yAxis>
                         </LineChart>
-
-                        <HBox spacing="10" alignment="CENTER"
-                              style="-fx-background-color: #ecf0f1; -fx-padding: 15; -fx-background-radius: 10;">
-                            <Label text="📊 Taux d'activation:"
-                                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                            <Label fx:id="lblActivationRate" text="0%"
-                                   style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
+                        <HBox spacing="10" alignment="CENTER" styleClass="activation-box">
+                            <Label text="📊 Taux d'activation:" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                            <Label fx:id="lblActivationRate" text="0%" styleClass="activation-rate-high"/>
                         </HBox>
                     </VBox>
                 </GridPane>
 
                 <!-- ACTIONS RAPIDES -->
-                <VBox spacing="15"
-                      style="-fx-background-color: white; -fx-background-radius: 15;
-                             -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
-                    <Label text="⚡ Actions Rapides"
-                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-
+                <VBox spacing="15" styleClass="white-card">
+                    <Label text="⚡ Actions Rapides" styleClass="card-title"/>
+                    <Separator/>
                     <HBox spacing="15">
                         <Button text="👥 Gérer les Utilisateurs" onAction="#ouvrirGestionUsers"
-                                prefWidth="230"
-                                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px;
-                                       -fx-padding: 15 25; -fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;"/>
-
+                                prefWidth="230" styleClass="btn-action-primary"/>
                         <Button text="✅ Valider les Comptes" onAction="#validerComptes"
-                                prefWidth="230"
-                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px;
-                                       -fx-padding: 15 25; -fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;"/>
-
+                                prefWidth="230" styleClass="btn-action-success"/>
                         <Button text="🔄 Actualiser" onAction="#refreshStats"
-                                prefWidth="180"
-                                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 14px;
-                                       -fx-padding: 15 25; -fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                                prefWidth="180" styleClass="btn-action-secondary"/>
                     </HBox>
                 </VBox>
 
-                <!-- COMPTES RÉCENTS / EN ATTENTE -->
+                <!-- LISTES (Récents + En attente) -->
                 <GridPane hgap="20">
-                    <VBox GridPane.columnIndex="0" spacing="15"
-                          style="-fx-background-color: white; -fx-background-radius: 15;
-                                 -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
-                        <Label text="🆕 Dernières Inscriptions"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-
-                        <ListView fx:id="listRecentUsers"
-                                  prefHeight="200"
-                                  style="-fx-background-color: transparent;"/>
+                    <VBox GridPane.columnIndex="0" spacing="15" styleClass="white-card">
+                        <Label text="🆕 Dernières Inscriptions" styleClass="card-title"/>
+                        <Separator/>
+                        <ListView fx:id="listRecentUsers" prefHeight="200"/>
                     </VBox>
 
-                    <VBox GridPane.columnIndex="1" spacing="15"
-                          style="-fx-background-color: white; -fx-background-radius: 15;
-                                 -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
-                        <Label text="⏳ Comptes en Attente de Validation"
-                               style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-
-                        <ListView fx:id="listPendingUsers"
-                                  prefHeight="200"
-                                  style="-fx-background-color: transparent;"/>
+                    <VBox GridPane.columnIndex="1" spacing="15" styleClass="white-card">
+                        <Label text="⏳ Comptes en Attente de Validation" styleClass="card-title"/>
+                        <Separator/>
+                        <ListView fx:id="listPendingUsers" prefHeight="200"/>
                     </VBox>
                 </GridPane>
 
             </VBox>
         </ScrollPane>
     </center>
-
-    <!-- FOOTER -->
-    <bottom>
-        <HBox alignment="CENTER" style="-fx-background-color: white; -fx-padding: 15;">
-            <Label text="© 2026 FarmVision - Dashboard Administrateur avec Intelligence Artificielle"
-                   style="-fx-text-fill: #95a5a6; -fx-font-size: 12px;"/>
-        </HBox>
-    </bottom>
 
 </BorderPane>

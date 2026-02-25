@@ -236,4 +236,45 @@ public class UtilisateurDAO {
 
         return u;
     }
+    // ✅ NOUVELLE MÉTHODE: Mise à jour sans changer le mot de passe
+    public void updateWithoutPassword(Utilisateur user) {
+        String sql = "UPDATE utilisateur SET nom=?, prenom=?, email=?, type_role=?, " +
+                "matricule=?, telephone=?, adresse=?, remarques=? WHERE id=?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, user.getNom());
+            pstmt.setString(2, user.getPrenom());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, getTypeRole(user));
+
+            // Gérer les champs spécifiques selon le rôle
+            if (user instanceof Administrateur a) {
+                pstmt.setString(5, a.getMatricule());
+                pstmt.setString(6, null);
+                pstmt.setString(7, null);
+            } else if (user instanceof Agriculteur a) {
+                pstmt.setString(5, null);
+                pstmt.setString(6, a.getTelephone());
+                pstmt.setString(7, a.getAdresse());
+            } else if (user instanceof ResponsableExploitation r) {
+                pstmt.setString(5, r.getMatricule());
+                pstmt.setString(6, null);
+                pstmt.setString(7, null);
+            } else {
+                pstmt.setString(5, null);
+                pstmt.setString(6, null);
+                pstmt.setString(7, null);
+            }
+
+            pstmt.setString(8, user.getRemarques());
+            pstmt.setInt(9, user.getId());
+
+            int rows = pstmt.executeUpdate();
+            System.out.println("✅ Update sans mot de passe réussi: " + rows + " ligne(s) modifiée(s)");
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur updateWithoutPassword: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

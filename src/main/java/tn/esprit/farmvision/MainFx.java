@@ -1,56 +1,98 @@
-package tn.esprit.farmvision;  // ← ton package racine correct
+package tn.esprit.farmvision;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import tn.esprit.farmvision.gestionuser.model.Administrateur;
+import tn.esprit.farmvision.gestionuser.model.Utilisateur;
+
 import java.io.IOException;
 
+/**
+ * 🚀 Application principale FarmVision
+ * ✅ NOUVELLE FONCTIONNALITÉ : Reconnexion automatique
+ * Si une session existe, l'utilisateur est redirigé vers son dashboard
+ */
 public class MainFx extends Application {
 
     @Override
     public void start(Stage primaryStage) {
         try {
-            // Charge ton FXML principal (exemple : Login.fxml)
-            // Change le nom du FXML ici si tu as créé un autre (ex. MainDashboard.fxml)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
+            System.out.println("🌾 Démarrage FarmVision...");
 
-            // Vérification rapide si le FXML existe vraiment
-            if (loader.getLocation() == null) {
-                throw new IOException("FXML non trouvé : /fxml/Login.fxml\n" +
-                        "Vérifiez que le fichier est dans src/main/resources/fxml/Login.fxml");
+            // ✅ VÉRIFIER SI UNE SESSION EXISTE
+            SessionManager sessionManager = SessionManager.getInstance();
+            boolean sessionRestored = sessionManager.restoreSessionFromFile();
+
+            Parent root;
+            String title;
+
+            if (sessionRestored) {
+                // ✅ SESSION TROUVÉE - Redirection directe vers le dashboard
+                Utilisateur user = sessionManager.getCurrentUser();
+                System.out.println("✅ Reconnexion automatique : " + user.getNomComplet());
+
+                if (user instanceof Administrateur) {
+                    root = FXMLLoader.load(getClass().getResource("/fxml/AdminDashboard.fxml"));
+                    title = "FarmVision - Dashboard Administrateur";
+                } else {
+                    root = FXMLLoader.load(getClass().getResource("/fxml/UserDashboard.fxml"));
+                    title = "FarmVision - Dashboard Utilisateur";
+                }
+
+            } else {
+                // ❌ PAS DE SESSION - Afficher le login
+                System.out.println("ℹ️ Aucune session - Affichage du login");
+                root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+                title = "FarmVision - Connexion";
             }
 
-            Scene scene = new Scene(loader.load(), 900, 650); // taille confortable pour login + dashboard
+            // Créer la scène
+            Scene scene = new Scene(root, 1000, 700);
 
-            // Fond beige clair global (comme dans ton projet gestion_feedback)
-            scene.getRoot().setStyle("-fx-background-color: #f5f1ee;");
-
-            primaryStage.setTitle("FarmVision - Authentification");
+            // Configuration de la fenêtre
+            primaryStage.setTitle(title);
             primaryStage.setScene(scene);
-            primaryStage.setResizable(true); // permet de redimensionner
-            primaryStage.centerOnScreen(); // centre la fenêtre
+            primaryStage.setResizable(true);
+            primaryStage.centerOnScreen();
+
+            // Maximiser si c'était un dashboard
+            if (sessionRestored) {
+                primaryStage.setMaximized(true);
+            }
+
             primaryStage.show();
 
-            System.out.println("FarmVision lancée avec succès ! FXML chargé : Login.fxml");
+            System.out.println("✅ FarmVision lancée avec succès !");
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Alerte graphique si erreur (très utile pour le prof)
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erreur de lancement");
-            alert.setHeaderText("Impossible de charger l'interface");
-            alert.setContentText("Détails : " + e.getMessage() + "\n\n" +
-                    "Vérifiez :\n" +
-                    "1. Le fichier FXML existe dans src/main/resources/fxml/\n" +
-                    "2. Le chemin dans getResource est correct\n" +
-                    "3. pom.xml a bien javafx-fxml et javafx-controls");
-            alert.showAndWait();
+            showErrorAlert("Erreur de lancement",
+                    "Impossible de charger l'interface",
+                    e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Erreur inattendue : " + e.getMessage());
+            showErrorAlert("Erreur inattendue",
+                    "Une erreur s'est produite",
+                    e.getMessage());
         }
+    }
+
+    /**
+     * Affiche une alerte d'erreur
+     */
+    private void showErrorAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content + "\n\nVérifiez :\n" +
+                "1. Les fichiers FXML dans src/main/resources/fxml/\n" +
+                "2. Les chemins dans getResource()\n" +
+                "3. Les dépendances JavaFX dans pom.xml");
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {

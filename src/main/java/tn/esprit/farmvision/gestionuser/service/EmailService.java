@@ -223,4 +223,23 @@ public class EmailService {
             System.out.println("✅ Configuration complète et prête à l'emploi!\n");
         }
     }
+    /**
+     * 📧 Envoyer un code de réinitialisation de mot de passe
+     */
+    public static boolean sendPasswordResetCode(Utilisateur user, String code) {
+        String subject = "🔐 Réinitialisation de votre mot de passe FarmVision";
+        String message = String.format(
+                "Bonjour %s,\n\n" +
+                        "Vous avez demandé la réinitialisation de votre mot de passe.\n\n" +
+                        "🔑 Votre code de vérification : %s\n\n" +
+                        "Ce code expire dans 5 minutes.\n\n" +
+                        "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\n" +
+                        "Cordialement,\n" +
+                        "L'équipe FarmVision",
+                user.getNomComplet(),
+                code
+        );
+
+        return sendEmail(user.getEmail(), subject, message);
+    }
 }
