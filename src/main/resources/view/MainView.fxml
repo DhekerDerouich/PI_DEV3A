@@ -13,9 +13,9 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
-
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+
 <BorderPane prefHeight="750.0" prefWidth="1200.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Finance.Controller.FinanceController">
 
     <!-- Left Sidebar - Dark Green -->
@@ -31,14 +31,12 @@
                     <Insets bottom="30.0" left="10.0" right="10.0" />
                 </VBox.margin>
 
-                <!-- Larger Logo -->
                 <ImageView fitHeight="60.0" fitWidth="60.0" preserveRatio="true">
                     <image>
                         <Image url="/images/logo.png" />
                     </image>
                 </ImageView>
 
-                <!-- Stacked Text -->
                 <VBox alignment="CENTER" spacing="-5">
                     <Label text="Farm" style="-fx-text-fill: #4ade80; -fx-font-size: 24px; -fx-font-weight: bold;" />
                     <Label text="Vision" style="-fx-text-fill: #000080; -fx-font-size: 24px; -fx-font-weight: bold;" />
@@ -47,35 +45,28 @@
 
             <!-- Menu Items -->
             <Button fx:id="btnDashboard" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showDashboard" style="-fx-background-color: transparent; -fx-text-fill: #a8c5b5; -fx-background-radius: 8; -fx-padding: 14 20; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="🏠  Dashboard">
-                <font>
-                    <Font size="14.0" />
-                </font>
+                <font><Font size="14.0" /></font>
             </Button>
 
             <Button fx:id="btnListDepense" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#loadDepenses" style="-fx-background-color: #2d6a4f; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 14 20; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="💰  Dépenses">
-                <font>
-                    <Font name="System Bold" size="14.0" />
-                </font>
+                <font><Font name="System Bold" size="14.0" /></font>
             </Button>
 
             <Button fx:id="btnListRevenu" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#loadRevenus" style="-fx-background-color: transparent; -fx-text-fill: #a8c5b5; -fx-background-radius: 8; -fx-padding: 14 20; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="📈  Revenus">
-                <font>
-                    <Font size="14.0" />
-                </font>
+                <font><Font size="14.0" /></font>
             </Button>
 
-            <Button fx:id="btnRapport" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#generateRapport" style="-fx-background-color: transparent; -fx-text-fill: #a8c5b5; -fx-background-radius: 8; -fx-padding: 14 20; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="📊  Statistiques">
-                <font>
-                    <Font size="14.0" />
-                </font>
+
+
+            <!-- New KPI button -->
+            <Button fx:id="btnKPI" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showKPI" style="-fx-background-color: transparent; -fx-text-fill: #a8c5b5; -fx-background-radius: 8; -fx-padding: 14 20; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="📈  Statistiques">
+                <font><Font size="14.0" /></font>
             </Button>
 
             <VBox VBox.vgrow="ALWAYS" />
 
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #a8c5b5; -fx-background-radius: 8; -fx-padding: 14 20; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;" text="⚙️  Paramètres">
-                <font>
-                    <Font size="14.0" />
-                </font>
+                <font><Font size="14.0" /></font>
             </Button>
         </VBox>
     </left>
@@ -90,21 +81,12 @@
             <!-- Header -->
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                 <Label fx:id="lblTitle" text="Tableau de Bord Financier" textFill="#1e293b">
-                    <font>
-                        <Font name="System Bold" size="28.0" />
-                    </font>
+                    <font><Font name="System Bold" size="28.0" /></font>
                 </Label>
-
                 <HBox HBox.hgrow="ALWAYS" />
-
-                <!-- Search -->
                 <TextField promptText="🔍 Recherche" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-border-color: #e2e8f0; -fx-border-radius: 20;">
-                    <font>
-                        <Font size="13.0" />
-                    </font>
+                    <font><Font size="13.0" /></font>
                 </TextField>
-
-                <!-- User Avatar -->
                 <Circle fill="#1a4d2e" radius="18.0" />
             </HBox>
 
@@ -114,108 +96,93 @@
                 <VBox prefWidth="220.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <Label text="💰" style="-fx-font-size: 20px;" />
-                        <Label text="Total Revenus" textFill="#64748b">
-                            <font>
-                                <Font size="13.0" />
-                            </font>
-                        </Label>
+                        <Label text="Total Revenus" textFill="#64748b"><font><Font size="13.0" /></font></Label>
                     </HBox>
-                    <Label fx:id="lblTotalRevenu" text="€0.00" textFill="#1a4d2e">
-                        <font>
-                            <Font name="System Bold" size="24.0" />
-                        </font>
-                    </Label>
-                    <Label text="+12% ce mois" textFill="#10b981">
-                        <font>
-                            <Font size="12.0" />
-                        </font>
-                    </Label>
+                    <Label fx:id="lblTotalRevenu" text="€0.00" textFill="#1a4d2e"><font><Font name="System Bold" size="24.0" /></font></Label>
+                    <Label text="+12% ce mois" textFill="#10b981"><font><Font size="12.0" /></font></Label>
                 </VBox>
 
                 <!-- Total Dépenses -->
                 <VBox prefWidth="220.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <Label text="📉" style="-fx-font-size: 20px;" />
-                        <Label text="Total Dépenses" textFill="#64748b">
-                            <font>
-                                <Font size="13.0" />
-                            </font>
-                        </Label>
+                        <Label text="Total Dépenses" textFill="#64748b"><font><Font size="13.0" /></font></Label>
                     </HBox>
-                    <Label fx:id="lblTotalDepense" text="€0.00" textFill="#dc2626">
-                        <font>
-                            <Font name="System Bold" size="24.0" />
-                        </font>
-                    </Label>
-                    <Label text="+5% ce mois" textFill="#ef4444">
-                        <font>
-                            <Font size="12.0" />
-                        </font>
-                    </Label>
+                    <Label fx:id="lblTotalDepense" text="€0.00" textFill="#dc2626"><font><Font name="System Bold" size="24.0" /></font></Label>
+                    <Label text="+5% ce mois" textFill="#ef4444"><font><Font size="12.0" /></font></Label>
                 </VBox>
 
                 <!-- Profit -->
                 <VBox prefWidth="220.0" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <Label text="📊" style="-fx-font-size: 20px;" />
-                        <Label text="Profit" textFill="#64748b">
-                            <font>
-                                <Font size="13.0" />
-                            </font>
-                        </Label>
+                        <Label text="Profit" textFill="#64748b"><font><Font size="13.0" /></font></Label>
                     </HBox>
-                    <Label fx:id="lblProfit" text="€0.00" textFill="#1a4d2e">
-                        <font>
-                            <Font name="System Bold" size="24.0" />
-                        </font>
-                    </Label>
-                    <Label text="+15% ce mois" textFill="#10b981">
-                        <font>
-                            <Font size="12.0" />
-                        </font>
-                    </Label>
+                    <Label fx:id="lblProfit" text="€0.00" textFill="#1a4d2e"><font><Font name="System Bold" size="24.0" /></font></Label>
+                    <Label text="+15% ce mois" textFill="#10b981"><font><Font size="12.0" /></font></Label>
                 </VBox>
             </HBox>
 
-            <!-- Table Section -->
-            <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+            <!-- Taux de change -->
+            <HBox spacing="15" alignment="CENTER"
+                  style="-fx-background-color: linear-gradient(to bottom right, #667eea 0%, #764ba2 100%);
+             -fx-background-radius: 15;
+             -fx-padding: 20 30;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 3);">
+
+                <!-- Icon -->
+                <VBox alignment="CENTER" spacing="5">
+                    <Label text="💱" style="-fx-font-size: 32px;" />
+                    <Label text="Live" style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 10px; -fx-font-weight: bold;" />
+                </VBox>
+
+                <!-- Divider -->
+                <VBox prefWidth="2" prefHeight="60" style="-fx-background-color: rgba(255,255,255,0.3); -fx-background-radius: 2;" />
+
+                <!-- Exchange Rates -->
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Taux de Change" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                    <Label fx:id="lblRates" text="Chargement..." style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 14px; -fx-font-weight: 500;" />
+                </VBox>
+
+                <!-- Update indicator -->
+                <VBox alignment="CENTER" spacing="3">
+                    <Label text="●" style="-fx-text-fill: #10b981; -fx-font-size: 16px;" />
+                    <Label text="Actif" style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 10px;" />
+                </VBox>
+            </HBox>
+
+            <!-- Table Section (visible par défaut) -->
+            <VBox fx:id="tableSection" spacing="15.0" VBox.vgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <Label fx:id="lblTableTitle" text="Dernières Dépenses" textFill="#1e293b">
-                        <font>
-                            <Font name="System Bold" size="18.0" />
-                        </font>
+                        <font><Font name="System Bold" size="18.0" /></font>
                     </Label>
-
                     <HBox HBox.hgrow="ALWAYS" />
-
                     <Button fx:id="btnAddDepense" mnemonicParsing="false" onAction="#openAddDepenseWindow" style="-fx-background-color: #1a4d2e; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;" text="+ Nouvelle Dépense">
-                        <font>
-                            <Font name="System Bold" size="13.0" />
-                        </font>
+                        <font><Font name="System Bold" size="13.0" /></font>
                     </Button>
-
+                    <Button fx:id="btnOCRScan" text="📷 Scanner Reçu" onAction="#testOCR" style="-fx-background-color:#2563eb; -fx-text-fill:white;" />
                     <Button fx:id="btnAddRevenu" mnemonicParsing="false" onAction="#openAddRevenuWindow" style="-fx-background-color: #1a4d2e; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;" text="+ Nouveau Revenu">
-                        <font>
-                            <Font name="System Bold" size="13.0" />
-                        </font>
+                        <font><Font name="System Bold" size="13.0" /></font>
                     </Button>
                 </HBox>
 
                 <!-- Table -->
                 <TableView fx:id="tableView" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                    </columnResizePolicy>
+                    <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
                 </TableView>
+            </VBox>
+
+            <!-- KPI Section (cachée par défaut) -->
+            <VBox fx:id="kpiSection" spacing="15.0" VBox.vgrow="ALWAYS" visible="false" managed="false">
+                <!-- Le contenu sera chargé dynamiquement depuis KPIView.fxml -->
             </VBox>
 
             <!-- Status Bar -->
             <Label fx:id="lblStatus" text="Prêt" textFill="#64748b">
-                <font>
-                    <Font size="12.0" />
-                </font>
+                <font><Font size="12.0" /></font>
             </Label>
         </VBox>
     </center>
-
 </BorderPane>

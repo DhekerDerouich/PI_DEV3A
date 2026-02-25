@@ -17,18 +17,40 @@ public class RevenuController {
 
     @FXML private TextField txtMontant;
     @FXML private TextField txtSource;
-    @FXML private TextArea txtDescription;  // Changed from TextField to TextArea
+    @FXML private TextArea txtDescription;
     @FXML private DatePicker datePicker;
 
     private revenuService revenuService = new revenuService();
-    private Revenu revenuToEdit = null; // For edit mode
+    private Revenu revenuToEdit = null;
 
     @FXML
     private void initialize() {
         datePicker.setValue(LocalDate.now());
+
+        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+
+                setDisable(empty || date.isAfter(LocalDate.now()));
+            }
+        });
+
+        // (lettres uniquement)
+        txtSource.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("[a-zA-ZÀ-ÿ\\s]*")) {  // Accepte lettres avec accents
+                txtSource.setText(oldValue);
+            }
+        });
+
+        //  (lettres uniquement)
+        txtDescription.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("[a-zA-ZÀ-ÿ\\s]*")) {  // Accepte lettres avec accents
+                txtDescription.setText(oldValue);
+            }
+        });
     }
 
-    // Call this to set data for editing
     public void setRevenu(Revenu revenu) {
         this.revenuToEdit = revenu;
         txtMontant.setText(String.valueOf(revenu.getMontant()));
@@ -40,33 +62,49 @@ public class RevenuController {
     @FXML
     private void handleAjouter() {
         try {
-            // Validate montant
+            // ✅ VALIDATION DU MONTANT
             String montantText = txtMontant.getText().trim();
             if (montantText.isEmpty()) {
                 showError("Le montant est requis");
+                txtMontant.requestFocus();
                 return;
             }
 
             double montant = Double.parseDouble(montantText);
             if (montant <= 0) {
                 showError("Le montant doit être positif");
+                txtMontant.requestFocus();
                 return;
             }
 
-            // Validate source
+            // ✅ VALIDATION DE LA SOURCE
             String source = txtSource.getText().trim();
             if (source.isEmpty()) {
                 showError("La source est requise");
+                txtSource.requestFocus();
                 return;
             }
 
-            // Get description (optional)
-            String description = txtDescription.getText().trim();
+            // ✅ VÉRIFICATION - SOURCE (lettres uniquement)
+            if (!source.matches("[a-zA-ZÀ-ÿ\\s]+")) {
+                showError("La source ne doit contenir que des lettres");
+                txtSource.requestFocus();
+                return;
+            }
 
-            // Validate date
+            // ✅ VALIDATION DE LA DESCRIPTION (optionnelle mais si remplie, doit être valide)
+            String description = txtDescription.getText().trim();
+            if (!description.isEmpty() && !description.matches("[a-zA-ZÀ-ÿ\\s]+")) {
+                showError("La description ne doit contenir que des lettres");
+                txtDescription.requestFocus();
+                return;
+            }
+
+            // ✅ VALIDATION DE LA DATE
             LocalDate localDate = datePicker.getValue();
             if (localDate == null) {
                 showError("La date est requise");
+                datePicker.requestFocus();
                 return;
             }
 
@@ -108,7 +146,7 @@ public class RevenuController {
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
+        alert.setTitle("Erreur de validation");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

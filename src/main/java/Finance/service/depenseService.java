@@ -48,6 +48,9 @@ public class depenseService {
             throw new IllegalArgumentException("La date est requise");
         }
     }
+    public List<Depense> getRecentDepenses(int limit) throws SQLException {
+        return depenseDAO.getRecentDepenses(limit);
+    }
 
 
 

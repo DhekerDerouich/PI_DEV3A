@@ -10,11 +10,11 @@ public class Myconnection {
             + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8";
 
     private static final String USER = "root";
-    private static final String PASSWORD = "";  // change si besoin
+    private static final String PASSWORD = "";
 
     private static Connection connection = null;
 
-    private Myconnection() {}  // privé
+    private Myconnection() {}
 
     public static synchronized Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {

@@ -12,7 +12,7 @@ public class MainAppF extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Updated path to match your folder structure
+
         Parent root = FXMLLoader.load(Objects.requireNonNull(
                 getClass().getResource("/view/MainView.fxml")
         ));

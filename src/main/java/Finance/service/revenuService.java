@@ -50,4 +50,7 @@ public class revenuService {
             throw new IllegalArgumentException("La date est requise");
         }
     }
+    public List<Revenu> getRecentRevenus(int limit) throws SQLException {
+        return revenuDAO.getRecentRevenus(limit);
+    }
 }

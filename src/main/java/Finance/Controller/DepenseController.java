@@ -17,18 +17,40 @@ public class DepenseController {
 
     @FXML private TextField txtMontant;
     @FXML private TextField txtType;
-    @FXML private TextArea txtDescription;  // Changed from TextField to TextArea
+    @FXML private TextArea txtDescription;
     @FXML private DatePicker datePicker;
 
     private depenseService depenseService = new depenseService();
-    private Depense depenseToEdit = null; // For edit mode
+    private Depense depenseToEdit = null;
 
     @FXML
     private void initialize() {
         datePicker.setValue(LocalDate.now());
+
+        datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                // Désactiver les dates futures
+                setDisable(empty || date.isAfter(LocalDate.now()));
+            }
+        });
+
+        //lettres uniquement
+        txtType.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("[a-zA-Z\\s]*")) {
+                txtType.setText(oldValue);
+            }
+        });
+
+        // lettres uniquement
+        txtDescription.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("[a-zA-Z\\s]*")) {
+                txtDescription.setText(oldValue);
+            }
+        });
     }
 
-    // Call this to set data for editing
     public void setDepense(Depense depense) {
         this.depenseToEdit = depense;
         txtMontant.setText(String.valueOf(depense.getMontant()));
@@ -40,7 +62,7 @@ public class DepenseController {
     @FXML
     private void handleAjouter() {
         try {
-            // Validate montant
+            // Validation du montant
             String montantText = txtMontant.getText().trim();
             if (montantText.isEmpty()) {
                 showError("Le montant est requis");
@@ -53,17 +75,33 @@ public class DepenseController {
                 return;
             }
 
-            // Validate type
+            // Validation du type
             String type = txtType.getText().trim();
             if (type.isEmpty()) {
                 showError("Le type de dépense est requis");
                 return;
             }
 
-            // Get description (optional)
-            String description = txtDescription.getText().trim();
+            // Vérifier que le type ne contient que des lettres
+            if (!type.matches("[a-zA-Z\\s]+")) {
+                showError("Le type ne doit contenir que des lettres");
+                return;
+            }
 
-            // Validate date
+            // Validation de la description
+            String description = txtDescription.getText().trim();
+            if (description.isEmpty()) {
+                showError("La description est requise");
+                return;
+            }
+
+            // Vérifier que la description ne contient que des lettres
+            if (!description.matches("[a-zA-Z\\s]+")) {
+                showError("La description ne doit contenir que des lettres");
+                return;
+            }
+
+            // Validation de la date
             LocalDate localDate = datePicker.getValue();
             if (localDate == null) {
                 showError("La date est requise");
@@ -108,7 +146,7 @@ public class DepenseController {
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
+        alert.setTitle("Erreur de validation");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
