@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="550.0" prefWidth="400.0" spacing="20.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Finance.Controller.RevenuController">
+    <padding>
+        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+    </padding>
+
+    <!-- Header -->
+    <Label text="➕ Nouveau Revenu" textFill="#10b981">
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+    </Label>
+
+    <Label text="Ajoutez un nouveau revenu à votre ferme" textFill="#64748b">
+        <font>
+            <Font size="12.0" />
+        </font>
+        <VBox.margin>
+            <Insets bottom="20.0" />
+        </VBox.margin>
+    </Label>
+
+    <!-- Form -->
+    <VBox spacing="15.0">
+        <!-- Montant -->
+        <VBox spacing="5.0">
+            <Label text="Montant (DT)" textFill="#334155">
+                <font>
+                    <Font name="System Bold" size="12.0" />
+                </font>
+            </Label>
+            <TextField fx:id="txtMontant" promptText="Ex: 1500.00" style="-fx-background-color: #f8fafc; -fx-text-fill: #1e293b; -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 8; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </TextField>
+        </VBox>
+
+        <!-- Source -->
+        <VBox spacing="5.0">
+            <Label text="Source" textFill="#334155">
+                <font>
+                    <Font name="System Bold" size="12.0" />
+                </font>
+            </Label>
+            <TextField fx:id="txtSource" promptText="Ex: Vente récolte, Subvention..." style="-fx-background-color: #f8fafc; -fx-text-fill: #1e293b; -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 8; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </TextField>
+        </VBox>
+
+        <!-- Description -->
+        <VBox spacing="5.0">
+            <Label text="Description" textFill="#334155">
+                <font>
+                    <Font name="System Bold" size="12.0" />
+                </font>
+            </Label>
+            <TextArea fx:id="txtDescription" prefRowCount="3" promptText="Décrivez ce revenu..." style="-fx-background-color: #f8fafc; -fx-text-fill: #1e293b; -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 8; -fx-padding: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 8;" wrapText="true">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </TextArea>
+        </VBox>
+
+        <!-- Date -->
+        <VBox spacing="5.0">
+            <Label text="Date" textFill="#334155">
+                <font>
+                    <Font name="System Bold" size="12.0" />
+                </font>
+            </Label>
+            <DatePicker fx:id="datePicker" promptText="Sélectionnez une date" style="-fx-background-color: #f8fafc;" />
+        </VBox>
+    </VBox>
+
+    <!-- Buttons -->
+    <HBox alignment="CENTER" spacing="15.0">
+        <VBox.margin>
+            <Insets top="20.0" />
+        </VBox.margin>
+        <Button mnemonicParsing="false" onAction="#handleAnnuler" prefWidth="120.0" style="-fx-background-color: #f1f5f9; -fx-text-fill: #64748b; -fx-background-radius: 8; -fx-padding: 12; -fx-cursor: hand;" text="Annuler">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font>
+        </Button>
+        <Button mnemonicParsing="false" onAction="#handleAjouter" prefWidth="120.0" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12; -fx-cursor: hand;" text="Ajouter">
+            <font>
+                <Font name="System Bold" size="14.0" />
+            </font>
+            <effect>
+                <DropShadow color="#10b981" radius="5.0" />
+            </effect>
+        </Button>
+    </HBox>
+
+</VBox>

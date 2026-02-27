@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.farmvision.gestionuser.controller.UserDashboardController"
+      alignment="CENTER" spacing="30" style="-fx-background-color: #f8f9fa;">
+
+    <padding>
+        <Insets top="60" right="60" bottom="60" left="60"/>
+    </padding>
+
+    <Label fx:id="lblTitre" text="Bienvenue" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #0d6efd;"/>
+
+    <Label fx:id="lblRole" text="Votre rôle" style="-fx-font-size: 18px; -fx-text-fill: #666666;"/>
+
+    <!-- Boutons principaux -->
+    <VBox spacing="15" alignment="CENTER">
+        <Button text="👤 Mon Profil" fx:id="btnProfile" onAction="#ouvrirProfil"
+                style="-fx-background-color: #0d6efd; -fx-text-fill: white; -fx-padding: 12 40; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+        <Button text="📂 Accéder à mon espace" fx:id="btnEspace" onAction="#ouvrirEspace"
+                style="-fx-background-color: #198754; -fx-text-fill: white; -fx-padding: 12 40; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+
+        <Button text="🔓 Déconnexion" fx:id="btnLogout" onAction="#logout"
+                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 10 30; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <!-- Info supplémentaire -->
+    <Label text="💡 Vous pouvez modifier vos informations dans votre profil"
+           style="-fx-text-fill: #666666; -fx-font-size: 12px; -fx-padding: 20 0 0 0;" wrapText="true" textAlignment="CENTER"/>
+</VBox>

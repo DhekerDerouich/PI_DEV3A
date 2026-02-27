@@ -1,0 +1,51 @@
+/* Chart Styling */
+.chart {
+    -fx-padding: 10px;
+}
+
+.chart-plot-background {
+    -fx-background-color: #fafafa;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: #e5e7eb;
+    -fx-stroke-width: 0.5;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #e5e7eb;
+    -fx-stroke-width: 0.5;
+}
+
+.axis {
+    -fx-tick-label-fill: #475569;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.axis-label {
+    -fx-text-fill: #334155;
+    -fx-font-weight: 600;
+}
+
+/* Bar Chart Animations */
+.chart-bar {
+    -fx-transition: all 0.3s ease;
+}
+
+/* Line Chart */
+.chart-series-line {
+    -fx-stroke-width: 3px;
+}
+
+.chart-line-symbol {
+    -fx-transition: all 0.2s ease;
+}
+
+/* Tooltips */
+.tooltip {
+    -fx-background-color: rgba(30, 30, 30, 0.95);
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 10px;
+    -fx-background-radius: 8px;
+}

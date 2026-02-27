@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.effect.DropShadow?>
+
+<VBox fx:id="rootPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.farmvision.gestionuser.controller.Verify2FAController"
+      alignment="CENTER"
+      spacing="30"
+      style="-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);">
+
+    <padding>
+        <Insets top="50" right="50" bottom="50" left="50"/>
+    </padding>
+
+    <!-- Carte principale -->
+    <VBox alignment="CENTER" spacing="25" maxWidth="500"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 20;
+                 -fx-padding: 50 40;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 30, 0, 0, 10);">
+
+        <!-- Icône et titre -->
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="🔐" style="-fx-font-size: 60px;"/>
+            <Label text="Vérification en deux étapes"
+                   style="-fx-font-size: 24px;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #2c3e50;"/>
+        </VBox>
+
+        <!-- Description -->
+        <Label fx:id="lblEmail" text="📧 Code envoyé à: ex***@gmail.com"
+               style="-fx-font-size: 14px;
+                      -fx-text-fill: #7f8c8d;"/>
+
+        <Label text="Entrez le code à 6 chiffres envoyé par email"
+               wrapText="true"
+               textAlignment="CENTER"
+               style="-fx-font-size: 13px;
+                      -fx-text-fill: #95a5a6;"/>
+
+        <!-- Champs pour le code -->
+        <HBox alignment="CENTER" spacing="10">
+            <TextField fx:id="txtCode1" maxWidth="50" prefHeight="60"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-alignment: center;
+                              -fx-background-radius: 10;
+                              -fx-border-color: #e0e0e0;
+                              -fx-border-width: 2;
+                              -fx-border-radius: 10;"/>
+            <TextField fx:id="txtCode2" maxWidth="50" prefHeight="60"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-alignment: center;
+                              -fx-background-radius: 10;
+                              -fx-border-color: #e0e0e0;
+                              -fx-border-width: 2;
+                              -fx-border-radius: 10;"/>
+            <TextField fx:id="txtCode3" maxWidth="50" prefHeight="60"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-alignment: center;
+                              -fx-background-radius: 10;
+                              -fx-border-color: #e0e0e0;
+                              -fx-border-width: 2;
+                              -fx-border-radius: 10;"/>
+
+            <!-- Séparateur visuel -->
+            <Label text="-" style="-fx-font-size: 24px; -fx-text-fill: #bdc3c7;"/>
+
+            <TextField fx:id="txtCode4" maxWidth="50" prefHeight="60"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-alignment: center;
+                              -fx-background-radius: 10;
+                              -fx-border-color: #e0e0e0;
+                              -fx-border-width: 2;
+                              -fx-border-radius: 10;"/>
+            <TextField fx:id="txtCode5" maxWidth="50" prefHeight="60"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-alignment: center;
+                              -fx-background-radius: 10;
+                              -fx-border-color: #e0e0e0;
+                              -fx-border-width: 2;
+                              -fx-border-radius: 10;"/>
+            <TextField fx:id="txtCode6" maxWidth="50" prefHeight="60"
+                       style="-fx-font-size: 24px;
+                              -fx-font-weight: bold;
+                              -fx-alignment: center;
+                              -fx-background-radius: 10;
+                              -fx-border-color: #e0e0e0;
+                              -fx-border-width: 2;
+                              -fx-border-radius: 10;"/>
+        </HBox>
+
+        <!-- Message de statut -->
+        <Label fx:id="lblMessage" text=" "
+               wrapText="true"
+               textAlignment="CENTER"
+               style="-fx-font-size: 13px;
+                      -fx-font-weight: bold;"/>
+
+        <!-- Bouton Vérifier -->
+        <Button fx:id="btnVerify" text="✅ Vérifier le code"
+                onAction="#handleVerify"
+                maxWidth="Infinity"
+                style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+                       -fx-text-fill: white;
+                       -fx-font-size: 16px;
+                       -fx-font-weight: bold;
+                       -fx-padding: 15 30;
+                       -fx-background-radius: 10;
+                       -fx-cursor: hand;
+                       -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.4), 10, 0, 0, 4);">
+            <cursor><javafx.scene.Cursor fx:constant="HAND"/></cursor>
+        </Button>
+
+        <!-- Renvoyer le code -->
+        <HBox alignment="CENTER" spacing="5">
+            <Label text="Code non reçu?"
+                   style="-fx-text-fill: #7f8c8d;
+                          -fx-font-size: 13px;"/>
+            <Button fx:id="btnResend" text="Renvoyer"
+                    onAction="#handleResend"
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: #667eea;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 13px;
+                           -fx-underline: true;
+                           -fx-cursor: hand;">
+                <cursor><javafx.scene.Cursor fx:constant="HAND"/></cursor>
+            </Button>
+        </HBox>
+
+        <!-- Séparateur -->
+        <HBox alignment="CENTER" spacing="10">
+            <Region HBox.hgrow="ALWAYS" style="-fx-background-color: #e0e0e0; -fx-pref-height: 1;"/>
+            <Label text="ou" style="-fx-text-fill: #95a5a6; -fx-font-size: 12px;"/>
+            <Region HBox.hgrow="ALWAYS" style="-fx-background-color: #e0e0e0; -fx-pref-height: 1;"/>
+        </HBox>
+
+        <!-- Bouton Annuler -->
+        <Button text="← Retour à la connexion"
+                onAction="#handleCancel"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #95a5a6;
+                       -fx-font-size: 13px;
+                       -fx-cursor: hand;">
+            <cursor><javafx.scene.Cursor fx:constant="HAND"/></cursor>
+        </Button>
+
+        <!-- Info sécurité -->
+        <VBox alignment="CENTER" spacing="5"
+              style="-fx-background-color: #fff3cd;
+                     -fx-padding: 15;
+                     -fx-background-radius: 10;
+                     -fx-border-color: #ffc107;
+                     -fx-border-width: 1;
+                     -fx-border-radius: 10;">
+            <Label text="⚠️ Ne partagez jamais ce code"
+                   style="-fx-font-size: 12px;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #856404;"/>
+            <Label text="Le code expire dans 5 minutes"
+                   style="-fx-font-size: 11px;
+                          -fx-text-fill: #856404;"/>
+        </VBox>
+    </VBox>
+
+    <!-- Footer -->
+    <Label text="© 2026 FarmVision - Authentification sécurisée"
+           style="-fx-text-fill: white;
+                  -fx-font-size: 11px;
+                  -fx-opacity: 0.8;"/>
+</VBox>

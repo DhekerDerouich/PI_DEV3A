@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.gestionuser.controller.FormUserController"
+            fitToWidth="true"
+            style="-fx-background-color: #f8f9fa; -fx-background: #f8f9fa;">
+
+    <VBox spacing="14" style="-fx-background-color: #f8f9fa;" prefWidth="600">
+
+        <padding><Insets top="20" right="28" bottom="20" left="28"/></padding>
+
+        <!-- Titre compact -->
+        <Label text="Ajouter / Modifier utilisateur"
+               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e40af;"/>
+
+        <!-- Nom + Prénom -->
+        <HBox spacing="12">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Nom *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <TextField fx:id="txtNom" promptText="Nom"
+                           style="-fx-pref-height: 34;"/>
+            </VBox>
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Prénom *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <TextField fx:id="txtPrenom" promptText="Prénom"
+                           style="-fx-pref-height: 34;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Email -->
+        <VBox spacing="4">
+            <Label text="Email *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+            <TextField fx:id="txtEmail" promptText="email@example.com"
+                       style="-fx-pref-height: 34;"/>
+        </VBox>
+
+        <!-- Mot de passe -->
+        <VBox spacing="4">
+            <Label text="Mot de passe *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+            <PasswordField fx:id="txtPassword" promptText="Min. 6 caractères"
+                           style="-fx-pref-height: 34;"/>
+            <Label text="💡 Laissez vide pour conserver l'actuel"
+                   style="-fx-font-size: 10px; -fx-text-fill: #6b7280;"/>
+        </VBox>
+
+        <!-- Rôle -->
+        <VBox spacing="4">
+            <Label text="Rôle *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+            <ComboBox fx:id="cmbRole" promptText="Choisir un rôle" prefWidth="Infinity"
+                      style="-fx-pref-height: 34;"/>
+        </VBox>
+
+        <!-- Champs Agriculteur -->
+        <VBox fx:id="paneAgriculteur" spacing="10" visible="false" managed="false">
+            <Label text="Informations Agriculteur"
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #15803d;"/>
+            <VBox spacing="4">
+                <Label text="Téléphone *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <TextField fx:id="txtTelephone" promptText="98 123 456"
+                           style="-fx-pref-height: 34;"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="Adresse *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <TextField fx:id="txtAdresse" promptText="Adresse"
+                           style="-fx-pref-height: 34;"/>
+            </VBox>
+        </VBox>
+
+        <!-- Champs Responsable -->
+        <VBox fx:id="paneResponsable" spacing="10" visible="false" managed="false">
+            <Label text="Informations Responsable"
+                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1d4ed8;"/>
+            <VBox spacing="4">
+                <Label text="Matricule *" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <TextField fx:id="txtMatricule" promptText="Matricule"
+                           style="-fx-pref-height: 34;"/>
+            </VBox>
+        </VBox>
+
+        <!-- ✅ REMARQUES ULTRA-COMPACTES -->
+        <VBox fx:id="paneRemarks" spacing="8" visible="false" managed="false"
+              style="-fx-background-color: #eff6ff; -fx-background-radius: 8; -fx-padding: 12; -fx-border-color: #bfdbfe; -fx-border-radius: 8; -fx-border-width: 1;">
+
+            <Label text="📝 Remarques administrateur (notes internes)"
+                   style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1e40af;"/>
+
+            <!-- TextArea petite -->
+            <TextArea fx:id="txtRemarks"
+                      promptText="Ex: 'Vérifié le 15/02', 'Paiement en retard'..."
+                      prefHeight="60" prefWidth="Infinity" wrapText="true"
+                      style="-fx-font-size: 12px; -fx-control-inner-background: #ffffff;"/>
+
+            <!-- Bouton + Status compacts -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Button fx:id="btnVoiceRemarks" text="🎤 Dictée" onAction="#handleVoiceRemarks"
+                        style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-pref-width: 100; -fx-pref-height: 28; -fx-font-size: 11px;"/>
+
+                <Label fx:id="lblRemarksStatus" text="" wrapText="true" HBox.hgrow="ALWAYS"
+                       style="-fx-font-size: 10px; -fx-text-fill: #6b7280; -fx-padding: 4; -fx-background-color: #f9fafb; -fx-background-radius: 4;"/>
+            </HBox>
+        </VBox>
+
+        <Separator/>
+
+        <Label fx:id="lblError" wrapText="true" visible="false"
+               style="-fx-padding: 10; -fx-background-radius: 6; -fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; -fx-font-size: 12px;"/>
+
+        <!-- ✅ BOUTONS FIXES EN BAS -->
+        <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 8 0;">
+            <Button text="❌ Annuler" fx:id="btnCancel" onAction="#handleCancel"
+                    style="-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 10 24; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+            <Button text="💾 Enregistrer" fx:id="btnSave" onAction="#handleSave"
+                    style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-padding: 10 24; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600" minWidth="1000"
+            prefHeight="800.0" prefWidth="1400.0"
+            stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.com.pi.controller.CalendrierMaintenanceController">
+
+    <center>
+        <VBox styleClass="main-container" spacing="0.0" VBox.vgrow="ALWAYS">
+            <children>
+                <!-- Page Header -->
+                <HBox styleClass="page-header" spacing="20.0" alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                    <padding>
+                        <Insets left="40.0" right="40.0" top="25.0" bottom="25.0" />
+                    </padding>
+                    <children>
+                        <HBox spacing="15.0" alignment="CENTER_LEFT" HBox.hgrow="NEVER">
+                            <children>
+                                <StackPane styleClass="header-icon-container">
+                                    <children>
+                                        <Circle radius="30.0" styleClass="header-icon-bg" />
+                                        <Label text="📅" styleClass="header-icon" />
+                                    </children>
+                                </StackPane>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Calendrier des Maintenances" styleClass="page-title" />
+                                        <Label text="Visualisez et gérez toutes vos maintenances planifiées" styleClass="page-subtitle" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <HBox fx:id="solarInfoBox" spacing="15.0" alignment="CENTER_LEFT"
+                              style="-fx-background-color: #FFF3E0; -fx-padding: 10 20; -fx-background-radius: 12;"
+                              HBox.hgrow="NEVER">
+                            <children>
+                                <Label text="☀️ Période solaire recommandée" style="-fx-text-fill: #FF9800;" />
+                            </children>
+                        </HBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <HBox spacing="10.0" HBox.hgrow="NEVER">
+                            <children>
+                                <Button fx:id="moisPrecedentBtn" text="◀ Mois précédent" onAction="#moisPrecedent" styleClass="btn-primary" />
+                                <Button fx:id="aujourdhuiBtn" text="Aujourd'hui" onAction="#aujourdhui" styleClass="btn-success" />
+                                <Button fx:id="moisSuivantBtn" text="Mois suivant ▶" onAction="#moisSuivant" styleClass="btn-primary" />
+                                <Button fx:id="ajouterMaintenanceBtn" text="➕ Nouvelle maintenance" onAction="#ajouterMaintenance"
+                                        styleClass="btn-warning" style="-fx-background-color: #FF9800; -fx-text-fill: white;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <!-- Sub Header with Month and Stats -->
+                <HBox spacing="20.0" alignment="CENTER_LEFT"
+                      style="-fx-background-color: white; -fx-padding: 15 40; -fx-border-color: #E0E0E0; -fx-border-width: 0 0 1 0;"
+                      VBox.vgrow="NEVER">
+                    <children>
+                        <Label fx:id="moisAnneeLabel" styleClass="panel-title" />
+
+                        <HBox spacing="15.0" style="-fx-background-color: #F1F8E9; -fx-padding: 8 15; -fx-background-radius: 20;">
+                            <children>
+                                <Label text="📊 Total:" styleClass="field-label" />
+                                <Label fx:id="totalMaintenancesLabel" text="0" />
+                                <Separator orientation="VERTICAL" />
+                                <Label text="Ce mois:" styleClass="field-label" />
+                                <Label fx:id="maintenancesMoisLabel" text="0" />
+                                <Separator orientation="VERTICAL" />
+                                <Label text="Coût mois:" styleClass="field-label" />
+                                <Label fx:id="coutMoisLabel" text="0 DT" />
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <!-- Filters -->
+                <HBox spacing="20.0" alignment="CENTER_LEFT"
+                      style="-fx-background-color: white; -fx-padding: 15 40; -fx-border-color: #E0E0E0; -fx-border-width: 0 0 1 0;"
+                      VBox.vgrow="NEVER">
+                    <children>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                            <children>
+                                <Label text="Type de maintenance" styleClass="sub-field-label" />
+                                <ComboBox fx:id="filtreTypeCombo" prefWidth="150.0" styleClass="modern-combo" maxWidth="Infinity" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                            <children>
+                                <Label text="Statut" styleClass="sub-field-label" />
+                                <ComboBox fx:id="filtreStatutCombo" prefWidth="150.0" styleClass="modern-combo" maxWidth="Infinity" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                            <children>
+                                <Label text="Équipement" styleClass="sub-field-label" />
+                                <ComboBox fx:id="filtreEquipementCombo" prefWidth="200.0" styleClass="modern-combo" maxWidth="Infinity" />
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="❌ Réinitialiser" onAction="#aujourdhui" styleClass="btn-secondary" HBox.hgrow="NEVER" />
+                    </children>
+                </HBox>
+
+                <!-- Calendar and Details -->
+                <HBox spacing="20.0" style="-fx-padding: 30 40 40 40;" VBox.vgrow="ALWAYS">
+                    <children>
+                        <!-- Calendar - Prend 70% de l'espace -->
+                        <VBox spacing="15.0" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+                            <children>
+                                <GridPane fx:id="calendrierGrid" styleClass="calendar-grid" VBox.vgrow="ALWAYS"
+                                          prefHeight="500" minHeight="400" />
+                                <!-- Legend -->
+                                <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-padding: 10 0;" VBox.vgrow="NEVER">
+                                    <children>
+                                        <Label text="Légende:" styleClass="field-label" />
+                                        <VBox fx:id="legendeBox" spacing="5.0" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Day Details - Prend 30% de l'espace -->
+                        <VBox spacing="15.0" prefWidth="350.0" minWidth="300" maxWidth="450"
+                              styleClass="panel" VBox.vgrow="ALWAYS">
+                            <padding>
+                                <Insets top="25" right="25" bottom="25" left="25" />
+                            </padding>
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0" VBox.vgrow="NEVER">
+                                    <children>
+                                        <Label text="📌" styleClass="header-icon" />
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label fx:id="dateSelectionneeLabel" text="📅 Sélectionnez un jour"
+                                                       styleClass="panel-title" style="-fx-font-size: 16px;" />
+                                                <Label fx:id="maintenancesJourLabel" text="0 maintenance(s)" styleClass="sub-field-label" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <Separator VBox.vgrow="NEVER" />
+
+                                <Label text="Liste des maintenances:" styleClass="field-label" style="-fx-font-size: 14px;" VBox.vgrow="NEVER" />
+                                <ListView fx:id="maintenancesJourListView" styleClass="modern-table" VBox.vgrow="ALWAYS" />
+
+                                <Button text="➕ Planifier pour ce jour" onAction="#ajouterMaintenance"
+                                        styleClass="btn-success" maxWidth="Infinity" VBox.vgrow="NEVER" />
+
+                                <HBox spacing="10.0" alignment="CENTER" VBox.vgrow="NEVER">
+                                    <children>
+                                        <Button text="📤 Exporter" onAction="#exporterCalendrier" styleClass="btn-secondary" HBox.hgrow="ALWAYS" />
+                                        <Button text="🖨️ Imprimer" onAction="#imprimerCalendrier" styleClass="btn-primary" HBox.hgrow="ALWAYS" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
