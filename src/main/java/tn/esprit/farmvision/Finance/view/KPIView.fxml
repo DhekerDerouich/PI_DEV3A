@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+
+<ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.Finance.controller.KPIController">
+    <VBox spacing="25.0" style="-fx-background-color: transparent;">
+        <padding>
+            <Insets bottom="20.0" left="0" right="0" top="0" />
+        </padding>
+
+        <!-- Header Section with Export Button -->
+        <VBox spacing="10" style="-fx-background-color: linear-gradient(to right, #1a4d2e, #2d6a4f); -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 3);">
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="📊 Tableau de Bord Analytique"
+                       style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="📄 Exporter PDF" onAction="#exportPDF"
+                        style="-fx-background-color: white; -fx-text-fill: #1a4d2e; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;" />
+            </HBox>
+            <Label text="Analyse de vos performances financières sur 6 mois"
+                   style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.85);" />
+        </VBox>
+
+        <!-- Charts Container -->
+        <VBox spacing="30">
+            <!-- Bar Chart Card -->
+            <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="3">
+                        <Label text="Comparaison Mensuelle"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+                        <Label text="Dépenses vs Revenus"
+                               style="-fx-font-size: 14px; -fx-text-fill: #64748b;" />
+                    </VBox>
+                    <HBox HBox.hgrow="ALWAYS" />
+                    <HBox spacing="20" alignment="CENTER_RIGHT">
+                        <HBox spacing="8" alignment="CENTER">
+                            <VBox prefWidth="30" prefHeight="15" style="-fx-background-color: #ef4444; -fx-background-radius: 3;" />
+                            <Label text="Dépenses" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                        </HBox>
+                        <HBox spacing="8" alignment="CENTER">
+                            <VBox prefWidth="30" prefHeight="15" style="-fx-background-color: #10b981; -fx-background-radius: 3;" />
+                            <Label text="Revenus" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                        </HBox>
+                    </HBox>
+                </HBox>
+
+                <Line startX="0" endX="900" stroke="#e2e8f0" strokeWidth="1" />
+
+                <BarChart fx:id="barChart"
+                          animated="true"
+                          legendVisible="false"
+                          prefHeight="400"
+                          style="-fx-background-color: transparent;">
+                    <xAxis>
+                        <CategoryAxis
+                                tickLabelRotation="-45"
+                                style="-fx-tick-label-fill: #475569; -fx-font-size: 12px; -fx-font-weight: 500;" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis
+                                label="Montant (TND)"
+                                style="-fx-tick-label-fill: #475569; -fx-font-size: 12px; -fx-font-weight: 500;" />
+                    </yAxis>
+                </BarChart>
+            </VBox>
+
+            <!-- Line Chart Card -->
+            <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="3">
+                        <Label text="Évolution du Profit"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+                        <Label text="Tendance de rentabilité"
+                               style="-fx-font-size: 14px; -fx-text-fill: #64748b;" />
+                    </VBox>
+                    <HBox HBox.hgrow="ALWAYS" />
+                    <HBox spacing="8" alignment="CENTER">
+                        <VBox prefWidth="30" prefHeight="3" style="-fx-background-color: #3b82f6; -fx-background-radius: 2;" />
+                        <Label text="Profit Net" style="-fx-text-fill: #64748b; -fx-font-size: 12px;" />
+                    </HBox>
+                </HBox>
+
+                <Line startX="0" endX="900" stroke="#e2e8f0" strokeWidth="1" />
+
+                <LineChart fx:id="lineChart"
+                           animated="true"
+                           legendVisible="false"
+                           prefHeight="400"
+                           createSymbols="true"
+                           style="-fx-background-color: transparent;">
+                    <xAxis>
+                        <CategoryAxis
+                                tickLabelRotation="-45"
+                                style="-fx-tick-label-fill: #475569; -fx-font-size: 12px; -fx-font-weight: 500;" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis
+                                label="Profit (TND)"
+                                style="-fx-tick-label-fill: #475569; -fx-font-size: 12px; -fx-font-weight: 500;" />
+                    </yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Pie Chart Card - AMÉLIORÉ -->
+            <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="3">
+                        <Label text="Répartition des Dépenses"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+                        <Label text="Par catégorie (6 derniers mois)"
+                               style="-fx-font-size: 14px; -fx-text-fill: #64748b;" />
+                    </VBox>
+                </HBox>
+
+                <Line startX="0" endX="900" stroke="#e2e8f0" strokeWidth="1" />
+
+                <HBox spacing="20" alignment="CENTER">
+                    <PieChart fx:id="pieChart"
+                              animated="true"
+                              legendVisible="true"
+                              prefHeight="450"
+                              prefWidth="600"
+                              labelsVisible="true"
+                              labelLineLength="20"
+                              style="-fx-background-color: transparent;">
+                    </PieChart>
+
+                    <!-- Légende à droite (optionnelle, si vous voulez plus d'espace) -->
+                    <VBox fx:id="legendBox" spacing="10" alignment="CENTER_LEFT" visible="false" managed="false" />
+                </HBox>
+            </VBox>
+
+            <!-- AI Analysis Card -->
+            <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 3);">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <VBox spacing="3">
+                        <Label text="🤖 Analyse par Intelligence Artificielle"
+                               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" />
+                        <Label text="Prédiction et recommandations basées sur vos données"
+                               style="-fx-font-size: 14px; -fx-text-fill: #64748b;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="Analyser" onAction="#handleAIAnalysis"
+                            style="-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;" />
+                </HBox>
+
+                <Line startX="0" endX="900" stroke="#e2e8f0" strokeWidth="1" />
+
+                <VBox spacing="10" style="-fx-background-color: #f8fafc; -fx-background-radius: 10; -fx-padding: 15;">
+                    <Label fx:id="lblAnalysis" text="Cliquez sur 'Analyser' pour obtenir une analyse financière intelligente."
+                           wrapText="true" style="-fx-text-fill: #1e293b; -fx-font-size: 14px; -fx-line-spacing: 5;" />
+                </VBox>
+            </VBox>
+        </VBox>
+
+        <!-- Status -->
+        <Label fx:id="lblStatus" text="✓ Graphiques mis à jour"
+               style="-fx-text-fill: #10b981; -fx-font-size: 13px; -fx-font-weight: 500;" />
+    </VBox>
+</ScrollPane>
