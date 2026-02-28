@@ -22,191 +22,163 @@
 
     <!-- SIDEBAR GAUCHE -->
     <left>
-        <VBox prefHeight="800.0" prefWidth="280.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox prefHeight="800.0" prefWidth="280.0" style="-fx-background-color: linear-gradient(to bottom, #1F3D2A, #2D5A3D);" BorderPane.alignment="CENTER">
             <children>
                 <!-- Logo Section -->
-                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="logo-container">
-                    <padding>
-                        <Insets bottom="30.0" left="25.0" right="25.0" top="30.0" />
-                    </padding>
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 30 25; -fx-border-color: rgba(255,255,255,0.1); -fx-border-width: 0 0 1 0;">
                     <children>
-                        <StackPane styleClass="logo-icon-container">
-                            <children>
-                                <Circle radius="28.0" styleClass="logo-circle" />
-                                <Label text="🛒" styleClass="logo-emoji" />
-                            </children>
+                        <StackPane>
+                            <Circle radius="28.0" fill="#8BC34A" />
+                            <Label text="🛒" style="-fx-font-size: 24px;" />
                         </StackPane>
                         <VBox spacing="2.0">
-                            <children>
-                                <Label text="FarmVision" styleClass="logo-title" />
-                                <Label text="Marketplace" styleClass="logo-subtitle" />
-                            </children>
+                            <Label text="FarmVision" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                            <Label text="Marketplace" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px;" />
                         </VBox>
                     </children>
                 </HBox>
 
-                <!-- Navigation -->
-                <VBox spacing="8.0" styleClass="nav-container">
-                    <padding>
-                        <Insets left="20.0" right="20.0" />
-                    </padding>
+                <!-- Navigation simplifiée -->
+                <VBox spacing="6.0" style="-fx-padding: 20 20 0 20;">
                     <children>
-                        <Label text="📌 NAVIGATION" styleClass="section-title" />
-
-                        <!-- Bouton Stocks -->
-                        <Button fx:id="btnStocks" styleClass="nav-button" text="📦 Gestion des Stocks"
-                                onAction="#handleStocks" prefWidth="240.0" alignment="CENTER_LEFT">
-                            <graphic>
-                                <Label text="🌽" styleClass="nav-icon" />
-                            </graphic>
+                        <Button fx:id="btnStocks" onAction="#handleStocks" prefWidth="240.0"
+                                style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 15px; -fx-padding: 15 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-graphic-text-gap: 15;">
+                            <graphic><Label text="🌽" style="-fx-font-size: 20px;" /></graphic>
+                            Stocks
                         </Button>
-
-                        <!-- Bouton Marketplace (actif) -->
-                        <Button fx:id="btnMarketplace" styleClass="nav-button-active" text="🛒 Marketplace"
-                                onAction="#handleRetour" prefWidth="240.0" alignment="CENTER_LEFT">                            <graphic>
-                                <Label text="🛒" styleClass="nav-icon" />
-                            </graphic>
+                        <Button fx:id="btnMarketplace" onAction="#handleMarketplace" prefWidth="240.0"
+                                style="-fx-background-color: #8BC34A; -fx-text-fill: white; -fx-font-size: 15px; -fx-padding: 15 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-graphic-text-gap: 15;">
+                            <graphic><Label text="🛒" style="-fx-font-size: 20px;" /></graphic>
+                            Marketplace
                         </Button>
                     </children>
                 </VBox>
 
-                <!-- Statistiques -->
-                <VBox spacing="15.0" styleClass="stats-container">
-                    <padding>
-                        <Insets left="20.0" right="20.0" top="20.0" />
-                    </padding>
+                <!-- Statistiques Sidebar -->
+                <VBox spacing="12.0" style="-fx-padding: 24 20 0 20;">
                     <children>
-                        <Label text="📊 APERÇU" styleClass="section-title" />
+                        <Label text="APERÇU VENTES" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px; -fx-font-weight: bold;" />
 
-                        <HBox styleClass="stat-card" alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="🛒" styleClass="stat-icon" />
-                            <VBox>
-                                <Label text="Total Annonces" styleClass="stat-label" />
-                                <Label fx:id="lblTotalAnnonces" text="0" styleClass="stat-value" />
-                            </VBox>
-                        </HBox>
+                        <VBox style="-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 12; -fx-padding: 15;">
+                            <Label text="Total Annonces" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 12px;" />
+                            <Label fx:id="lblTotalAnnonces" text="0" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+                            <Label text="+15% ce mois" style="-fx-background-color: rgba(76, 175, 80, 0.2); -fx-text-fill: #81C784; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-size: 11px;" />
+                        </VBox>
 
-                        <HBox styleClass="stat-card" alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="💰" styleClass="stat-icon" />
-                            <VBox>
-                                <Label text="Chiffre d'affaires" styleClass="stat-label" />
-                                <Label fx:id="lblChiffreAffaires" text="0 DT" styleClass="stat-value" />
-                            </VBox>
-                        </HBox>
-
-                        <HBox styleClass="stat-card" alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="📈" styleClass="stat-icon" />
-                            <VBox>
-                                <Label text="Ventes du mois" styleClass="stat-label" />
-                                <Label fx:id="lblVentesMois" text="0" styleClass="stat-value-warning" />
-                            </VBox>
-                        </HBox>
+                        <VBox style="-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 12; -fx-padding: 15;">
+                            <Label text="Chiffre d'affaires" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 12px;" />
+                            <Label fx:id="lblChiffreAffaires" text="0 DT" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+                            <Label text="+22% ce mois" style="-fx-background-color: rgba(76, 175, 80, 0.2); -fx-text-fill: #81C784; -fx-padding: 4 8; -fx-background-radius: 12; -fx-font-size: 11px;" />
+                        </VBox>
                     </children>
                 </VBox>
 
-                <!-- Actions Rapides (dans le sidebar) -->
-                <VBox spacing="10.0" styleClass="quick-actions">
-                    <padding>
-                        <Insets left="20.0" right="20.0" top="20.0" />
-                    </padding>
-                    <children>
-                        <Label text="⚡ ACTIONS RAPIDES" styleClass="section-title" />
-
-                        <Button mnemonicParsing="false" onAction="#handleAjouterAnnonce" styleClass="action-button" text="Ajouter annonce">
-                            <graphic><Label text="➕" styleClass="button-icon" /></graphic>
-                        </Button>
-
-                        <Button mnemonicParsing="false" onAction="#handleSynchroniserGoogleMerchant" styleClass="action-button" text="Sync Google">
-                            <graphic><Label text="🌐" styleClass="button-icon" /></graphic>
-                        </Button>
-
-                        <Button mnemonicParsing="false" onAction="#handleVerifierStatutGoogle" styleClass="action-button" text="Statut API">
-                            <graphic><Label text="📊" styleClass="button-icon" /></graphic>
-                        </Button>
-                    </children>
-                </VBox>
-
-                <!-- User Card (Bottom) -->
+                <!-- User Card -->
                 <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
-                    <padding>
-                        <Insets bottom="30.0" left="20.0" right="20.0" top="20.0" />
-                    </padding>
+                    <padding><Insets bottom="28.0" left="20.0" right="20.0" /></padding>
                     <children>
-                        <HBox styleClass="user-card" alignment="CENTER_LEFT" spacing="12.0">
-                            <padding>
-                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                            </padding>
+                        <HBox style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 15; -fx-padding: 15;" alignment="CENTER_LEFT" spacing="12.0">
                             <children>
                                 <StackPane>
-                                    <Circle radius="20.0" styleClass="user-avatar" />
-                                    <Label text="👨‍🌾" />
+                                    <Circle radius="20.0" fill="#8BC34A" />
+                                    <Label text="👨‍🌾" style="-fx-font-size: 20px;" />
                                 </StackPane>
                                 <VBox>
-                                    <Label text="Vendeur" styleClass="user-name" />
-                                    <Label text="Connecté" styleClass="user-status" />
+                                    <Label text="Vendeur" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;" />
+                                    <Label text="● En ligne" style="-fx-text-fill: #81C784; -fx-font-size: 12px;" />
                                 </VBox>
                             </children>
                         </HBox>
+                        <Label text="⚙️ Paramètres" onMouseClicked="#handleParametres"
+                               style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 13px; -fx-padding: 15 0 0 15; -fx-cursor: hand;" />
                     </children>
                 </VBox>
             </children>
         </VBox>
     </left>
 
-    <!-- CONTENU PRINCIPAL CENTRE -->
+    <!-- CONTENU PRINCIPAL -->
     <center>
-        <StackPane prefHeight="800.0" prefWidth="1120.0" styleClass="content-area" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
+        <VBox spacing="20.0" style="-fx-background-color: #F1F8E9; -fx-padding: 28;" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                            <Label text="🛒 Marketplace" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1B1B1B;" />
+                            <Label text="Achetez et vendez vos produits agricoles" style="-fx-font-size: 14px; -fx-text-fill: #616161;" />
+                        </VBox>
+                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                            <TextField fx:id="txtRecherche" promptText="Rechercher un produit..."
+                                       style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 12 20; -fx-font-size: 14px; -fx-pref-width: 260px;" />
+                            <ComboBox fx:id="comboFiltreStatut" promptText="Statut"
+                                      style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 8 12; -fx-pref-width: 130px;" />
+                            <Button onAction="#handleRafraichir" text="↻"
+                                    style="-fx-background-color: white; -fx-background-radius: 50%; -fx-min-width: 42px; -fx-min-height: 42px; -fx-font-size: 18px; -fx-cursor: hand;" />
+                        </HBox>
+                    </children>
+                </HBox>
 
-            <VBox spacing="20.0">
-                <children>
-                    <!-- Header avec titre et recherche -->
-                    <HBox alignment="CENTER_LEFT" spacing="20.0">
-                        <children>
-                            <VBox>
-                                <Label text="🛒 Marketplace" styleClass="page-title" />
-                                <Label text="Achetez et vendez vos produits agricoles" styleClass="page-subtitle" />
-                            </VBox>
-                            <HBox spacing="10.0" HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
-                                <TextField fx:id="txtRecherche" promptText="Rechercher un produit..." styleClass="search-field" prefWidth="300.0" />
-                                <ComboBox fx:id="comboFiltreStatut" promptText="Statut" styleClass="filter-combo" prefWidth="120.0" />
-                                <Button onAction="#handleRafraichir" styleClass="refresh-button" text="↻" />
-                            </HBox>
-                        </children>
-                    </HBox>
+                <!-- Stats horizontales -->
+                <HBox spacing="20.0">
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                        <Label text="Total ventes" style="-fx-font-size: 13px; -fx-text-fill: #616161;" />
+                        <Label text="156" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+                        <Label text="Ce mois" style="-fx-font-size: 12px; -fx-text-fill: #9E9E9E;" />
+                    </VBox>
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                        <Label text="Revenu mensuel" style="-fx-font-size: 13px; -fx-text-fill: #616161;" />
+                        <Label text="3,280 DT" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+                        <Label text="+25% vs mois dernier" style="-fx-font-size: 12px; -fx-text-fill: #4CAF50;" />
+                    </VBox>
+                    <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+                        <Label text="Produits populaires" style="-fx-font-size: 13px; -fx-text-fill: #616161;" />
+                        <Label text="12" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+                        <Label text="Top: Tomates" style="-fx-font-size: 12px; -fx-text-fill: #9E9E9E;" />
+                    </VBox>
+                </HBox>
 
-                    <!-- Tableau des annonces -->
-                    <TableView fx:id="marketplaceTable" styleClass="modern-table" VBox.vgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
-                            <TableColumn fx:id="colProduit" prefWidth="150.0" text="Produit" />
-                            <TableColumn fx:id="colCategorie" prefWidth="100.0" text="Catégorie" />
-                            <TableColumn fx:id="colPrix" prefWidth="100.0" text="Prix" />
-                            <TableColumn fx:id="colQuantite" prefWidth="80.0" text="Quantité" />
-                            <TableColumn fx:id="colVendeur" prefWidth="150.0" text="Vendeur" />
-                            <TableColumn fx:id="colStatut" prefWidth="80.0" text="Statut" />
-                            <TableColumn fx:id="colDate" prefWidth="130.0" text="Date publication" />
-                        </columns>
-                    </TableView>
+                <!-- Tableau -->
+                <TableView fx:id="marketplaceTable" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                    <columns>
+                        <TableColumn fx:id="colProduit" prefWidth="180.0" text="Produit" />
+                        <TableColumn fx:id="colCategorie" prefWidth="130.0" text="Catégorie" />
+                        <TableColumn fx:id="colPrix" prefWidth="120.0" text="Prix" />
+                        <TableColumn fx:id="colQuantite" prefWidth="100.0" text="Quantité" />
+                        <TableColumn fx:id="colVendeur" prefWidth="180.0" text="Vendeur" />
+                        <TableColumn fx:id="colStatut" prefWidth="100.0" text="Statut" />
+                        <TableColumn fx:id="colDate" prefWidth="150.0" text="Date publication" />
+                    </columns>
+                </TableView>
 
-                    <!-- Message d'information -->
-                    <Label fx:id="lblMessage" styleClass="info-message" text="" />
+                <!-- Message -->
+                <Label fx:id="lblMessage" style="-fx-font-size: 13px; -fx-text-fill: #43A047;" text="" />
 
-                    <!-- Barre d'actions SIMPLIFIÉE (sans les doublons) -->
-                    <HBox spacing="10.0" alignment="CENTER" styleClass="action-bar">
-                        <children>
-                            <Button onAction="#handleAjouterAnnonce" styleClass="btn-primary" text="➕ Ajouter" />
-                            <Button onAction="#handleModifierAnnonce" styleClass="btn-secondary" text="✏️ Modifier" />
-                            <Button onAction="#handleSupprimerAnnonce" styleClass="btn-danger" text="🗑️ Supprimer" />
-                            <Button onAction="#handleAcheter" styleClass="btn-warning" text="🛒 Acheter" />
-                            <Button onAction="#handleVoirDetails" styleClass="btn-info" text="📋 Détails" />
-                            <Button onAction="#handleRetour" styleClass="btn-gray" text="↩️ Retour" />
-                        </children>
-                    </HBox>
-                </children>
-            </VBox>
-        </StackPane>
+                <!-- Actions -->
+                <HBox spacing="12.0" alignment="CENTER_LEFT">
+                    <children>
+                        <Button onAction="#handleAjouterAnnonce"
+                                style="-fx-background-color: linear-gradient(to right, #8BC34A, #43A047); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                                text="➕ Nouvelle Annonce" />
+                        <Button onAction="#handleModifierAnnonce"
+                                style="-fx-background-color: #F1F8E9; -fx-text-fill: #2D5A3D; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px; -fx-border-color: #C8E6C9; -fx-border-radius: 12;"
+                                text="✏️ Modifier" />
+                        <Button onAction="#handleSupprimerAnnonce"
+                                style="-fx-background-color: #FFEBEE; -fx-text-fill: #E53935; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                                text="🗑️ Supprimer" />
+                        <Button onAction="#handleAcheter"
+                                style="-fx-background-color: #FFF3E0; -fx-text-fill: #EF6C00; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                                text="🛒 Acheter" />
+                        <Button onAction="#handleVoirDetails"
+                                style="-fx-background-color: #E1F5FE; -fx-text-fill: #0288D1; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                                text="👁 Détails" />
+                        <Button onAction="#handleStocks"
+                                style="-fx-background-color: #E8F5E9; -fx-text-fill: #2D5A3D; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                                text="🌽 Stocks" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </center>
 </BorderPane>

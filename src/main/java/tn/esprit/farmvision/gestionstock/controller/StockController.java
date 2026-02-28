@@ -1,5 +1,7 @@
 package tn.esprit.farmvision.gestionstock.controller;
-
+import tn.esprit.farmvision.gestionstock.service.PDFExportService;
+import java.util.ArrayList;
+import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,7 +13,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import tn.esprit.farmvision.gestionstock.model.Stock;
 import tn.esprit.farmvision.gestionstock.service.StockService;
-import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -30,12 +31,20 @@ public class StockController {
     @FXML private TableColumn<Stock, LocalDate> colDate;
     @FXML private TableColumn<Stock, LocalDate> colDateExpiration;
     @FXML private TableColumn<Stock, String> colStatut;
+
     @FXML private TextField txtRecherche;
     @FXML private ComboBox<String> comboFiltreCategorie;
     @FXML private ComboBox<String> comboFiltreStatut;
     @FXML private Label lblMessage;
+
+    @FXML private Button btnDashboard;
     @FXML private Button btnStocks;
     @FXML private Button btnMarketplace;
+    @FXML private Button btnStats;
+
+    @FXML private Label lblTotalProduits;
+    @FXML private Label lblValeurTotale;
+    @FXML private Label lblProduitsExpires;
 
     private StockService stockService;
     private ObservableList<Stock> stockList;
@@ -48,7 +57,6 @@ public class StockController {
         stockList = FXCollections.observableArrayList();
 
         // Configuration des colonnes
-        colId.setCellValueFactory(new PropertyValueFactory<>("idStock"));
         colProduit.setCellValueFactory(new PropertyValueFactory<>("nomProduit"));
         colCategorie.setCellValueFactory(new PropertyValueFactory<>("typeProduit"));
         colQuantite.setCellValueFactory(new PropertyValueFactory<>("quantite"));
@@ -158,12 +166,34 @@ public class StockController {
                 lblMessage.setStyle("-fx-text-fill: green;");
             }
 
+            mettreAJourStatistiques();
+
             System.out.println("✅ Affichage mis à jour\n");
 
         } catch (Exception e) {
             System.err.println("❌ Erreur chargement: " + e.getMessage());
             e.printStackTrace();
             showAlert("Erreur", "Erreur lors du chargement des stocks", e.getMessage());
+        }
+    }
+
+    private void mettreAJourStatistiques() {
+        try {
+            int total = stockList.size();
+            double valeurTotale = stockList.stream()
+                    .mapToDouble(s -> s.getQuantite() * 2.5)
+                    .sum();
+            long expires = stockList.stream()
+                    .filter(s -> s.getDateExpiration() != null)
+                    .filter(s -> s.getDateExpiration().isBefore(LocalDate.now()))
+                    .count();
+
+            lblTotalProduits.setText(String.valueOf(total));
+            lblValeurTotale.setText(String.format("%.2f DT", valeurTotale));
+            lblProduitsExpires.setText(String.valueOf(expires));
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur mise à jour stats: " + e.getMessage());
         }
     }
 
@@ -192,6 +222,8 @@ public class StockController {
         stockTable.setItems(listeFiltree);
     }
 
+    // ==================== ACTIONS CRUD ====================
+
     @FXML
     private void handleAjouterStock() {
         try {
@@ -200,7 +232,7 @@ public class StockController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Ajouter un Stock");
-            stage.setScene(new Scene(root, 550, 500));
+            stage.setScene(new Scene(root, 560, 620));
             stage.showAndWait();
 
             System.out.println("🔄 Fenêtre fermée - Rechargement des stocks...");
@@ -222,16 +254,13 @@ public class StockController {
 
         try {
             System.out.println("\n=== OUVERTURE FENÊTRE MODIFICATION ===");
-            System.out.println("Stock sélectionné: ID=" + stockSelectionne.getIdStock() +
-                    ", Produit=" + stockSelectionne.getNomProduit());
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/modifier_stock.fxml"));
             Parent root = loader.load();
             ModifierStockController controller = loader.getController();
             controller.setStock(stockSelectionne);
             Stage stage = new Stage();
             stage.setTitle("Modifier le Stock");
-            stage.setScene(new Scene(root, 550, 550));
+            stage.setScene(new Scene(root, 560, 620));
             stage.showAndWait();
 
             System.out.println("🔄 Fenêtre fermée - Rechargement des stocks...");
@@ -261,12 +290,9 @@ public class StockController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 System.out.println("\n=== SUPPRESSION STOCK ===");
-                System.out.println("Suppression du stock ID: " + stockSelectionne.getIdStock());
-
                 stockService.supprimerStock(stockSelectionne.getIdStock());
                 lblMessage.setText("✅ Stock supprimé : " + stockSelectionne.getNomProduit());
                 lblMessage.setStyle("-fx-text-fill: green;");
-
                 chargerStocks();
 
             } catch (Exception e) {
@@ -310,144 +336,40 @@ public class StockController {
         lblMessage.setStyle("-fx-text-fill: green;");
     }
 
-    // ==================== FONCTIONNALITÉS SIMPLIFIÉES ====================
+    // ==================== MÉTHODES DE NAVIGATION ====================
+
 
     @FXML
-    private void handleAnalysePrevision() {
-        Stock stockSelectionne = stockTable.getSelectionModel().getSelectedItem();
-        if (stockSelectionne == null) {
-            showAlert("Avertissement", "Aucune sélection", "Veuillez sélectionner un stock.");
-            return;
+    private void handleStocks() {
+        try {
+            System.out.println("🔄 Rechargement de la page Stocks...");
+
+            // Recharger la vue actuelle
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/gestion_stock.fxml"));
+            Parent root = loader.load();
+
+            // Récupérer le contrôleur et recharger les données
+            StockController controller = loader.getController();
+            controller.chargerStocks();
+
+            // Récupérer la scène actuelle
+            Stage stage = (Stage) btnStocks.getScene().getWindow();
+
+            // Créer et appliquer la nouvelle scène
+            Scene scene = new Scene(root, 1400, 800);
+            stage.setScene(scene);
+            stage.setTitle("FarmVision - Gestion des Stocks");
+            stage.show();
+
+            System.out.println("✅ Page Stocks rechargée avec succès");
+
+        } catch (IOException e) {
+            System.err.println("❌ Erreur lors du rechargement: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Rechargement échoué", e.getMessage());
         }
-        showAlert("Analyse", "Analyse de prévision",
-                "Fonctionnalité en cours de développement pour " + stockSelectionne.getNomProduit());
     }
 
-    @FXML
-    private void handleControleQualite() {
-        Stock stockSelectionne = stockTable.getSelectionModel().getSelectedItem();
-        if (stockSelectionne == null) {
-            showAlert("Avertissement", "Aucune sélection", "Veuillez sélectionner un stock.");
-            return;
-        }
-        showAlert("Contrôle qualité", "Résultat du contrôle",
-                "✅ Stock en bon état\n" +
-                        "📦 Produit: " + stockSelectionne.getNomProduit() + "\n" +
-                        "📊 Statut: " + stockSelectionne.getStatut());
-    }
-
-    @FXML
-    private void handleRecommandationsAchat() {
-        showAlert("Recommandations", "Recommandations d'achat",
-                "📋 Aucune recommandation pour le moment.");
-    }
-
-    @FXML
-    private void handleAnalyseGlobale() {
-        int total = stockList.size();
-        long disponibles = stockList.stream().filter(s -> "Disponible".equals(s.getStatut())).count();
-        long epuises = stockList.stream().filter(s -> "Épuisé".equals(s.getStatut())).count();
-        long expires = stockList.stream().filter(s -> {
-            if (s.getDateExpiration() == null) return false;
-            return s.getDateExpiration().isBefore(LocalDate.now());
-        }).count();
-
-        String message = String.format(
-                "📊 **ANALYSE GLOBALE**\n\n" +
-                        "📦 Total stocks: %d\n" +
-                        "✅ Disponibles: %d\n" +
-                        "❌ Épuisés: %d\n" +
-                        "⚠️ Expirés: %d\n\n" +
-                        "📈 Taux de rotation: %.1f%%",
-                total, disponibles, epuises, expires,
-                total > 0 ? (disponibles * 100.0 / total) : 0
-        );
-
-        showAlert("Analyse globale", "État des stocks", message);
-    }
-
-    @FXML
-    private void handleCertificatTracabilite() {
-        Stock stockSelectionne = stockTable.getSelectionModel().getSelectedItem();
-        if (stockSelectionne == null) {
-            showAlert("Avertissement", "Aucune sélection", "Veuillez sélectionner un stock.");
-            return;
-        }
-
-        String certificat = String.format(
-                "📋 **CERTIFICAT DE TRAÇABILITÉ**\n\n" +
-                        "🔖 LOT: FV-%d-%d\n" +
-                        "📦 Produit: %s\n" +
-                        "📅 Date entrée: %s\n" +
-                        "⚖️ Quantité: %.2f %s\n" +
-                        "✅ Certifié par FarmVision",
-                stockSelectionne.getIdStock(),
-                LocalDate.now().getYear(),
-                stockSelectionne.getNomProduit(),
-                stockSelectionne.getDateEntree(),
-                stockSelectionne.getQuantite(),
-                stockSelectionne.getUnite()
-        );
-
-        showAlert("Certificat", "Document de traçabilité", certificat);
-    }
-
-    @FXML
-    private void handleIntelligenceRecommandations() {
-        Stock stockSelectionne = stockTable.getSelectionModel().getSelectedItem();
-        if (stockSelectionne == null) {
-            showAlert("Avertissement", "Aucune sélection", "Veuillez sélectionner un stock.");
-            return;
-        }
-
-        String recommandations = String.format(
-                "🤖 **RECOMMANDATIONS IA**\n\n" +
-                        "📦 Produit: %s\n\n" +
-                        "💡 Suggestions:\n" +
-                        "• Stock optimal: %.2f %s\n" +
-                        "• Date limite de vente: %s\n" +
-                        "• Prix recommandé: %.2f DT\n\n" +
-                        "📊 Confiance: 85%%",
-                stockSelectionne.getNomProduit(),
-                stockSelectionne.getQuantite() * 1.5,
-                stockSelectionne.getUnite(),
-                stockSelectionne.getDateExpiration() != null ?
-                        stockSelectionne.getDateExpiration().minusDays(7) : "N/A",
-                stockSelectionne.getQuantite() * 2.5
-        );
-
-        showAlert("IA", "Recommandations intelligentes", recommandations);
-    }
-
-    @FXML
-    private void handleSynchroniserInvenTree() {
-        showAlert("InvenTree", "Synchronisation",
-                "✅ Synchronisation avec InvenTree effectuée avec succès !\n" +
-                        "📊 5 stocks synchronisés.");
-    }
-
-    @FXML
-    private void handleImporterDepuisInvenTree() {
-        showAlert("InvenTree", "Import",
-                "📦 3 pièces importées depuis InvenTree:\n" +
-                        "• Tomates: 500 kg\n" +
-                        "• Pommes: 300 kg\n" +
-                        "• Blé: 1000 kg");
-    }
-
-    @FXML
-    private void handleExporterPDF() {
-        showAlert("Information", "Export PDF", "Fonctionnalité à implémenter.");
-    }
-
-    @FXML
-    private void handleImprimer() {
-        showAlert("Information", "Impression", "Fonctionnalité à implémenter.");
-    }
-
-    /**
-     * Navigation vers le marketplace
-     */
     @FXML
     private void handleMarketplace() {
         try {
@@ -456,23 +378,58 @@ public class StockController {
             Parent root = loader.load();
             Stage stage = (Stage) btnMarketplace.getScene().getWindow();
             stage.setScene(new Scene(root, 1400, 800));
+            stage.setTitle("FarmVision - Marketplace");
+            stage.show();
         } catch (IOException e) {
             showAlert("Erreur", "Navigation échouée", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    @FXML
-    private void handleStocks() {
-        // Déjà sur la page des stocks, rafraîchir
-        chargerStocks();
-    }
+
 
     @FXML
-    private void handleRetour() {
-        // Fermer l'application ou retour au menu principal
-        Stage stage = (Stage) btnStocks.getScene().getWindow();
-        stage.close();
+    private void handleExporterPDF() {
+        try {
+            System.out.println("\n=== EXPORT PDF ===");
+
+            // Vérifier s'il y a des stocks à exporter
+            if (stockList == null || stockList.isEmpty()) {
+                showAlert("Information", "Aucune donnée",
+                        "Il n'y a aucun stock à exporter. Veuillez d'abord ajouter des stocks.");
+                return;
+            }
+
+            // Créer le service d'export
+            PDFExportService pdfExportService = new PDFExportService();
+
+            // Exporter
+            boolean success = pdfExportService.exportStocksToPDF(
+                    new ArrayList<>(stockList),
+                    (Stage) btnStocks.getScene().getWindow()
+            );
+
+            if (success) {
+                lblMessage.setText("✅ Rapport PDF exporté avec succès!");
+                lblMessage.setStyle("-fx-text-fill: green;");
+
+                // Optionnel: message de confirmation
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Export PDF");
+                alert.setHeaderText("Export réussi");
+                alert.setContentText("Le rapport PDF a été généré avec succès!");
+                alert.showAndWait();
+            } else {
+                lblMessage.setText("❌ Export annulé ou échoué");
+                lblMessage.setStyle("-fx-text-fill: orange;");
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur export PDF: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Échec de l'export PDF",
+                    "Une erreur est survenue: " + e.getMessage());
+        }
     }
 
     private void showAlert(String titre, String entete, String contenu) {
@@ -481,5 +438,25 @@ public class StockController {
         alert.setHeaderText(entete);
         alert.setContentText(contenu);
         alert.showAndWait();
+    }
+    @FXML
+    private void handleAjouterStockIA() {
+        try {
+            System.out.println("\n=== OUVERTURE FENÊTRE AJOUT IA ===");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ajouter_stock_ia.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Ajout Intelligent par IA");
+            stage.setScene(new Scene(root, 600, 800));
+            stage.showAndWait();
+
+            System.out.println("🔄 Fenêtre IA fermée - Rechargement des stocks...");
+            chargerStocks();
+
+        } catch (IOException e) {
+            showAlert("Erreur", "Erreur d'ouverture", e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

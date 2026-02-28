@@ -214,6 +214,7 @@ public class StockDAO implements IStockDAO {
         return 0;
     }
 
+
     @Override
     public void mettreAJourQuantite(int idStock, double nouvelleQuantite) {
         String sql = "UPDATE stock SET quantite = ? WHERE id_stock = ?";
