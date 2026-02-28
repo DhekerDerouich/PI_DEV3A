@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="800.0" prefWidth="600.0"
+            style="-fx-background-color: #F1F8E9;"
+            stylesheets="@/tn/esprit/farmvision/resources1/css/style.css"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.gestionstock.controller.AjouterStockAIController">
+    <children>
+        <VBox layoutX="20.0" layoutY="20.0" prefHeight="760.0" prefWidth="560.0" spacing="0"
+              style="-fx-background-color: white; -fx-background-radius: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0, 0, 6);">
+            <children>
+                <!-- Header avec IA (fixe) -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0" prefHeight="100.0"
+                      style="-fx-background-color: linear-gradient(to right, #2D5A3D, #3D7A52); -fx-background-radius: 20px 20px 0 0; -fx-padding: 0 25;">
+                    <children>
+                        <StackPane>
+                            <Circle radius="28.0" fill="#8BC34A" />
+                            <Label text="🤖" style="-fx-font-size: 28px;" />
+                        </StackPane>
+                        <VBox spacing="2.0">
+                            <Label text="Ajout Intelligent par IA" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                            <Label text="Prenez une photo pour reconnaître automatiquement le produit" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13px;" />
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Zone scrollable pour tout le contenu -->
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                    <content>
+                        <VBox spacing="15.0" style="-fx-padding: 20 30 25 30;">
+                            <children>
+                                <!-- Bouton Scan Photo -->
+                                <Button fx:id="btnScanPhoto" onAction="#handleScanPhoto"
+                                        style="-fx-background-color: #8BC34A; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 16px;"
+                                        text="📸 Scanner une photo du produit" maxWidth="Infinity" />
+
+                                <!-- Aperçu image -->
+                                <StackPane style="-fx-background-color: #F5F5F5; -fx-background-radius: 12; -fx-padding: 15; -fx-border-color: #E0E0E0; -fx-border-radius: 12;" alignment="CENTER">
+                                    <ImageView fx:id="imagePreview" fitHeight="150.0" fitWidth="200.0" preserveRatio="true" />
+                                    <Label fx:id="lblNoImage" text="Aucune image sélectionnée" style="-fx-text-fill: #9E9E9E; -fx-font-size: 14px;" />
+                                </StackPane>
+
+                                <!-- Barre de confiance IA -->
+                                <VBox spacing="5.0">
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <Label text="🔍 Confiance IA:" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+                                        <Label fx:id="lblAiConfidence" text="En attente de scan..." style="-fx-text-fill: #9E9E9E; -fx-font-size: 13px;" />
+                                    </HBox>
+                                    <ProgressBar fx:id="aiConfidenceBar" progress="0.0" prefWidth="500.0" prefHeight="18.0" />
+                                    <Label fx:id="lblSuggestion" text="" style="-fx-font-size: 12px;" />
+                                </VBox>
+
+                                <!-- Séparateur -->
+                                <Label style="-fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0; -fx-padding: 5 0;" />
+
+                                <!-- Formulaire -->
+                                <VBox spacing="18.0">
+                                    <!-- ID Utilisateur -->
+                                    <VBox spacing="5.0">
+                                        <Label text="👤 ID Utilisateur *" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                        <TextField fx:id="txtIdUtilisateur" promptText="Entrez l'ID utilisateur"
+                                                   style="-fx-background-color: #F1F8E9; -fx-background-radius: 12; -fx-border-color: transparent; -fx-padding: 12; -fx-font-size: 14px;" />
+                                    </VBox>
+
+                                    <!-- Nom Produit -->
+                                    <VBox spacing="5.0">
+                                        <Label text="📦 Nom du produit *" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                        <TextField fx:id="txtNomProduit" promptText="Sera rempli par l'IA"
+                                                   style="-fx-background-color: #F1F8E9; -fx-background-radius: 12; -fx-border-color: transparent; -fx-padding: 12; -fx-font-size: 14px;" />
+                                    </VBox>
+
+                                    <!-- Catégorie & Unité -->
+                                    <HBox spacing="15.0">
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="🏷️ Catégorie *" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                            <ComboBox fx:id="comboCategorie" prefWidth="200.0" promptText="Sélectionner"
+                                                      style="-fx-background-color: #F1F8E9; -fx-background-radius: 12; -fx-border-color: transparent; -fx-padding: 6; -fx-font-size: 14px;" />
+                                        </VBox>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="⚖️ Unité *" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                            <ComboBox fx:id="comboUnite" prefWidth="200.0" promptText="Sélectionner"
+                                                      style="-fx-background-color: #F1F8E9; -fx-background-radius: 12; -fx-border-color: transparent; -fx-padding: 6; -fx-font-size: 14px;" />
+                                        </VBox>
+                                    </HBox>
+
+                                    <!-- Quantité & Date expiration -->
+                                    <HBox spacing="15.0">
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="📊 Quantité *" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                            <TextField fx:id="txtQuantite" promptText="0"
+                                                       style="-fx-background-color: #F1F8E9; -fx-background-radius: 12; -fx-border-color: transparent; -fx-padding: 12; -fx-font-size: 14px;" />
+                                        </VBox>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="📅 Date d'expiration" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                            <DatePicker fx:id="dateExpiration" promptText="jj/mm/aaaa"
+                                                        style="-fx-background-color: #F1F8E9; -fx-background-radius: 12; -fx-font-size: 14px; -fx-padding: 6;" />
+                                        </VBox>
+                                    </HBox>
+
+                                    <!-- Message -->
+                                    <Label fx:id="lblMessage" text="" wrapText="true" style="-fx-font-size: 13px; -fx-padding: 5 0;" />
+
+                                    <!-- Boutons (VISIBLES) -->
+                                    <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                                        <padding><Insets top="15.0" /></padding>
+                                        <Button fx:id="btnAnnuler" onAction="#handleAnnuler"
+                                                style="-fx-background-color: #ECEFF1; -fx-text-fill: #546E7A; -fx-font-weight: bold; -fx-padding: 12 28; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px; -fx-min-width: 120px;"
+                                                text="Annuler" />
+                                        <Button fx:id="btnAjouter" onAction="#handleAjouter"
+                                                style="-fx-background-color: linear-gradient(to right, #8BC34A, #43A047); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 28; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, rgba(139,195,74,0.3), 8, 0, 0, 3); -fx-min-width: 150px;"
+                                                text="✅ Ajouter au stock" />
+                                    </HBox>
+
+                                    <!-- Note -->
+                                    <Label text="* Champs obligatoires" style="-fx-text-fill: #9E9E9E; -fx-font-size: 11px;" />
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

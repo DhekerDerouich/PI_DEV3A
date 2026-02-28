@@ -1,0 +1,1086 @@
+/* ============================================
+   FARMVISION - MODERN AGRICULTURAL UI
+   ============================================ */
+
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-background-color: #F5F7F5;
+}
+
+/* ============================================
+   SIDEBAR - Version avec icônes blanches
+   ============================================ */
+.sidebar {
+    -fx-background-color: linear-gradient(to bottom, #1A3828 0%, #2D5A3D 50%, #254D35 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 3, 0);
+    -fx-min-width: 260px;
+    -fx-max-width: 260px;
+    -fx-pref-width: 260px;
+}
+
+.logo-container {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 28 20 28 20;
+}
+
+.logo-circle {
+    -fx-fill: #5BAD6F;
+}
+
+.logo-emoji {
+    -fx-font-size: 22px;
+    -fx-text-fill: white; /* Icône du logo en blanc */
+}
+
+.logo-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.logo-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-font-size: 11px;
+}
+
+.nav-container {
+    -fx-padding: 25 12 0 12;
+    -fx-spacing: 3;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.75); /* Texte blanc */
+    -fx-font-size: 14px;
+    -fx-padding: 13 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    -fx-graphic-text-gap: 12;
+    -fx-max-width: Infinity;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: white; /* Texte blanc pur au survol */
+}
+
+.nav-button:pressed {
+    -fx-background-color: rgba(255,255,255,0.12);
+}
+
+.nav-button-active {
+    -fx-background-color: rgba(91,173,111,0.18);
+    -fx-text-fill: #A5D6A7;
+    -fx-border-color: #5BAD6F;
+    -fx-border-width: 0 0 0 3;
+}
+
+/* Icônes de navigation - FORCÉES EN BLANC */
+.nav-icon {
+    -fx-font-size: 18px;
+    -fx-min-width: 24px;
+    -fx-text-fill: white; /* Blanc forcé */
+}
+
+.nav-button:hover .nav-icon {
+    -fx-text-fill: white; /* Blanc au survol */
+}
+
+.nav-button-active .nav-icon {
+    -fx-text-fill: #A5D6A7; /* Vert clair pour l'élément actif */
+}
+
+/* Pour s'assurer que toutes les icônes dans la sidebar sont blanches */
+.sidebar .label {
+    -fx-text-fill: white;
+}
+
+.sidebar .button .label {
+    -fx-text-fill: white;
+}
+
+/* User card */
+.user-card {
+    -fx-background-color: rgba(0,0,0,0.18);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(255,255,255,0.07);
+    -fx-border-radius: 10;
+    -fx-cursor: hand;
+    -fx-padding: 13;
+}
+
+.user-card:hover {
+    -fx-background-color: rgba(255,255,255,0.06);
+}
+
+.user-avatar {
+    -fx-fill: #5BAD6F;
+}
+
+.user-name {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.user-status {
+    -fx-text-fill: #81C784;
+    -fx-font-size: 11px;
+}
+
+/* ============================================
+   CONTENT
+   ============================================ */
+.content-area, .main-container {
+    -fx-background-color: #F5F7F5;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-header {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 6, 0, 0, 2);
+    -fx-border-color: #EFEFEF;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-icon-container {
+    -fx-effect: dropshadow(gaussian, rgba(91,173,111,0.25), 12, 0, 0, 3);
+}
+
+.header-icon-bg {
+    -fx-fill: linear-gradient(to bottom right, #5BAD6F, #43A047);
+}
+
+.header-icon {
+    -fx-font-size: 26px;
+    -fx-text-fill: white; /* Icônes d'en-tête en blanc */
+}
+
+.page-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B1B1B;
+}
+
+.page-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #757575;
+}
+
+/* ============================================
+   STAT CARDS
+   ============================================ */
+.stat-card {
+    -fx-background-color: white;
+    -fx-padding: 20 15;
+    -fx-background-radius: 12;
+    -fx-border-color: #DEDEDE;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 8, 0, 0, 2);
+}
+
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.13), 14, 0, 0, 5);
+}
+
+.stat-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #757575;
+}
+
+.stat-value {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2D5A3D;
+    -fx-padding: 8 0 4 0;
+}
+
+/* ============================================
+   PANELS
+   ============================================ */
+.panel {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-padding: 22;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 10, 0, 0, 3);
+}
+
+.panel-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B1B1B;
+}
+
+/* ============================================
+   FORM FIELDS
+   ============================================ */
+.field-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #333333;
+}
+
+.sub-field-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9E9E9E;
+}
+
+.form-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B1B1B;
+}
+
+.form-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #757575;
+}
+
+.modern-field, .modern-combo, .modern-date {
+    -fx-background-color: #F5F7F5;
+    -fx-background-radius: 9;
+    -fx-border-color: #DCDCDC;
+    -fx-border-width: 1;
+    -fx-border-radius: 9;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
+}
+
+.modern-field:focused, .modern-combo:focused, .modern-date:focused {
+    -fx-background-color: white;
+    -fx-border-color: #5BAD6F;
+    -fx-border-width: 1.5;
+}
+
+.modern-combo .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.modern-date .arrow-button {
+    -fx-background-color: #5BAD6F;
+    -fx-background-radius: 0 9 9 0;
+}
+
+/* ============================================
+   TABLE
+   ============================================ */
+.modern-table {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.modern-table .column-header-background {
+    -fx-background-color: #F5F7F5;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.modern-table .column-header {
+    -fx-background-color: transparent;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #757575;
+    -fx-padding: 13 10;
+}
+
+.modern-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #F0F0F0;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 4 0;
+}
+
+.modern-table .table-row-cell:hover {
+    -fx-background-color: #F8FBF8;
+    -fx-cursor: hand;
+}
+
+.modern-table .table-row-cell:selected {
+    -fx-background-color: #EEF7EE;
+    -fx-border-color: #5BAD6F;
+    -fx-border-width: 0 0 0 3;
+}
+
+.modern-table .table-cell {
+    -fx-padding: 13 10;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1B1B1B;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.col-nom {
+    -fx-font-weight: 600;
+    -fx-text-fill: #2D5A3D;
+}
+
+.col-type {
+    -fx-alignment: CENTER;
+}
+
+.col-date {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #757575;
+    -fx-font-size: 12px;
+}
+
+.col-status {
+    -fx-alignment: CENTER;
+}
+
+.col-actions {
+    -fx-alignment: CENTER;
+}
+
+/* ============================================
+   TABLE ACTION BUTTONS
+   ============================================ */
+.table-row-cell .button {
+    -fx-background-radius: 4;
+    -fx-padding: 5 8;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-min-width: 35px;
+    -fx-min-height: 30px;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-font-weight: normal;
+    -fx-opacity: 1;
+    -fx-visible: true;
+}
+
+.table-row-cell .button:hover {
+    -fx-opacity: 0.9;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.table-row-cell .button:pressed {
+    -fx-opacity: 0.7;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 1);
+}
+
+/* Couleurs spécifiques pour les boutons d'action */
+.button-edit {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+
+.button-delete {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
+.button-maintenance {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-qr {
+    -fx-background-color: #9b59b6;
+    -fx-text-fill: white;
+}
+
+.button-co2 {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+.button-complete {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+}
+
+.button-calendar {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-sun {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+
+/* Container des boutons */
+.action-buttons-container {
+    -fx-alignment: CENTER;
+    -fx-spacing: 5;
+    -fx-padding: 2;
+}
+
+/* Style pour la colonne Actions */
+.col-actions {
+    -fx-alignment: CENTER;
+    -fx-padding: 2 5;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-primary {
+    -fx-background-color: #2D5A3D;
+    -fx-text-fill: white;
+    -fx-background-radius: 9;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #3D7A52;
+}
+
+.btn-success {
+    -fx-background-color: #5BAD6F;
+    -fx-text-fill: white;
+    -fx-background-radius: 9;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-success:hover {
+    -fx-background-color: #4CAF50;
+}
+
+.btn-secondary {
+    -fx-background-color: #F0F2F0;
+    -fx-text-fill: #555555;
+    -fx-border-color: #D5D5D5;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+    -fx-background-radius: 9;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover {
+    -fx-background-color: #E5E8E5;
+    -fx-text-fill: #333;
+}
+
+.btn-danger {
+    -fx-background-color: #FFEBEE;
+    -fx-text-fill: #C62828;
+    -fx-border-color: #FFCDD2;
+    -fx-border-radius: 9;
+    -fx-border-width: 1;
+    -fx-background-radius: 9;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-danger:hover {
+    -fx-background-color: #C62828;
+    -fx-text-fill: white;
+}
+
+.btn-warning {
+    -fx-background-color: #FF9800;
+    -fx-text-fill: white;
+    -fx-background-radius: 9;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-warning:hover {
+    -fx-background-color: #F57C00;
+}
+
+.action-btn-small {
+    -fx-background-radius: 7;
+    -fx-padding: 7 11;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-min-width: 32px;
+    -fx-min-height: 32px;
+}
+
+.btn-edit {
+    -fx-background-color: #E3F2FD;
+    -fx-text-fill: #1976D2;
+}
+.btn-edit:hover {
+    -fx-background-color: #1976D2;
+    -fx-text-fill: white;
+}
+
+.btn-view {
+    -fx-background-color: #E8F5E9;
+    -fx-text-fill: #2D5A3D;
+}
+.btn-view:hover {
+    -fx-background-color: #2D5A3D;
+    -fx-text-fill: white;
+}
+
+.btn-delete-small {
+    -fx-background-color: #FFEBEE;
+    -fx-text-fill: #C62828;
+}
+.btn-delete-small:hover {
+    -fx-background-color: #C62828;
+    -fx-text-fill: white;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 50%;
+    -fx-min-width: 38px;
+    -fx-min-height: 38px;
+    -fx-font-size: 17px;
+    -fx-cursor: hand;
+}
+.icon-button:hover {
+    -fx-background-color: #EEF5EE;
+}
+
+/* ============================================
+   STATUS BADGES
+   ============================================ */
+.status-badge {
+    -fx-padding: 5 12;
+    -fx-background-radius: 18;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.status-growing {
+    -fx-background-color: #E8F5E9;
+    -fx-text-fill: #2E7D32;
+}
+
+.status-harvest {
+    -fx-background-color: #FFF3E0;
+    -fx-text-fill: #EF6C00;
+}
+
+.status-finished {
+    -fx-background-color: #ECEFF1;
+    -fx-text-fill: #546E7A;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #C5C5C5;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #A0A0A0;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Scrollbar horizontale pour les tableaux */
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-height: 12;
+    -fx-padding: 2 0;
+}
+
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #C5C5C5;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #A0A0A0;
+}
+
+.scroll-bar:horizontal .track {
+    -fx-background-color: #F0F0F0;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar:horizontal .increment-button,
+.scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ============================================
+   TOOLTIP
+   ============================================ */
+.tooltip {
+    -fx-background-color: #222;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-padding: 7 11;
+    -fx-background-radius: 6;
+}
+
+/* ============================================
+   CALENDAR MAINTENANCE
+   ============================================ */
+.calendar-grid {
+    -fx-background-color: white;
+    -fx-border-color: #ddd;
+    -fx-border-width: 1;
+}
+
+.calendar-cell {
+    -fx-border-color: #ddd;
+    -fx-border-width: 0 1 1 0;
+    -fx-padding: 5;
+    -fx-min-height: 100;
+    -fx-pref-height: 100;
+}
+
+.calendar-cell:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-cursor: hand;
+}
+
+.calendar-cell-today {
+    -fx-background-color: #e3f2fd;
+    -fx-border-color: #2196F3;
+    -fx-border-width: 2;
+}
+
+.calendar-cell-selected {
+    -fx-background-color: #fff3e0;
+    -fx-border-color: #FF9800;
+    -fx-border-width: 2;
+}
+
+.calendar-cell-weekend {
+    -fx-background-color: #f9f9f9;
+}
+
+.calendar-day-number {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: top-right;
+}
+
+.calendar-maintenance-item {
+    -fx-font-size: 10px;
+    -fx-padding: 2;
+    -fx-background-radius: 3;
+}
+
+.calendar-maintenance-preventive {
+    -fx-text-fill: #4CAF50;
+    -fx-font-weight: bold;
+}
+
+.calendar-maintenance-corrective {
+    -fx-text-fill: #f44336;
+    -fx-font-weight: bold;
+}
+
+.calendar-more-indicator {
+    -fx-text-fill: #757575;
+    -fx-font-size: 9px;
+    -fx-font-style: italic;
+}
+
+/* Liste des maintenances du jour */
+.maintenance-list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+}
+
+.maintenance-list-cell:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.maintenance-item {
+    -fx-background-radius: 5;
+    -fx-padding: 10;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5;
+}
+
+.maintenance-item-preventive {
+    -fx-background-color: #E8F5E9;
+}
+
+.maintenance-item-corrective {
+    -fx-background-color: #FFEBEE;
+}
+
+.maintenance-type {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.maintenance-type-preventive {
+    -fx-text-fill: #4CAF50;
+}
+
+.maintenance-type-corrective {
+    -fx-text-fill: #f44336;
+}
+
+.maintenance-equip {
+    -fx-text-fill: #757575;
+    -fx-font-size: 11px;
+}
+
+.maintenance-statut {
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+.maintenance-statut-planifiee {
+    -fx-text-fill: #FF9800;
+}
+
+.maintenance-statut-realisee {
+    -fx-text-fill: #4CAF50;
+}
+
+.maintenance-desc {
+    -fx-font-size: 12px;
+    -fx-padding: 5 0;
+}
+
+.maintenance-date {
+    -fx-text-fill: #757575;
+    -fx-font-size: 11px;
+}
+
+.maintenance-cout {
+    -fx-text-fill: #4CAF50;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* Légende */
+.legende-item {
+    -fx-spacing: 5;
+    -fx-alignment: center-left;
+}
+
+.legende-couleur {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.legende-couleur-preventive {
+    -fx-text-fill: #4CAF50;
+}
+
+.legende-couleur-corrective {
+    -fx-text-fill: #f44336;
+}
+
+.legende-couleur-aujourdhui {
+    -fx-text-fill: #2196F3;
+}
+
+.legende-text {
+    -fx-font-size: 12px;
+}
+
+/* ============================================
+   BOUTONS D'ACTION DANS LES TABLEAUX - VERSION AMÉLIORÉE
+   ============================================ */
+
+/* Style de base pour tous les boutons dans les cellules de tableau */
+.table-cell .button {
+    -fx-background-radius: 4;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-min-width: 40px;
+    -fx-min-height: 36px;
+    -fx-background-insets: 0;
+    -fx-border-insets: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-font-weight: normal;
+    -fx-opacity: 1;
+    -fx-visible: true;
+}
+
+.table-cell .button:hover {
+    -fx-opacity: 0.85;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.table-cell .button:pressed {
+    -fx-opacity: 0.7;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 0, 1);
+}
+
+/* Couleurs spécifiques pour chaque type de bouton */
+.button-edit {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+
+.button-delete {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
+.button-maintenance {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-qr {
+    -fx-background-color: #9b59b6;
+    -fx-text-fill: white;
+}
+
+.button-co2 {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+.button-complete {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+}
+
+.button-calendar {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.button-sun {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+
+/* Container des boutons */
+.action-buttons-container {
+    -fx-alignment: CENTER;
+    -fx-spacing: 5;
+    -fx-padding: 5;
+}
+
+/* Style pour la colonne Actions */
+.actions-column {
+    -fx-alignment: CENTER;
+    -fx-padding: 2 5;
+}
+
+/* S'assurer que les boutons sont visibles */
+.table-row-cell .button {
+    -fx-opacity: 1;
+    -fx-visible: true;
+}
+
+/* Style pour les cellules de la colonne Actions */
+.table-cell:last-child {
+    -fx-alignment: CENTER;
+    -fx-padding: 5;
+}
+
+/* ============================================
+   SCROLLPANE POUR DÉFILEMENT HORIZONTAL
+   ============================================ */
+
+/* Style pour le ScrollPane contenant le tableau */
+.scroll-pane .table-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane .table-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Assurer que le tableau a une largeur minimale */
+.table-view {
+    -fx-min-width: 900px;
+}
+
+/* Pour les très petits écrans */
+@media screen and (max-width: 1000px) {
+    .table-view {
+        -fx-min-width: 850px;
+    }
+
+    .sidebar {
+        -fx-min-width: 220px;
+        -fx-pref-width: 220px;
+    }
+
+    .nav-button {
+        -fx-padding: 10 12;
+        -fx-font-size: 13px;
+    }
+
+    .nav-icon {
+        -fx-font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .table-view {
+        -fx-min-width: 800px;
+    }
+
+    .stat-value {
+        -fx-font-size: 22px;
+    }
+
+    .stat-card {
+        -fx-padding: 15 10;
+    }
+}
+
+/* ============================================
+   STYLES RESPONSIVE
+   ============================================ */
+
+/* Pour que le tableau s'adapte à la largeur */
+.table-view {
+    -fx-fixed-cell-size: 45px;
+}
+
+.table-view .column-header {
+    -fx-padding: 10 5;
+}
+
+.table-view .table-cell {
+    -fx-padding: 8 5;
+    -fx-wrap-text: true;
+}
+
+/* Pour les petits écrans, réduire les polices */
+@media screen and (max-width: 1200px) {
+    .table-view .table-cell {
+        -fx-font-size: 12px;
+        -fx-padding: 6 3;
+    }
+
+    .page-title {
+        -fx-font-size: 18px;
+    }
+
+    .stat-value {
+        -fx-font-size: 24px;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .table-view .table-cell {
+        -fx-font-size: 11px;
+        -fx-padding: 4 2;
+    }
+
+    .page-title {
+        -fx-font-size: 16px;
+    }
+
+    .stat-value {
+        -fx-font-size: 20px;
+    }
+
+    .btn-primary, .btn-success, .btn-secondary, .btn-danger, .btn-warning {
+        -fx-padding: 8 12;
+        -fx-font-size: 12px;
+    }
+}
+
+/* Pour que le HBox des stats s'adapte */
+.stats-container {
+    -fx-spacing: 15;
+}
+
+.stat-card {
+    -fx-min-width: 150;
+    -fx-pref-width: 200;
+    -fx-max-width: 300;
+}
+
+/* ScrollPane sans barre de défilement inutile */
+.scroll-pane {
+    -fx-fit-to-width: true;
+    -fx-fit-to-height: true;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* TableView responsive */
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-max-height: 50;
+}
+
+.table-view .show-hide-columns-button {
+    -fx-background-color: transparent;
+}
+.sub-nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #a8c5b5;
+    -fx-font-size: 13px;
+    -fx-padding: 8 15 8 15;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 5;
+}
+
+.sub-nav-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: white;
+}
+
+.sub-nav-button:pressed {
+    -fx-background-color: #2d6a4f;
+    -fx-text-fill: white;
+}
+/* Styles pour les sous-boutons */
+.nav-sub-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-font-size: 13px;
+    -fx-padding: 8 12 8 15;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    -fx-graphic-text-gap: 10;
+    -fx-max-width: Infinity;
+}
+
+.nav-sub-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: white;
+}
+
+.nav-sub-button-active {
+    -fx-background-color: rgba(91, 173, 111, 0.3);
+    -fx-text-fill: #A5D6A7;
+    -fx-font-weight: bold;
+}
+
+/* Animation pour les flèches */
+.arrow-rotated {
+    -fx-rotate: 180;
+    -fx-transition: rotate 0.3s;
+}

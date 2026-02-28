@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="800.0" prefWidth="1400.0"
+            stylesheets="@/tn/esprit/farmvision/resources1/css/style.css"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.gestionstock.controller.MainStockController">
+
+    <!-- SIDEBAR GAUCHE FIXE -->
+    <left>
+        <VBox prefHeight="800.0" prefWidth="280.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Logo Section -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="logo-container">
+                    <padding>
+                        <Insets bottom="30.0" left="25.0" right="25.0" top="30.0" />
+                    </padding>
+                    <children>
+                        <StackPane styleClass="logo-icon-container">
+                            <children>
+                                <Circle radius="28.0" styleClass="logo-circle" />
+                                <Label text="🌾" styleClass="logo-emoji" />
+                            </children>
+                        </StackPane>
+                        <VBox spacing="2.0">
+                            <children>
+                                <Label text="FarmVision" styleClass="logo-title" />
+                                <Label text="Gestion Agricole" styleClass="logo-subtitle" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Navigation principale -->
+                <VBox spacing="8.0" styleClass="nav-container">
+                    <padding>
+                        <Insets left="20.0" right="20.0" />
+                    </padding>
+                    <children>
+                        <Label text="📌 NAVIGATION" styleClass="section-title" />
+
+                        <!-- Bouton Stocks (actif) -->
+                        <Button fx:id="btnGestionStock" styleClass="nav-button-active" text="📦 Gestion des Stocks"
+                                onAction="#handleGestionStock" prefWidth="240.0" alignment="CENTER_LEFT">
+                            <graphic>
+                                <Label text="🌽" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+
+                        <!-- Bouton Marketplace -->
+                        <Button fx:id="btnMarketplace" styleClass="nav-button" text="🛒 Marketplace"
+                                onAction="#handleMarketplace" prefWidth="240.0" alignment="CENTER_LEFT">
+                            <graphic>
+                                <Label text="🛒" styleClass="nav-icon" />
+                            </graphic>
+                        </Button>
+                    </children>
+                </VBox>
+
+                <!-- Statistiques Stocks -->
+                <VBox spacing="15.0" styleClass="stats-container">
+                    <padding>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label text="📊 APERÇU STOCKS" styleClass="section-title" />
+
+                        <HBox styleClass="stat-card" alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="📦" styleClass="stat-icon" />
+                            <VBox>
+                                <Label text="Total Produits" styleClass="stat-label" />
+                                <Label fx:id="lblTotalProduits" text="0" styleClass="stat-value" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox styleClass="stat-card" alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="✅" styleClass="stat-icon" />
+                            <VBox>
+                                <Label text="Disponibles" styleClass="stat-label" />
+                                <Label fx:id="lblDisponibles" text="0" styleClass="stat-value" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox styleClass="stat-card" alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="⚠️" styleClass="stat-icon" />
+                            <VBox>
+                                <Label text="Bientôt Expirés" styleClass="stat-label" />
+                                <Label fx:id="lblBientotExpires" text="0" styleClass="stat-value-warning" />
+                            </VBox>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <!-- User Card (Bottom) -->
+                <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="30.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <HBox styleClass="user-card" alignment="CENTER_LEFT" spacing="12.0">
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                            <children>
+                                <StackPane>
+                                    <Circle radius="20.0" styleClass="user-avatar" />
+                                    <Label text="👨‍🌾" />
+                                </StackPane>
+                                <VBox>
+                                    <Label text="Agriculteur" styleClass="user-name" />
+                                    <Label text="Connecté" styleClass="user-status" />
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- CONTENU CENTRAL DYNAMIQUE -->
+    <center>
+        <StackPane fx:id="contentArea" prefHeight="800.0" prefWidth="1120.0" styleClass="content-area" BorderPane.alignment="CENTER" />
+    </center>
+</BorderPane>

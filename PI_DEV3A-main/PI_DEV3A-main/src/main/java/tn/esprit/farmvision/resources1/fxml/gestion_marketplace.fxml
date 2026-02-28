@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Separator?>
+
+<VBox spacing="20.0" style="-fx-background-color: #F1F8E9; -fx-padding: 28;"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="tn.esprit.farmvision.gestionstock.controller.MarketplaceController">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="20.0">
+        <children>
+            <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                <Label text="🛒 Marketplace" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1B1B1B;" />
+                <Label text="Achetez et vendez vos produits agricoles" style="-fx-font-size: 14px; -fx-text-fill: #616161;" />
+            </VBox>
+            <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                <TextField fx:id="txtRecherche" promptText="Rechercher un produit..."
+                           style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 12 20; -fx-font-size: 14px; -fx-pref-width: 260px;" />
+                <ComboBox fx:id="comboFiltreStatut" promptText="Statut"
+                          style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 8 12; -fx-pref-width: 130px;" />
+                <Button onAction="#handleRafraichir" text="↻"
+                        style="-fx-background-color: white; -fx-background-radius: 50%; -fx-min-width: 42px; -fx-min-height: 42px; -fx-font-size: 18px; -fx-cursor: hand;" />
+            </HBox>
+        </children>
+    </HBox>
+
+    <!-- Statistiques -->
+    <HBox spacing="20.0">
+        <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+            <Label text="Total Annonces" style="-fx-font-size: 13px; -fx-text-fill: #616161;" />
+            <Label fx:id="lblTotalAnnonces" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+            <Label text="+15% ce mois" style="-fx-font-size: 12px; -fx-text-fill: #4CAF50;" />
+        </VBox>
+        <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+            <Label text="Chiffre d'affaires" style="-fx-font-size: 13px; -fx-text-fill: #616161;" />
+            <Label fx:id="lblChiffreAffaires" text="0 DT" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+            <Label text="+22% ce mois" style="-fx-font-size: 12px; -fx-text-fill: #4CAF50;" />
+        </VBox>
+        <VBox style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
+            <Label text="Ventes du mois" style="-fx-font-size: 13px; -fx-text-fill: #616161;" />
+            <Label fx:id="lblVentesMois" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+            <Label text="Produits populaires" style="-fx-font-size: 12px; -fx-text-fill: #9E9E9E;" />
+        </VBox>
+    </HBox>
+
+    <!-- Message d'état -->
+    <HBox alignment="CENTER_LEFT">
+        <Label fx:id="lblMessage" style="-fx-font-size: 13px; -fx-text-fill: #43A047;" text="Chargement réussi : 2 annonces" />
+
+    </HBox>
+
+    <!-- Tableau -->
+    <TableView fx:id="marketplaceTable" VBox.vgrow="ALWAYS"
+               style="-fx-background-color: transparent; -fx-border-color: transparent;">
+        <columns>
+            <TableColumn fx:id="colProduit" prefWidth="150.0" text="Produit" />
+            <TableColumn fx:id="colCategorie" prefWidth="100.0" text="Catégorie" />
+            <TableColumn fx:id="colPrix" prefWidth="100.0" text="Prix" />
+            <TableColumn fx:id="colQuantite" prefWidth="80.0" text="Quantité" />
+            <TableColumn fx:id="colVendeur" prefWidth="150.0" text="Vendeur" />
+            <TableColumn fx:id="colStatut" prefWidth="90.0" text="Statut" />
+            <TableColumn fx:id="colDate" prefWidth="130.0" text="Date publication" />
+        </columns>
+    </TableView>
+
+    <!-- Barre d'actions principale -->
+    <HBox spacing="12.0" alignment="CENTER_LEFT" >
+        <children>
+            <!-- Actions CRUD -->
+            <Button onAction="#handleAjouterAnnonce"
+                    style="-fx-background-color: linear-gradient(to right, #8BC34A, #43A047); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="➕ Nouvelle Annonce" />
+            <Button onAction="#handleModifierAnnonce"
+                    style="-fx-background-color: #F1F8E9; -fx-text-fill: #2D5A3D; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px; -fx-border-color: #C8E6C9; -fx-border-radius: 12;"
+                    text="✏️ Modifier" />
+            <Button onAction="#handleSupprimerAnnonce"
+                    style="-fx-background-color: #FFEBEE; -fx-text-fill: #E53935; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="🗑️ Supprimer" />
+
+            <Separator orientation="VERTICAL" prefHeight="30" />
+
+            <!-- Actions d'achat -->
+            <Button onAction="#handleAcheter"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="🛒 Acheter" />
+            <Button onAction="#handleVoirDetails"
+                    style="-fx-background-color: #E1F5FE; -fx-text-fill: #0288D1; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="👁 Détails" />
+
+            <Separator orientation="VERTICAL" prefHeight="30" />
+
+            <!-- Navigation -->
+
+            <Separator orientation="VERTICAL" prefHeight="30" />
+
+            <!-- Intégrations -->
+            <Button onAction="#handleGoogleSync"
+                    style="-fx-background-color: #4285F4; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="🌐 Google Sync" />
+        </children>
+    </HBox>
+
+    <!-- Barre d'actions secondaire (métier avancé) -->
+    <HBox spacing="12.0" alignment="CENTER_LEFT" >
+        <children>
+            <Button onAction="#handleControleQualite"
+                    style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="🔍 Contrôle Qualité" />
+            <Button onAction="#handleAnalysePrevisionnelle"
+                    style="-fx-background-color: #3F51B5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 14px;"
+                    text="📊 Analyse Prédictive" />
+
+        </children>
+    </HBox>
+</VBox>

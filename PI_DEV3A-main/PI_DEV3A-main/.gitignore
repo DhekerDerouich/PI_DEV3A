@@ -1,0 +1,46 @@
+    ### Maven ###
+    target/
+    !.mvn/wrapper/maven-wrapper.jar
+    src/main/resources/google-credentials.json
+    tokens/
+    *.json.credentials
+    google-credentials.json
+    InvenTreeClient.properties   # si tu as des configs InvenTree
+    GoogleMerchantClient.properties
+
+    ### IntelliJ IDEA ###
+    .idea/
+    *.iws
+    *.iml
+    *.ipr
+    out/
+    vosk-model*
+    *.mdl
+    *.conf
+    *.fst
+    *.int
+    *.txt  # si ce sont des fichiers du modèle
+    src/main/resources/vosk-model*/
+
+    ### Eclipse ###
+    .apt_generated
+    .classpath
+    .factorypath
+    .project
+    .settings/
+    .springBeans
+    .sts4-cache
+
+    ### NetBeans ###
+    /nbproject/private/
+    /nbbuild/
+    /dist/
+    /nbdist/
+    /.nb-gradle/
+    build/
+
+    ### VS Code ###
+    .vscode/
+
+    ### Mac OS ###
+    .DS_Store

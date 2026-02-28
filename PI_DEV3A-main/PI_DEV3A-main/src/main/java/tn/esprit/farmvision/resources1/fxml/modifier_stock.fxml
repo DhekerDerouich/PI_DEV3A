@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane prefHeight="620.0" prefWidth="560.0"
+            style="-fx-background-color: #F1F8E9;"
+            stylesheets="@/tn/esprit/farmvision/resources1/css/style.css"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.farmvision.gestionstock.controller.ModifierStockController">
+    <children>
+        <VBox layoutX="20.0" layoutY="20.0" prefHeight="580.0" prefWidth="520.0" spacing="0"
+              style="-fx-background-color: white; -fx-background-radius: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0, 0, 6);">
+            <children>
+                <!-- Header Banner -->
+                <HBox alignment="CENTER" spacing="12.0" prefHeight="80.0"
+                      style="-fx-background-color: linear-gradient(to right, #1565C0, #1976D2); -fx-background-radius: 20px 20px 0 0; -fx-padding: 0 25;">
+                    <Label style="-fx-font-size: 30px;" text="🌾" />
+                    <VBox spacing="2.0">
+                        <Label text="MODIFIER LE STOCK" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                        <Label text="Mise à jour des informations" style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12px;" />
+                    </VBox>
+                    <Label style="-fx-font-size: 30px;" text="🌽" />
+                </HBox>
+
+                <!-- Form Fields -->
+                <VBox spacing="13.0" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <!-- Info non modifiables -->
+                        <HBox spacing="20.0" style="-fx-background-color: #E8F5E9; -fx-background-radius: 10px; -fx-padding: 12 16;">
+                            <VBox>
+                                <Label text="ID Stock" style="-fx-font-size: 11px; -fx-text-fill: #666;" />
+                                <Label fx:id="lblIdStock" text="" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2D5A3D;" />
+                            </VBox>
+                            <VBox>
+                                <Label text="ID Utilisateur" style="-fx-font-size: 11px; -fx-text-fill: #666;" />
+                                <Label fx:id="lblIdUtilisateur" text="" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #424242;" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Nom Produit -->
+                        <VBox spacing="5.0">
+                            <Label text="📦  Nom du Produit" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                            <TextField fx:id="txtNomProduit"
+                                       style="-fx-background-color: #F1F8E9; -fx-background-radius: 10px; -fx-border-radius: 10px; -fx-padding: 11 14; -fx-font-size: 14px; -fx-border-color: transparent;" />
+                        </VBox>
+
+                        <!-- Type & Unité -->
+                        <HBox spacing="15.0">
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <Label text="🏷️  Type" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                <ComboBox fx:id="comboCategorie" prefWidth="220.0"
+                                          style="-fx-background-color: #F1F8E9; -fx-background-radius: 10px; -fx-padding: 4 10; -fx-font-size: 14px;" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <Label text="📏  Unité" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                <ComboBox fx:id="comboUnite" prefWidth="220.0"
+                                          style="-fx-background-color: #F1F8E9; -fx-background-radius: 10px; -fx-padding: 4 10; -fx-font-size: 14px;" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Quantité & Statut -->
+                        <HBox spacing="15.0">
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <Label text="⚖️  Quantité" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                <TextField fx:id="txtQuantite"
+                                           style="-fx-background-color: #F1F8E9; -fx-background-radius: 10px; -fx-border-radius: 10px; -fx-padding: 11 14; -fx-font-size: 14px; -fx-border-color: transparent;" />
+                            </VBox>
+                            <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                <Label text="📊  Statut" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                                <ComboBox fx:id="comboStatut" prefWidth="220.0"
+                                          style="-fx-background-color: #F1F8E9; -fx-background-radius: 10px; -fx-padding: 4 10; -fx-font-size: 14px;" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Date expiration -->
+                        <VBox spacing="5.0">
+                            <Label text="⏰  Date d'expiration" style="-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #424242;" />
+                            <DatePicker fx:id="dateExpiration"
+                                        style="-fx-background-color: #F1F8E9; -fx-background-radius: 10px; -fx-font-size: 14px;" prefWidth="460.0" />
+                        </VBox>
+
+                        <!-- Message -->
+                        <Label fx:id="lblMessage" text="" wrapText="true"
+                               style="-fx-font-size: 13px; -fx-font-weight: 600;" />
+
+                        <!-- Boutons -->
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                            <padding><Insets top="4.0" /></padding>
+                            <Button mnemonicParsing="false" onAction="#handleFermer"
+                                    style="-fx-background-color: #ECEFF1; -fx-text-fill: #546E7A; -fx-font-weight: bold; -fx-padding: 12 28; -fx-background-radius: 10px; -fx-cursor: hand; -fx-font-size: 14px;"
+                                    text="Fermer" />
+                            <Button mnemonicParsing="false" onAction="#handleModifier"
+                                    style="-fx-background-color: linear-gradient(to right, #1976D2, #1565C0); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 28; -fx-background-radius: 10px; -fx-cursor: hand; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, rgba(25,118,210,0.4), 8, 0, 0, 3);"
+                                    text="✅  Sauvegarder" />
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
