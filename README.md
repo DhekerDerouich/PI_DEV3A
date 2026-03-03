@@ -23,9 +23,9 @@ Ce projet a été développé dans le cadre du **PIDEV – 3ème Année Génie L
   - Divers services externes (CO2Signal, SunriseSunset, etc.)
 
 ## Academic Context
-Développé à **Esprit – École d’Ingénieurs – Tunisie**  
+Développé à **Esprit School of Engineering – Tunisia**
 PIDEV – 3A | Année universitaire 2025–2026  
-Équipe de 4 étudiants – Projet Intégré de Développement
+Équipe de 5 étudiants – Projet Intégré de Développement
 
 ## Fonctionnalités principales
 - Gestion complète des utilisateurs (Agriculteur, Responsable d’exploitation, Administrateur)
