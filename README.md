@@ -1,7 +1,7 @@
 # FarmVision – Plateforme de Gestion Intelligente pour l'Agriculture
 
 ## Overview
-Ce projet a été développé dans le cadre du **PIDEV – 3ème Année Génie Logiciel** à l’**École Supérieure Privée d’Ingénierie et de Technologies (Esprit)**  
+Ce projet a été développé dans le cadre du **PIDEV – 1ère Année enginner** à l’**École Supérieure Privée d’Ingénierie et de Technologies (Esprit)**  
 (Année universitaire 2025–2026).
 
 **FarmVision** est une application **desktop JavaFX** full-stack qui vise à moderniser la gestion agricole en Tunisie. Elle permet aux agriculteurs, responsables d’exploitation et administrateurs de gérer les utilisateurs, les équipements, le stock, les finances, les parcelles/cultures, ainsi que des fonctionnalités avancées comme les prédictions IA, les intégrations API externes (Google Merchant, InvenTree), la reconnaissance vocale (Vosk) et la détection de présence humaine.
